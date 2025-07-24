@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch CMake Target",
+            "type": "cppdbg",
+            "request": "launch",
+            // *** IMPORTANT: Adjust this path to your actual executable ***
+            // It will be in your CMake build directory (e.g., build/Debug/YourExeName.exe)
+            "program": "${workspaceFolder}/build/Engine", // <--- Adjust this line!
+            // Or if CMake Tools manages targets, it might be:
+            // "program": "${command:cmake.launchTargetPath}", 
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/build/", // Working directory is your project root
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb", // Ensure gdb.exe is in your PATH
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            // If you use CMake Tools, the build step is typically handled by it
+            // You might not need a preLaunchTask if you build explicitly via CMake Tools.
+            // However, you can add one to ensure the project is built before debugging.
+            // For CMake, the preLaunchTask could simply call the CMake build command:
+            // "preLaunchTask": "CMake Build" // If you define a task like this in tasks.json
+            // OR, often, CMake Tools itself can be configured to build before launching.
+        }
+    ]
+}

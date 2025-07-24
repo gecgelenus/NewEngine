@@ -1,8 +1,8 @@
 CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: \
- /home/talha/Desktop/MyProjects/Engine/src/vulkan_context.cpp \
+ /home/talha/Documents/NewEngine/src/vulkan_context.cpp \
  /usr/include/stdc-predef.h \
- /home/talha/Desktop/MyProjects/Engine/./include/vulkan_context.hpp \
- /home/talha/Desktop/MyProjects/Engine/./include/util.hpp \
+ /home/talha/Documents/NewEngine/./include/vulkan_context.hpp \
+ /home/talha/Documents/NewEngine/./include/util.hpp \
  /usr/include/vulkan/vulkan.hpp /usr/include/c++/11/algorithm \
  /usr/include/c++/11/utility \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
@@ -234,7 +234,7 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: \
  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
  /usr/include/c++/11/bits/fstream.tcc \
- /home/talha/Desktop/MyProjects/Engine/./deps/colorLog/colorlog.h \
+ /home/talha/Documents/NewEngine/./deps/colorLog/colorlog.h \
  /usr/include/glm/glm.hpp /usr/include/glm/detail/_fixes.hpp \
  /usr/include/c++/11/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
@@ -418,11 +418,11 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: \
  /usr/include/glm/ext/vector_uint1.hpp \
  /usr/include/glm/ext/vector_uint1_sized.hpp \
  /usr/include/glm/gtc/type_ptr.inl \
- /home/talha/Desktop/MyProjects/Engine/./include/vma.h \
- /home/talha/Desktop/MyProjects/Engine/deps/glfw-3.4/include/GLFW/glfw3.h \
+ /home/talha/Documents/NewEngine/./include/vma.h \
+ /home/talha/Documents/NewEngine/deps/glfw-3.4/include/GLFW/glfw3.h \
  /usr/include/GL/gl.h /usr/include/GL/glext.h \
  /usr/include/KHR/khrplatform.h \
- /home/talha/Desktop/MyProjects/Engine/./include/vma.h \
+ /home/talha/Documents/NewEngine/./include/vma.h \
  /usr/include/c++/11/cinttypes /usr/include/inttypes.h \
  /usr/include/c++/11/mutex /usr/include/c++/11/chrono \
  /usr/include/c++/11/ratio /usr/include/c++/11/ctime \

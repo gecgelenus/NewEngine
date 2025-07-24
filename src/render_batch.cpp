@@ -1,6 +1,8 @@
 #include "render_batch.hpp"
 #include <iostream>
-
+#include <glm/gtx/quaternion.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 RenderBatch::RenderBatch()
 {
@@ -893,7 +895,7 @@ void RenderBatch::updateModelMatrices()
 
 		glm::mat4 modelMat = glm::mat4(1.0f);
 		modelMat = glm::translate(modelMat, objects[i].transformation.translation);
-		modelMat = modelMat * glm::toMat4(objects[i].transformation.rotation);
+		modelMat = modelMat * glm::mat4_cast(objects[i].transformation.rotation);
 		modelMat = glm::scale(modelMat, objects[i].transformation.scale);
 
 

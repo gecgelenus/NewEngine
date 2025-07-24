@@ -1,9 +1,9 @@
 CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o: \
- /home/talha/Desktop/MyProjects/Engine/src/spirv_reflect.cpp \
+ /home/talha/Documents/NewEngine/src/spirv_reflect.cpp \
  /usr/include/stdc-predef.h \
- /home/talha/Desktop/MyProjects/Engine/src/spirv_reflect.c \
- /home/talha/Desktop/MyProjects/Engine/./include/spirv_reflect.h \
- /home/talha/Desktop/MyProjects/Engine/./include/spirv/unified1/spirv.h \
+ /home/talha/Documents/NewEngine/src/spirv_reflect.c \
+ /home/talha/Documents/NewEngine/./include/spirv_reflect.h \
+ /home/talha/Documents/NewEngine/./include/spirv/unified1/spirv.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
