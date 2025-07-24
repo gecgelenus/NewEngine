@@ -1,0 +1,93 @@
+#include "object.hpp"
+
+
+Object::~Object()
+{
+    for(ObjectPrimitive p: primitives){
+        if(p.dataBuffer != nullptr){
+            free(p.dataBuffer);
+            p.dataBuffer = nullptr;
+        }
+    }
+}
+
+
+Object::Object(vk_ctx& p_ctx):
+ ctx(p_ctx)
+ {
+
+ };
+
+void Object::formatData(std::vector<SpvReflectInterfaceVariable *> inputVars, uint32_t strideSize)
+{
+    for(int i = 0; i < primitives.size(); i++){
+        if(primitives[i].dataBuffer != nullptr){
+            free(primitives[i].dataBuffer);
+            primitives[i].dataBuffer = nullptr;
+        }
+        
+        primitives[i].dataBuffer = malloc(strideSize * primitives[i].vertices.size());
+        primitives[i].dataSize = strideSize * primitives[i].vertices.size();
+
+        std::cout << "Primitive vertex count: " << primitives[i].vertices.size() << std::endl;
+        serializePrimitive(inputVars, i, strideSize);
+    }
+
+    
+    
+}
+
+void Object::serializePrimitive(std::vector<SpvReflectInterfaceVariable *> inputVars, uint32_t index, uint32_t strideSize)
+{
+    uint32_t attribOffset = 0;
+    for(int i = 0; i < inputVars.size(); i++){
+        void* srcBuffer = nullptr;
+
+        if(strcmp(inputVars[i]->name, "pos") == 0){
+            srcBuffer =  primitives[index].vertices.data();
+        }else if(strcmp(inputVars[i]->name, "normal") == 0){
+            srcBuffer =  primitives[index].normals.data();
+        }else if(strcmp(inputVars[i]->name, "UV") == 0){
+            srcBuffer =  primitives[index].UV.data();
+        }else if(strcmp(inputVars[i]->name, "modelIndex") == 0 || strcmp(inputVars[i]->name, "materialIndex")){
+            continue;
+        }else{
+            std::cout << "WARNING: Unknown name on vertex attribute inputs!" << std::endl;
+            continue;
+        }
+        
+        
+        switch (inputVars[i]->format)
+        {
+        case VK_FORMAT_R32G32_SFLOAT:
+            for(int p = 0; p < primitives[index].vertices.size(); p++){
+                memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), srcBuffer + (p * sizeof(glm::vec2)), sizeof(glm::vec2));
+            }
+            attribOffset += sizeof(glm::vec2);
+            break;
+        case VK_FORMAT_R32G32B32_SFLOAT:
+            for(int p = 0; p < primitives[index].vertices.size(); p++){
+                memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), srcBuffer+ (p * sizeof(glm::vec3)), sizeof(glm::vec3));
+            }
+            attribOffset += sizeof(glm::vec3);
+
+            break;
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            for(int p = 0; p < primitives[index].vertices.size(); p++){
+                memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), srcBuffer+ (p * sizeof(glm::vec4)), sizeof(glm::vec4));
+            }
+            attribOffset += sizeof(glm::vec4);
+            
+            break;
+        default:
+            std::cout << "WARNING: Unknown data type on vertex attribute inputs!" << std::endl;
+            break;
+        }
+				
+        
+
+
+
+
+    }
+}

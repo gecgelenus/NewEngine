@@ -1,0 +1,8 @@
+C:/MyProjects/Engine/out/install/x64-Debug/lib/glfw3.lib
+C:/MyProjects/Engine/out/install/x64-Debug/include/GLFW/glfw3.h
+C:/MyProjects/Engine/out/install/x64-Debug/include/GLFW/glfw3native.h
+C:/MyProjects/Engine/out/install/x64-Debug/lib/cmake/glfw3/glfw3Config.cmake
+C:/MyProjects/Engine/out/install/x64-Debug/lib/cmake/glfw3/glfw3ConfigVersion.cmake
+C:/MyProjects/Engine/out/install/x64-Debug/lib/cmake/glfw3/glfw3Targets.cmake
+C:/MyProjects/Engine/out/install/x64-Debug/lib/cmake/glfw3/glfw3Targets-debug.cmake
+C:/MyProjects/Engine/out/install/x64-Debug/lib/pkgconfig/glfw3.pc

@@ -1,0 +1,108 @@
+#include <vulkan_context.hpp>
+#include <Interface.hpp>
+#include "vma.h"
+#include "graphic_pipeline.hpp"
+#include <iostream>
+#include <vulkan/vulkan.hpp>
+#include "object.hpp"
+#include "render_batch.hpp"
+#include "render_queue.hpp"
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
+
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#include "tiny_gltf.h"
+
+vk_ctx* pCtx = nullptr;
+
+
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (key == GLFW_KEY_ESCAPE) {
+        if (action == GLFW_PRESS && pCtx != nullptr) {
+            if(pCtx->camera.inputEnabled){
+                pCtx->camera.inputEnabled = false;
+            }else{
+                pCtx->camera.inputEnabled = true;
+            }
+        }
+
+    }
+ 
+}
+
+
+int main(){
+    
+    vk_ctx ctx{};
+    pCtx = &ctx;
+    
+    vk_instance_params instance_params{};
+    
+    instance_params.enableValidationLayers = true;
+    instance_params.windowTitle = "Engine";
+    instance_params.windowHeight = 1000;
+    instance_params.windowWidth = 1600;
+    instance_params.windowResizable = false;
+    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+
+    CTX::initContext(ctx, instance_params);
+    pCtx = &ctx;
+    {
+
+    INFO("Swapchain images", "Swapchain image size: %u", ctx.swapchainImageViews.size());
+    GraphicPipeline pipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+
+  
+
+    RenderBatch rBatch(ctx, "Test");
+    rBatch.graphicPipeline = pipeline;
+    std::string pathFile = "/home/talha/Desktop/dice.glb";
+    std::string pathFile2 = "/home/talha/Desktop/space.glb";
+
+    rBatch.processGltfFile(pathFile2);
+    rBatch.processGltfFile(pathFile);
+
+    rBatch.reloadObjectData();
+    rBatch.updateDrawCommands();
+    rBatch.updateTextureSets();
+
+   
+
+
+
+
+    
+
+
+    
+    RenderQueue renderQueue(ctx, instance_params);
+    renderQueue.pipeline = pipeline;
+    renderQueue.addBatch(rBatch);
+
+    glfwSetKeyCallback(ctx.window, key_callback);
+
+    while(!glfwWindowShouldClose(ctx.window)){
+            glfwPollEvents(); 
+            renderQueue.drawQueue();
+            for(int i = 0; i < renderQueue.batchList.size();i++){
+                renderQueue.batchList[i].updateModelMatrices();
+            }
+            CTX::AUX::uploadData(ctx, ctx.modelMatrixList.data(), ctx.deviceBuffer, ctx.modelMatrixList.size()*sizeof(glm::mat4), 0);
+    }
+    
+    // Wait for the device to finish all pending operations before destroying
+    vkDeviceWaitIdle(ctx.device);
+
+
+
+}
+    CTX::destroyContext(ctx, instance_params);
+    
+    return 0; // Return 0 for success
+}
