@@ -1,8 +1,8 @@
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o: \
- /home/talha/Documents/NewEngine/src/imgui/imgui_impl_glfw.cpp \
+ /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_impl_glfw.cpp \
  /usr/include/stdc-predef.h \
- /home/talha/Documents/NewEngine/./include/imgui/imgui.h \
- /home/talha/Documents/NewEngine/./include/imgui/imconfig.h \
+ /home/talha/Desktop/MyProjects/Engine/./include/imgui/imgui.h \
+ /home/talha/Desktop/MyProjects/Engine/./include/imgui/imconfig.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/float.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h /usr/include/string.h \
@@ -17,8 +17,8 @@ CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/strings.h /usr/include/assert.h \
- /home/talha/Documents/NewEngine/./include/imgui/imgui_impl_glfw.h \
- /home/talha/Documents/NewEngine/deps/glfw-3.4/include/GLFW/glfw3.h \
+ /home/talha/Desktop/MyProjects/Engine/./include/imgui/imgui_impl_glfw.h \
+ /home/talha/Desktop/MyProjects/Engine/deps/glfw-3.4/include/GLFW/glfw3.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \

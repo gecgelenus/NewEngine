@@ -52,25 +52,34 @@ int main(){
     instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
 
     CTX::initContext(ctx, instance_params);
+    
     pCtx = &ctx;
     {
 
     INFO("Swapchain images", "Swapchain image size: %u", ctx.swapchainImageViews.size());
-    GraphicPipeline pipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
-
+    GraphicPipeline* pipeline = new GraphicPipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    // TODO: MAKE THIS SHIT A POINTER SO ITS NOT FREED TWICE!!
   
 
     RenderBatch rBatch(ctx, "Test");
     rBatch.graphicPipeline = pipeline;
     std::string pathFile = "/home/talha/Desktop/dice.glb";
     std::string pathFile2 = "/home/talha/Desktop/space.glb";
+    std::string pathFile3 = "/home/talha/Desktop/vulkan.glb";
+
 
     rBatch.processGltfFile(pathFile2);
     rBatch.processGltfFile(pathFile);
+    rBatch.processGltfFile(pathFile3);
+
 
     rBatch.reloadObjectData();
     rBatch.updateDrawCommands();
     rBatch.updateTextureSets();
+
+    rBatch.objects[0]->transformation.translation = glm::vec3(1.0f, 0.0f, 0.0f);
+    rBatch.objects[1]->transformation.translation = glm::vec3(-1.0f, 0.0f, 0.0f);
+    
 
    
 
@@ -82,26 +91,33 @@ int main(){
 
     
     RenderQueue renderQueue(ctx, instance_params);
-    renderQueue.pipeline = pipeline;
-    renderQueue.addBatch(rBatch);
+    renderQueue.addBatch(&rBatch);
+
 
     glfwSetKeyCallback(ctx.window, key_callback);
+    for(int i = 0; i < renderQueue.batchList.size();i++){
+        renderQueue.batchList[i]->graphicPipeline->pushConstant.modelBufferAddress = ctx.bufferAddress;
+    }
 
     while(!glfwWindowShouldClose(ctx.window)){
             glfwPollEvents(); 
-            renderQueue.drawQueue();
             for(int i = 0; i < renderQueue.batchList.size();i++){
-                renderQueue.batchList[i].updateModelMatrices();
+                renderQueue.batchList[i]->updateModelMatrices();
             }
             CTX::AUX::uploadData(ctx, ctx.modelMatrixList.data(), ctx.deviceBuffer, ctx.modelMatrixList.size()*sizeof(glm::mat4), 0);
+            renderQueue.drawQueue();
+            
     }
     
     // Wait for the device to finish all pending operations before destroying
     vkDeviceWaitIdle(ctx.device);
 
+    
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
-
-}
+    }
     CTX::destroyContext(ctx, instance_params);
     
     return 0; // Return 0 for success

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/talha/Documents/NewEngine
+CMAKE_SOURCE_DIR = /home/talha/Desktop/MyProjects/Engine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/talha/Documents/NewEngine/build
+CMAKE_BINARY_DIR = /home/talha/Desktop/MyProjects/Engine/build
 
 # Utility rule file for uninstall.
 
@@ -67,7 +67,7 @@ include deps/glfw-3.4/CMakeFiles/uninstall.dir/compiler_depend.make
 include deps/glfw-3.4/CMakeFiles/uninstall.dir/progress.make
 
 deps/glfw-3.4/CMakeFiles/uninstall:
-	cd /home/talha/Documents/NewEngine/build/deps/glfw-3.4 && /usr/bin/cmake -P /home/talha/Documents/NewEngine/build/deps/glfw-3.4/cmake_uninstall.cmake
+	cd /home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4 && /usr/bin/cmake -P /home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4/cmake_uninstall.cmake
 
 uninstall: deps/glfw-3.4/CMakeFiles/uninstall
 uninstall: deps/glfw-3.4/CMakeFiles/uninstall.dir/build.make
@@ -78,10 +78,10 @@ deps/glfw-3.4/CMakeFiles/uninstall.dir/build: uninstall
 .PHONY : deps/glfw-3.4/CMakeFiles/uninstall.dir/build
 
 deps/glfw-3.4/CMakeFiles/uninstall.dir/clean:
-	cd /home/talha/Documents/NewEngine/build/deps/glfw-3.4 && $(CMAKE_COMMAND) -P CMakeFiles/uninstall.dir/cmake_clean.cmake
+	cd /home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4 && $(CMAKE_COMMAND) -P CMakeFiles/uninstall.dir/cmake_clean.cmake
 .PHONY : deps/glfw-3.4/CMakeFiles/uninstall.dir/clean
 
 deps/glfw-3.4/CMakeFiles/uninstall.dir/depend:
-	cd /home/talha/Documents/NewEngine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/talha/Documents/NewEngine /home/talha/Documents/NewEngine/deps/glfw-3.4 /home/talha/Documents/NewEngine/build /home/talha/Documents/NewEngine/build/deps/glfw-3.4 /home/talha/Documents/NewEngine/build/deps/glfw-3.4/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/talha/Desktop/MyProjects/Engine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/talha/Desktop/MyProjects/Engine /home/talha/Desktop/MyProjects/Engine/deps/glfw-3.4 /home/talha/Desktop/MyProjects/Engine/build /home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4 /home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/glfw-3.4/CMakeFiles/uninstall.dir/depend
 

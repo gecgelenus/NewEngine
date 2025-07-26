@@ -1,6 +1,7 @@
 CMakeFiles/Engine.dir/src/util.cpp.o: \
- /home/talha/Documents/NewEngine/src/util.cpp /usr/include/stdc-predef.h \
- /home/talha/Documents/NewEngine/./include/util.hpp \
+ /home/talha/Desktop/MyProjects/Engine/src/util.cpp \
+ /usr/include/stdc-predef.h \
+ /home/talha/Desktop/MyProjects/Engine/./include/util.hpp \
  /usr/include/vulkan/vulkan.hpp /usr/include/c++/11/algorithm \
  /usr/include/c++/11/utility \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
@@ -232,7 +233,7 @@ CMakeFiles/Engine.dir/src/util.cpp.o: \
  /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
  /usr/include/c++/11/bits/fstream.tcc \
- /home/talha/Documents/NewEngine/./deps/colorLog/colorlog.h \
+ /home/talha/Desktop/MyProjects/Engine/./deps/colorLog/colorlog.h \
  /usr/include/glm/glm.hpp /usr/include/glm/detail/_fixes.hpp \
  /usr/include/c++/11/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \

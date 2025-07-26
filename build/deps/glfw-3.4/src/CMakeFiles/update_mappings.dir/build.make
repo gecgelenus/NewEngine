@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/talha/Documents/NewEngine
+CMAKE_SOURCE_DIR = /home/talha/Desktop/MyProjects/Engine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/talha/Documents/NewEngine/build
+CMAKE_BINARY_DIR = /home/talha/Desktop/MyProjects/Engine/build
 
 # Utility rule file for update_mappings.
 
@@ -67,8 +67,8 @@ include deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/compiler_depend.make
 include deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/progress.make
 
 deps/glfw-3.4/src/CMakeFiles/update_mappings:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Updating gamepad mappings from upstream repository"
-	cd /home/talha/Documents/NewEngine/deps/glfw-3.4/src && /usr/bin/cmake -P /home/talha/Documents/NewEngine/deps/glfw-3.4/CMake/GenerateMappings.cmake mappings.h.in mappings.h
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Updating gamepad mappings from upstream repository"
+	cd /home/talha/Desktop/MyProjects/Engine/deps/glfw-3.4/src && /usr/bin/cmake -P /home/talha/Desktop/MyProjects/Engine/deps/glfw-3.4/CMake/GenerateMappings.cmake mappings.h.in mappings.h
 
 update_mappings: deps/glfw-3.4/src/CMakeFiles/update_mappings
 update_mappings: deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/build.make
@@ -79,10 +79,10 @@ deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/build: update_mappings
 .PHONY : deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/build
 
 deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/clean:
-	cd /home/talha/Documents/NewEngine/build/deps/glfw-3.4/src && $(CMAKE_COMMAND) -P CMakeFiles/update_mappings.dir/cmake_clean.cmake
+	cd /home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4/src && $(CMAKE_COMMAND) -P CMakeFiles/update_mappings.dir/cmake_clean.cmake
 .PHONY : deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/clean
 
 deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/depend:
-	cd /home/talha/Documents/NewEngine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/talha/Documents/NewEngine /home/talha/Documents/NewEngine/deps/glfw-3.4/src /home/talha/Documents/NewEngine/build /home/talha/Documents/NewEngine/build/deps/glfw-3.4/src /home/talha/Documents/NewEngine/build/deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/talha/Desktop/MyProjects/Engine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/talha/Desktop/MyProjects/Engine /home/talha/Desktop/MyProjects/Engine/deps/glfw-3.4/src /home/talha/Desktop/MyProjects/Engine/build /home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4/src /home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/depend
 

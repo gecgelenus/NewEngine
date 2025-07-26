@@ -10,6 +10,8 @@
 
 struct PushConstant{
     uint64_t modelBufferAddress;
+    uint64_t materialBufferAddress;
+
 };
 
 
@@ -54,6 +56,8 @@ public:
 
 
     vk_ctx ctx;
+
+    bool destroyed = false;
 
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSetsVP;

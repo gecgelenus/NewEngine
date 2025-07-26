@@ -1,5 +1,5 @@
 #pragma once
-
+#include <unordered_map>
 #include "util.hpp"
 #include "vma.h"
 
@@ -8,6 +8,10 @@
 #include <stdexcept>
 
 #define DEBUG_CTX "Vulkan Context"
+
+
+
+class Object;
 
 struct InstanceInfo{
     int32_t modelIndex;
@@ -18,14 +22,29 @@ struct InstanceInfo{
 struct ObjectTransformation{
     glm::vec3 translation;
     glm::quat rotation;
+
     glm::vec3 scale;
+    glm::mat4 matrix;
+
+    
+
 };
 
+
+struct Material{
+    int32_t textureEnabled;
+    int32_t baseColorFactorEnabled;
+
+    int32_t textureIndex;
+    int32_t padding;
+    glm::vec4 baseColorFactor;
+};
 
 
 struct ObjectPrimitive{
     std::vector<glm::vec3> vertices;
     std::vector<glm::vec3> normals;
+    std::vector<glm::vec4> colors;
     std::vector<glm::vec2> UV;
 
     std::vector<uint32_t> indices;
@@ -124,6 +143,7 @@ struct vk_ctx
     VmaAllocation indexBufferAllocation;
     uint32_t indexLast = 0;
 
+    std::unordered_map<VmaAllocation, VkBuffer> bufferAllocations; 
 
     VkBuffer instanceBuffer;
     VmaAllocation instanceBufferAllocation;
@@ -139,10 +159,20 @@ struct vk_ctx
     std::vector<bool> modelMatrixCheck;
     std::vector<glm::mat4> modelMatrixList;
 
+    std::vector<std::string> materialNames;
+    std::vector<Material> materialList;
+
+    uint32_t objectIDNext = 0;
+    std::unordered_map<uint32_t, Object*> objectIDMap;
+
 
     VkBuffer deviceBuffer;
     VmaAllocation deviceBufferAllocation;
     VkDeviceAddress bufferAddress;
+    
+    VkBuffer materialBuffer;
+    VmaAllocation materialBufferAllocation;
+    VkDeviceAddress materialBufferAddress;
     
     
     GLFWwindow* window;
@@ -160,13 +190,13 @@ struct vk_ctx
 	VkImageView colorImageView;
 
     VkCommandPool commandPool;
+    VkCommandPool commandPoolCopy;
+
     std::vector<VkCommandBuffer> commandBuffers;
     Camera camera;
     std::vector<TextureSlot> textureSet;
     
-    VkBuffer materialBuffer;
-    VmaAllocation materialBufferAllocation;
-    
+
 
 };
 

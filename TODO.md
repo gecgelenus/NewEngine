@@ -1,1 +1,3 @@
-Graphic pipeline will be created with the help of spirv reflect
+Graphic pipeline double free bug: dont copy pipeline into renderbatch
+Make object list on renderbatch pointers. Dont copy them.
+

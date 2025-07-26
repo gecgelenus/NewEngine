@@ -15,7 +15,9 @@ Object::~Object()
 Object::Object(vk_ctx& p_ctx):
  ctx(p_ctx)
  {
-
+    objectID = ctx.objectIDNext;
+    ctx.objectIDNext++;
+    ctx.objectIDMap.insert({objectID, this});
  };
 
 void Object::formatData(std::vector<SpvReflectInterfaceVariable *> inputVars, uint32_t strideSize)
@@ -29,7 +31,7 @@ void Object::formatData(std::vector<SpvReflectInterfaceVariable *> inputVars, ui
         primitives[i].dataBuffer = malloc(strideSize * primitives[i].vertices.size());
         primitives[i].dataSize = strideSize * primitives[i].vertices.size();
 
-        std::cout << "Primitive vertex count: " << primitives[i].vertices.size() << std::endl;
+        //std::cout << "Primitive vertex count: " << primitives[i].vertices.size() << std::endl;
         serializePrimitive(inputVars, i, strideSize);
     }
 
@@ -41,18 +43,44 @@ void Object::serializePrimitive(std::vector<SpvReflectInterfaceVariable *> input
 {
     uint32_t attribOffset = 0;
     for(int i = 0; i < inputVars.size(); i++){
+        
+        std::vector<float> defaultArr(10, 1.0f);
         void* srcBuffer = nullptr;
 
+        bool defaultData = false;
+
         if(strcmp(inputVars[i]->name, "pos") == 0){
-            srcBuffer =  primitives[index].vertices.data();
+            if(primitives[index].vertices.size() > 0){
+                srcBuffer =  primitives[index].vertices.data();
+            }else{
+                defaultData = true;
+            }
         }else if(strcmp(inputVars[i]->name, "normal") == 0){
-            srcBuffer =  primitives[index].normals.data();
+
+            if(primitives[index].normals.size() > 0){
+                srcBuffer =  primitives[index].normals.data();
+
+            }else{
+                defaultData = true;
+            }
         }else if(strcmp(inputVars[i]->name, "UV") == 0){
-            srcBuffer =  primitives[index].UV.data();
-        }else if(strcmp(inputVars[i]->name, "modelIndex") == 0 || strcmp(inputVars[i]->name, "materialIndex")){
+
+            if(primitives[index].UV.size() > 0){
+                srcBuffer =  primitives[index].UV.data();
+            }else{
+                defaultData = true;
+            }
+        }else if(strcmp(inputVars[i]->name, "color") == 0){
+
+            if(primitives[index].colors.size() > 0){
+                srcBuffer =  primitives[index].colors.data();
+            }else{
+                defaultData = true;
+            }
+        }else if(strcmp(inputVars[i]->name, "modelIndex") == 0 || strcmp(inputVars[i]->name, "materialIndex") == 0){
             continue;
         }else{
-            std::cout << "WARNING: Unknown name on vertex attribute inputs!" << std::endl;
+            std::cout << "WARNING: Unknown name on vertex attribute inputs: " << inputVars[i]->name << std::endl;
             continue;
         }
         
@@ -60,12 +88,33 @@ void Object::serializePrimitive(std::vector<SpvReflectInterfaceVariable *> input
         switch (inputVars[i]->format)
         {
         case VK_FORMAT_R32G32_SFLOAT:
+            if(defaultData){
+                for(int p = 0; p < primitives[index].vertices.size(); p++){
+                    memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), defaultArr.data(), sizeof(glm::vec2));
+                }
+                attribOffset += sizeof(glm::vec2);
+
+                break;
+            }
+
             for(int p = 0; p < primitives[index].vertices.size(); p++){
                 memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), srcBuffer + (p * sizeof(glm::vec2)), sizeof(glm::vec2));
             }
             attribOffset += sizeof(glm::vec2);
             break;
         case VK_FORMAT_R32G32B32_SFLOAT:
+
+            if(defaultData){
+                for(int p = 0; p < primitives[index].vertices.size(); p++){
+                    memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), defaultArr.data(), sizeof(glm::vec3));
+                }
+                attribOffset += sizeof(glm::vec3);
+
+                break;
+
+            }
+
+
             for(int p = 0; p < primitives[index].vertices.size(); p++){
                 memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), srcBuffer+ (p * sizeof(glm::vec3)), sizeof(glm::vec3));
             }
@@ -73,6 +122,18 @@ void Object::serializePrimitive(std::vector<SpvReflectInterfaceVariable *> input
 
             break;
         case VK_FORMAT_R32G32B32A32_SFLOAT:
+
+            if(defaultData){
+                for(int p = 0; p < primitives[index].vertices.size(); p++){
+                    memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), defaultArr.data(), sizeof(glm::vec4));
+                }
+                attribOffset += sizeof(glm::vec4);
+
+                break;
+
+            }
+
+
             for(int p = 0; p < primitives[index].vertices.size(); p++){
                 memcpy(primitives[index].dataBuffer + (p * strideSize) + (attribOffset), srcBuffer+ (p * sizeof(glm::vec4)), sizeof(glm::vec4));
             }

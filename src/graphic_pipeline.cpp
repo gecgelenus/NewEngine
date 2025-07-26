@@ -36,17 +36,33 @@ GraphicPipeline::GraphicPipeline(const vk_ctx &context, const std::string &p_ver
 
 GraphicPipeline::~GraphicPipeline()
 {
+	if(!destroyed){
+		//spvReflectDestroyShaderModule(&vertexShaderReflect);
+		//spvReflectDestroyShaderModule(&fragmentShaderReflect);
 
-    spvReflectDestroyShaderModule(&vertexShaderReflect);
-    spvReflectDestroyShaderModule(&fragmentShaderReflect);
+		vkDestroyShaderModule(ctx.device, vertexShader, nullptr);
+		vkDestroyShaderModule(ctx.device, fragmentShader, nullptr);
 
-    vkDestroyShaderModule(ctx.device, vertexShader, nullptr);
-    vkDestroyShaderModule(ctx.device, fragmentShader, nullptr);
+		vkDestroyPipeline(ctx.device, pipeline, nullptr);
+		vkDestroyPipelineLayout(ctx.device, pipelineLayout, nullptr);
+		
+		vkDestroyDescriptorPool(ctx.device, descriptorPool, nullptr);
 
-    vkDestroyPipeline(ctx.device, pipeline, nullptr);
-    vkDestroyPipelineLayout(ctx.device, pipelineLayout, nullptr);
+		for(int i = 0; i < ctx.swapchainImageViews.size();i++){
+			ctx.bufferAllocations.erase(ModelMatrixBufferAllocation[i]);
+			vmaDestroyBuffer(ctx.allocator, ModelMatrixBuffer[i], ModelMatrixBufferAllocation[i]);
+		}
+
+		ctx.bufferAllocations.erase(vertexBufferAllocation);
+		vmaDestroyBuffer(ctx.allocator, vertexBuffer, vertexBufferAllocation);
+		vmaDestroyBuffer(ctx.allocator, indexBuffer, indexBufferAllocation);
+		vmaDestroyBuffer(ctx.allocator, drawBuffer, drawBufferAllocation);
 
 
+		destroyed = true;
+	}
+
+    
 }
 
 VkShaderModule GraphicPipeline::createShaderModule(const vk_ctx& context, const std::vector<char>& code)
@@ -388,7 +404,8 @@ VmaAllocationInfo GraphicPipeline::createBuffer(VkDeviceSize size, int memoryTyp
 	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
 	allocInfo.flags = memoryType;
 	vmaCreateBuffer(ctx.allocator, &bufferInfo, &allocInfo, &buffer, &allocation, &info);
-
+	ctx.bufferAllocations.insert({allocation, buffer});
+	std::cout << "Created VkBuffer handle: " << (void*)buffer << " with allocation: " << (void*)allocation << std::endl;
 	return info;
 }
 
@@ -397,7 +414,7 @@ void GraphicPipeline::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevic
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = ctx.commandPool;
+	allocInfo.commandPool = ctx.commandPoolCopy;
 	allocInfo.commandBufferCount = 1;
 
 	VkCommandBuffer commandBuffer;
@@ -425,7 +442,7 @@ void GraphicPipeline::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevic
 	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(ctx.graphicsQueue); // TODO: Implement async transfer
 
-	vkFreeCommandBuffers(ctx.device, ctx.commandPool, 1, &commandBuffer);
+	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
 }
 
 void GraphicPipeline::createDescriptorPool()
@@ -473,6 +490,7 @@ void GraphicPipeline::allocateDescriptorSets()
 	if (vkAllocateDescriptorSets(ctx.device, &VPallocInfo, descriptorSetsVP.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
+	
 
 	std::vector<VkDescriptorSetLayout> Modellayouts(ctx.swapchainImageViews.size(), ctx.setModelMatLayout);
 

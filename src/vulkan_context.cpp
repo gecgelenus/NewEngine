@@ -595,6 +595,7 @@ size_t CTX::AUX::allocateIndexMemory(vk_ctx &context, size_t size)
 
 void CTX::AUX::uploadData(vk_ctx &ctx, void *p_data, VkBuffer p_dstBuffer, size_t p_size, uint64_t p_dstOffset)
 {
+        
         VkBuffer stagingBuffer;
         VmaAllocation stagingBufferAllocation;
 
@@ -610,8 +611,8 @@ void CTX::AUX::uploadData(vk_ctx &ctx, void *p_data, VkBuffer p_dstBuffer, size_
 
 
         CTX::AUX::copyBuffer(ctx, stagingBuffer, p_dstBuffer, p_size,0 ,p_dstOffset);
-
-        vmaFreeMemory(ctx.allocator, stagingBufferAllocation);
+        ctx.bufferAllocations.erase(stagingBufferAllocation);
+        vmaDestroyBuffer(ctx.allocator, stagingBuffer, stagingBufferAllocation);
 }
 
 void CTX::createCommandPool(vk_ctx& context)
@@ -622,6 +623,20 @@ void CTX::createCommandPool(vk_ctx& context)
     poolInfo.queueFamilyIndex = context.graphicsFamilyIndex;
 
     if (vkCreateCommandPool(context.device, &poolInfo, nullptr, &(context.commandPool)) != VK_SUCCESS)
+    {
+        ALERT(DEBUG_CTX, "Failed to create command pool");
+        throw std::runtime_error("Failed to create command pool!");
+    }else{
+        SUCCESS(DEBUG_CTX, "Created command buffer");
+    }
+
+
+    VkCommandPoolCreateInfo poolInfo2{};
+    poolInfo2.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo2.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolInfo2.queueFamilyIndex = context.graphicsFamilyIndex;
+
+    if (vkCreateCommandPool(context.device, &poolInfo2, nullptr, &(context.commandPoolCopy)) != VK_SUCCESS)
     {
         ALERT(DEBUG_CTX, "Failed to create command pool");
         throw std::runtime_error("Failed to create command pool!");
@@ -784,6 +799,7 @@ void CTX::createCameraResources(vk_ctx& ctx){
 			VMA_ALLOCATION_CREATE_MAPPED_BIT,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, ctx.camera.buffers[i], ctx.camera.bufferAllocations[i]);
 
+
 		ctx.camera.mappedData[i] = info.pMappedData;
 	}
 
@@ -815,7 +831,8 @@ VmaAllocationInfo CTX::AUX::createBuffer(vk_ctx& context, VkDeviceSize size, int
 	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
 	allocInfo.flags = memoryType;
 	vmaCreateBuffer(context.allocator, &bufferInfo, &allocInfo, &buffer, &allocation, &info);
-
+    
+    context.bufferAllocations.insert({allocation, buffer});
 	return info;
 }
 
@@ -846,9 +863,23 @@ void CTX::destroyContext(vk_ctx& context, const vk_instance_params& p_instance_p
     INFO(DEBUG_CTX, "Starting cleanup routine of vulkan context");
     VERBOSE(DEBUG_CTX, "Destroying command pool...");
     vkDestroyCommandPool(context.device, context.commandPool, nullptr);
-    // When command pool is destroyed, all command buffers are also implicitly freed.
+    vkDestroyCommandPool(context.device, context.commandPoolCopy, nullptr);
     
-    
+    context.bufferAllocations.erase(context.deviceBufferAllocation);
+    vmaDestroyBuffer(context.allocator, context.deviceBuffer, context.deviceBufferAllocation);
+
+    context.bufferAllocations.erase(context.materialBufferAllocation);
+    vmaDestroyBuffer(context.allocator, context.materialBuffer, context.materialBufferAllocation);
+
+    vkDestroyDescriptorSetLayout(context.device, context.setCameraLayout, nullptr);
+    vkDestroyDescriptorSetLayout(context.device, context.setModelMatLayout, nullptr);
+    vkDestroyDescriptorSetLayout(context.device, context.setTextureLayout, nullptr);
+
+
+    for(int i = 0; i < context.camera.bufferAllocations.size();i++){
+        context.bufferAllocations.erase(context.camera.bufferAllocations[i]);
+        vmaDestroyBuffer(context.allocator, context.camera.buffers[i], context.camera.bufferAllocations[i]);
+    }
 
     VERBOSE(DEBUG_CTX, "Destroying depth image view...");
     vkDestroyImageView(context.device, context.depthImageView, nullptr);
@@ -872,6 +903,15 @@ void CTX::destroyContext(vk_ctx& context, const vk_instance_params& p_instance_p
 
     VERBOSE(DEBUG_CTX, "Destroying swapchain...");
     vkDestroySwapchainKHR(context.device, context.swapchain, nullptr);
+
+    if(context.bufferAllocations.size() > 0){
+        std::cout << "Dangling buffers: " << context.bufferAllocations.size() << std::endl;
+        for(auto alloc: context.bufferAllocations){
+            vmaDestroyBuffer(context.allocator, alloc.second, alloc.first);
+        }
+    }
+
+    vmaDestroyAllocator(context.allocator);
 
     VERBOSE(DEBUG_CTX, "Destroying logical device...");
     vkDestroyDevice(context.device, nullptr);
@@ -922,6 +962,16 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
     ctx.bufferAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfo);
 
 
+
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*50, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+    ctx.materialBuffer, ctx.materialBufferAllocation);
+
+    VkBufferDeviceAddressInfo addressInfoMaterial{};
+    addressInfoMaterial.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+    addressInfoMaterial.buffer = ctx.materialBuffer;
+
+    ctx.materialBufferAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfoMaterial);
 }
 
 
@@ -930,7 +980,7 @@ void CTX::AUX::copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, V
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = ctx.commandPool;
+	allocInfo.commandPool = ctx.commandPoolCopy;
 	allocInfo.commandBufferCount = 1;
 
 	VkCommandBuffer commandBuffer;
@@ -958,5 +1008,5 @@ void CTX::AUX::copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, V
 	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(ctx.graphicsQueue); // TODO: Implement async transfer
 
-	vkFreeCommandBuffers(ctx.device, ctx.commandPool, 1, &commandBuffer);
+	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
 }

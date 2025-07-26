@@ -1,14 +1,9 @@
 #include "render_batch.hpp"
 #include <iostream>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-RenderBatch::RenderBatch()
-{
-}
 
-RenderBatch::RenderBatch(const vk_ctx& p_ctx, const std::string & p_name)
+
+RenderBatch::RenderBatch(vk_ctx& p_ctx, const std::string & p_name)
 	: ctx(p_ctx)
 {
     name = p_name;
@@ -24,11 +19,11 @@ void RenderBatch::__RenderBatch()
 
 	cpuIndexBuffer.shrink_to_fit();
 
-    createBuffer((VkDeviceSize)100000000, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    createBuffer((VkDeviceSize)SIZE_MB*200, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     vertexBuffer, vertexBufferAllocation);
 
-    createBuffer((VkDeviceSize)10000000, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    createBuffer((VkDeviceSize)SIZE_MB*20, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		indexBuffer, indexBufferAllocation);
 
@@ -45,18 +40,38 @@ void RenderBatch::__RenderBatch()
 
 RenderBatch::~RenderBatch()
 {
-    vmaFreeMemory(ctx.allocator, vertexBufferAllocation);
-    vmaFreeMemory(ctx.allocator, indexBufferAllocation);
-    vmaFreeMemory(ctx.allocator, drawBufferAllocation);
-    vmaFreeMemory(ctx.allocator, instanceBufferAllocation);
+    vmaDestroyBuffer(ctx.allocator, vertexBuffer ,vertexBufferAllocation);
+	ctx.bufferAllocations.erase(vertexBufferAllocation);
+    
+	vmaDestroyBuffer(ctx.allocator, indexBuffer ,indexBufferAllocation);
+	ctx.bufferAllocations.erase(indexBufferAllocation);
+    
+	vmaDestroyBuffer(ctx.allocator, instanceBuffer ,instanceBufferAllocation);
+	ctx.bufferAllocations.erase(instanceBufferAllocation);
+    
+	vmaDestroyBuffer(ctx.allocator, drawBuffer ,drawBufferAllocation);
+	ctx.bufferAllocations.erase(drawBufferAllocation);
 
+	for(VkSampler s: samplers){
+		vkDestroySampler(ctx.device, s, nullptr);
+	}
+
+	for(auto i: images){
+		vmaDestroyImage(ctx.allocator, i.second, i.first);
+	}
 	
+	for(VkImageView iw: imageViews){
+		vkDestroyImageView(ctx.device, iw, nullptr);
+	}
+	
+	
+	delete graphicPipeline;
 
 }
 
-void RenderBatch::addObject(Object &p_object)
+void RenderBatch::addObject(Object *p_object)
 {
-	
+	/*
 
 	p_object.vertexIndex = cpuVertexBuffer.size();
 	cpuVertexBuffer.insert(cpuVertexBuffer.end(), p_object.vertexData.begin(), p_object.vertexData.end());
@@ -66,7 +81,7 @@ void RenderBatch::addObject(Object &p_object)
 	uploadData(cpuVertexBuffer.data(), vertexBuffer, cpuVertexBuffer.size() * sizeof(float), 0);
 	uploadData(cpuIndexBuffer.data(), indexBuffer, cpuIndexBuffer.size() * sizeof(uint32_t), 0);
 	updateDrawCommands();
-
+	*/
 }
 
 void RenderBatch::readGLTF(std::string &path)
@@ -113,44 +128,56 @@ void RenderBatch::processGltfFile(std::string& path) {
     for (int nodeIdx : scene.nodes) {
         const tinygltf::Node& node = model.nodes[nodeIdx];
         
-        // Recursively process nodes and their children
-		ObjectTransformation t;
-		t.translation = glm::vec3(1.0f);
-		t.rotation = glm::quat();
-		t.scale = glm::vec3(1.0f);
 
-        processNode(model, path, node, t); // Start with identity matrix for root
+        processNode(model, path, node, nullptr); // Start with identity matrix for root
 
     }
-
+	CTX::AUX::uploadData(ctx, ctx.materialList.data(), ctx.materialBuffer, ctx.materialList.size()*sizeof(Material), 0);
+	graphicPipeline->pushConstant.materialBufferAddress = ctx.materialBufferAddress;
 }
 
 // Recursive helper function to traverse the node hierarchy
-void RenderBatch::processNode(tinygltf::Model& model, std::string& path, const tinygltf::Node& node, ObjectTransformation parentTransform) {
+void RenderBatch::processNode(tinygltf::Model& model, std::string& path, const tinygltf::Node& node, Object* parentObject) {
     
-	Object obj(ctx);
-	obj.modelIndex = ctx.modelMatrixCheck.size();
+	Object* obj = new Object(ctx);
+
+	obj->parentObject = parentObject;
+	obj->modelIndex = ctx.modelMatrixCheck.size();
 
 	ctx.modelMatrixCheck.push_back(true);
 	ctx.modelMatrixList.push_back(glm::mat4(1.0f));
 
-	obj.name = node.name;
-    std::cout << "  Node: " << node.name << std::endl;
+	obj->name = node.name;
 
-	obj.parentTransformation = parentTransform;
 
-	obj.transformation.translation = glm::vec3(0.0f, 0.0f, 0.0f); // Default to no translation
-    obj.transformation.rotation = glm::identity<glm::quat>();    // Default to no rotation (identity quaternion)
-    obj.transformation.scale = glm::vec3(1.0f, 1.0f, 1.0f);      // Default to no scaling (identity scale)
+
+	if(parentObject != nullptr){
+		std::cout << "Loading object: " << obj->name  << "(" << obj->objectID << ") child of" << parentObject->name << std::endl;
+
+		parentObject->childObjects.push_back(obj);
+		obj->parentTransformation = parentObject->transformation;
+
+		obj->transformation.translation = glm::vec3(0.0f); 
+		obj->transformation.rotation = glm::quat();    
+		obj->transformation.scale = glm::vec3(1.0f);      
+	}else{
+		std::cout << "Loading object: " << obj->name << "(" << obj->objectID << ")" <<std::endl;
+
+		obj->parentTransformation = {};
+
+		obj->transformation.translation = glm::vec3(1.0f); // Default to no translation
+		obj->transformation.rotation = glm::quat();    // Default to no rotation (identity quaternion)
+		obj->transformation.scale = glm::vec3(1.0f);      // Default to no scaling (identity scale)
+	}
 
     // Check if translation is provided, otherwise use default
     if (node.translation.size() == 3) {
-        obj.transformation.translation = glm::vec3(node.translation[0], node.translation[1], node.translation[2]);
-    }
+        obj->transformation.translation = glm::vec3(node.translation[0], node.translation[1], node.translation[2]);
+	}
     // Check if rotation is provided, otherwise use default
     if (node.rotation.size() == 4) {
         // Correctly construct glm::quat from glTF (x, y, z, w) order
-        obj.transformation.rotation = glm::quat(
+        obj->transformation.rotation = glm::quat(
             node.rotation[3], // w
             node.rotation[0], // x
             node.rotation[1], // y
@@ -159,19 +186,22 @@ void RenderBatch::processNode(tinygltf::Model& model, std::string& path, const t
     }
     // Check if scale is provided, otherwise use default
     if (node.scale.size() == 3) {
-        obj.transformation.scale = glm::vec3(node.scale[0], node.scale[1], node.scale[2]);
+        obj->transformation.scale = glm::vec3(node.scale[0], node.scale[1], node.scale[2]);
     }
+
+
+
+
+
     // If this node has a mesh, process it
     if (node.mesh > -1) {
         const tinygltf::Mesh& mesh = model.meshes[node.mesh];
-        std::cout << "    Associated Mesh: " << mesh.name << " (Index: " << node.mesh << ")" << std::endl;
 
         // Iterate over primitives within the mesh
         for (const auto& primitive : mesh.primitives) {
 
 			ObjectPrimitive tmpPrimitive;
 			tmpPrimitive.mode = primitive.mode;
-            std::cout << "      Primitive (Mode: " << primitive.mode << ")" << std::endl;
             
 			if (primitive.attributes.count("POSITION")) {
                 const tinygltf::Accessor& accessor = model.accessors[primitive.attributes.at("POSITION")];
@@ -240,21 +270,90 @@ void RenderBatch::processNode(tinygltf::Model& model, std::string& path, const t
                     tmpPrimitive.UV.emplace_back(values[0], values[1]);
                 }
             }
+
+			    if (primitive.attributes.count("COLOR_0")) {
+                const tinygltf::Accessor& accessor = model.accessors[primitive.attributes.at("COLOR_0")];
+                const tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
+                const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
+
+                const unsigned char* dataPtr = &buffer.data[bufferView.byteOffset + accessor.byteOffset];
+                size_t stride = accessor.ByteStride(bufferView);
+
+                // Vertex colors can be VEC3 (RGB) or VEC4 (RGBA)
+                // They can also have different component types (FLOAT, UNSIGNED_BYTE, UNSIGNED_SHORT)
+                // When componentType is not FLOAT, they should be normalized in the shader.
+                // Here, we'll read them into floats, normalizing if necessary.
+
+                for (size_t i = 0; i < accessor.count; ++i) {
+                    glm::vec4 color(0.0f, 0.0f, 0.0f, 1.0f); // Default to opaque black
+
+                    if (accessor.type == TINYGLTF_TYPE_VEC3) {
+                        if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+                            const float* values = reinterpret_cast<const float*>(dataPtr + i * stride);
+                            color = glm::vec4(values[0], values[1], values[2], 1.0f);
+                        } else if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+                            const uint8_t* values = reinterpret_cast<const uint8_t*>(dataPtr + i * stride);
+                            color = glm::vec4(
+                                static_cast<float>(values[0]) / 255.0f,
+                                static_cast<float>(values[1]) / 255.0f,
+                                static_cast<float>(values[2]) / 255.0f,
+                                1.0f
+                            );
+                        } else if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+                            const uint16_t* values = reinterpret_cast<const uint16_t*>(dataPtr + i * stride);
+                            color = glm::vec4(
+                                static_cast<float>(values[0]) / 65535.0f,
+                                static_cast<float>(values[1]) / 65535.0f,
+                                static_cast<float>(values[2]) / 65535.0f,
+                                1.0f
+                            );
+                        } else {
+                            std::cerr << "Warning: Unsupported COLOR_0 component type for VEC3: " << accessor.componentType << std::endl;
+                        }
+                    } else if (accessor.type == TINYGLTF_TYPE_VEC4) {
+                        if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_FLOAT) {
+                            const float* values = reinterpret_cast<const float*>(dataPtr + i * stride);
+                            color = glm::vec4(values[0], values[1], values[2], values[3]);
+                        } else if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE) {
+                            const uint8_t* values = reinterpret_cast<const uint8_t*>(dataPtr + i * stride);
+                            color = glm::vec4(
+                                static_cast<float>(values[0]) / 255.0f,
+                                static_cast<float>(values[1]) / 255.0f,
+                                static_cast<float>(values[2]) / 255.0f,
+                                static_cast<float>(values[3]) / 255.0f
+                            );
+                        } else if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT) {
+                            const uint16_t* values = reinterpret_cast<const uint16_t*>(dataPtr + i * stride);
+                            color = glm::vec4(
+                                static_cast<float>(values[0]) / 65535.0f,
+                                static_cast<float>(values[1]) / 65535.0f,
+                                static_cast<float>(values[2]) / 65535.0f,
+                                static_cast<float>(values[3]) / 65535.0f
+                            );
+                        } else {
+                            std::cerr << "Warning: Unsupported COLOR_0 component type for VEC4: " << accessor.componentType << std::endl;
+                        }
+                    } else {
+                        std::cerr << "Warning: COLOR_0 attribute is not VEC3 or VEC4 type. Skipping." << std::endl;
+                    }
+                    tmpPrimitive.colors.emplace_back(color); // Assuming you have a std::vector<glm::vec4> colors in ObjectPrimitive
+                }
+            }
             
             // You can also access primitive.material here:
             if (primitive.material > -1) {
-                const tinygltf::Material& material = model.materials[primitive.material];
+                tinygltf::Material& material = model.materials[primitive.material];
 				tmpPrimitive.materialName = material.name;
 				std::string tmpPath = path;
-				int texIndex = findTextureIndex(tmpPath.append(std::to_string(model.textures[material.pbrMetallicRoughness.baseColorTexture.index].source)));
-                std::cout << "Material: " << material.name  << " uses texture " << tmpPath << std::endl;
+
+				int materialIndex = findMaterialIndex(tmpPrimitive.materialName);
 				
-				
-				if(texIndex < 0){
-					tmpPrimitive.materialIndex = 0;
-				}else{
-					tmpPrimitive.materialIndex = texIndex;
+				if(materialIndex == -1){
+					materialIndex = createMaterial(tmpPath, model, material);
 				}
+
+				tmpPrimitive.materialIndex = materialIndex;
+
 			}
 
 			if (primitive.indices > -1) { // Check if indices are defined for this primitive
@@ -293,19 +392,23 @@ void RenderBatch::processNode(tinygltf::Model& model, std::string& path, const t
 
             }
 
-			tmpPrimitive.modelIndex = obj.modelIndex;
-			obj.primitives.push_back(tmpPrimitive);
+			tmpPrimitive.modelIndex = obj->modelIndex;
+			obj->primitives.push_back(tmpPrimitive);
 
 		}
     }
+	
 	
 	objects.push_back(obj);
 
     // Recursively process children nodes
 	if(node.children.size() > 0){
+		
+		
 		for (int childIdx : node.children) {
-    		const tinygltf::Node& childNode = model.nodes[childIdx];
-        	processNode(model, path, childNode, obj.transformation); // Pass the accumulated transform
+    		
+			const tinygltf::Node& childNode = model.nodes[childIdx];
+        	processNode(model, path, childNode, obj); // Pass the accumulated transform
     	}
 	}
     
@@ -318,18 +421,19 @@ void RenderBatch::updateDrawCommands()
 	uint32_t currentInstance = 0;
 
 	for(int i = 0; i < objects.size();i++){
-		for(int j = 0; j < objects[i].primitives.size();j++){
+		for(int j = 0; j < objects[i]->primitives.size();j++){
 			VkDrawIndexedIndirectCommand tmpCmd{};
-			tmpCmd.firstIndex = objects[i].primitives[j].indexOffset;
+			tmpCmd.firstIndex = objects[i]->primitives[j].indexOffset;
 			tmpCmd.firstInstance = currentInstance;
-			tmpCmd.indexCount = objects[i].primitives[j].indices.size();
+			tmpCmd.indexCount = objects[i]->primitives[j].indices.size();
 			tmpCmd.instanceCount = 1;
-			tmpCmd.vertexOffset = objects[i].primitives[j].vertexOffset;
+			tmpCmd.vertexOffset = objects[i]->primitives[j].vertexOffset;
+			/*
 			std::cout << "Draw command --> Index count: " << tmpCmd.indexCount << 
-			 " vertex offset: " << tmpCmd.vertexOffset << std::endl;
-
+			  " vertex offset: " << tmpCmd.vertexOffset << std::endl;
+			*/
 			drawCommands.push_back(tmpCmd);
-			objects[i].primitives[j].modelIndex = currentInstance;
+			objects[i]->primitives[j].modelIndex = currentInstance;
 			currentInstance++;
 		}
 	}
@@ -363,7 +467,7 @@ void RenderBatch::updateTextureSets()
 
             VkWriteDescriptorSet descriptorWriteTex{};
             descriptorWriteTex.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWriteTex.dstSet = graphicPipeline.descriptorSetsTexture[frameIndex]; // Use outer loop variable
+            descriptorWriteTex.dstSet = graphicPipeline->descriptorSetsTexture[frameIndex]; // Use outer loop variable
             descriptorWriteTex.dstBinding = 0;
             descriptorWriteTex.dstArrayElement = 0;
             descriptorWriteTex.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; // <--- CHANGE TYPE HERE!
@@ -388,11 +492,13 @@ void RenderBatch::reloadObjectData()
 	uint32_t instanceCount = 0;
 
 	for(int i = 0; i < objects.size(); i++){
-		objects[i].formatData(graphicPipeline.interfaceVariables, graphicPipeline.strideSize);
+		objects[i]->formatData(graphicPipeline->interfaceVariables, graphicPipeline->strideSize);
 
-		for(int j = 0; j < objects[i].primitives.size(); j++){
-			dataSize += objects[i].primitives[j].dataSize;
-			indexEntryCount += objects[i].primitives[j].indices.size();
+		for(int j = 0; j < objects[i]->primitives.size(); j++){
+			dataSize += objects[i]->primitives[j].dataSize;
+			objects[i]->primitives[j].modelIndex = objects[i]->modelIndex;
+
+			indexEntryCount += objects[i]->primitives[j].indices.size();
 			instanceCount++;
 		}
 	}
@@ -409,24 +515,24 @@ void RenderBatch::reloadObjectData()
 
 
 	for(int i = 0; i < objects.size(); i++){
-		for(int j = 0; j < objects[i].primitives.size(); j++){
-			memcpy(dataBuffer + tmpDataOffset, objects[i].primitives[j].dataBuffer,  objects[i].primitives[j].dataSize);
-			objects[i].primitives[j].dataOffset = tmpDataOffset;
-			tmpDataOffset +=  objects[i].primitives[j].dataSize;
+		for(int j = 0; j < objects[i]->primitives.size(); j++){
+			memcpy(dataBuffer + tmpDataOffset, objects[i]->primitives[j].dataBuffer,  objects[i]->primitives[j].dataSize);
+			objects[i]->primitives[j].dataOffset = tmpDataOffset;
+			tmpDataOffset +=  objects[i]->primitives[j].dataSize;
 			
-			objects[i].primitives[j].vertexOffset = tmpVertexOffset;
-			tmpVertexOffset += objects[i].primitives[j].vertices.size();
+			objects[i]->primitives[j].vertexOffset = tmpVertexOffset;
+			tmpVertexOffset += objects[i]->primitives[j].vertices.size();
 
 
-			memcpy(tmpIndexBuffer.data() + tmpIndexOffset, objects[i].primitives[j].indices.data(),  objects[i].primitives[j].indices.size() * sizeof(uint32_t));
-			objects[i].primitives[j].indexOffset = tmpIndexOffset;
-			tmpIndexOffset += objects[i].primitives[j].indices.size();
+			memcpy(tmpIndexBuffer.data() + tmpIndexOffset, objects[i]->primitives[j].indices.data(),  objects[i]->primitives[j].indices.size() * sizeof(uint32_t));
+			objects[i]->primitives[j].indexOffset = tmpIndexOffset;
+			tmpIndexOffset += objects[i]->primitives[j].indices.size();
 
 
-			objects[i].primitives[j].drawIndex = tmpDrawIndex;
+			objects[i]->primitives[j].drawIndex = tmpDrawIndex;
 
-			tmpInstanceBuffer[tmpDrawIndex].materialIndex = objects[i].primitives[j].materialIndex;
-			tmpInstanceBuffer[tmpDrawIndex].modelIndex = objects[i].primitives[j].modelIndex;
+			tmpInstanceBuffer[tmpDrawIndex].materialIndex = objects[i]->primitives[j].materialIndex;
+			tmpInstanceBuffer[tmpDrawIndex].modelIndex = objects[i]->primitives[j].modelIndex;
 
 			tmpDrawIndex++;
 
@@ -440,7 +546,7 @@ void RenderBatch::reloadObjectData()
 
 	updateDrawCommands();
 
-	
+
 
 	free(dataBuffer);
 }
@@ -465,7 +571,7 @@ void RenderBatch::uploadData(void *p_data, VkBuffer p_dstBuffer, size_t p_size, 
 
 	copyBuffer(stagingBuffer, p_dstBuffer, p_size,0 ,p_dstOffset);
 
-	vmaFreeMemory(ctx.allocator, stagingBufferAllocation);
+	vmaDestroyBuffer(ctx.allocator, stagingBuffer ,stagingBufferAllocation);
 }
 
 VmaAllocationInfo RenderBatch::createBuffer(VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer &buffer, VmaAllocation &allocation)
@@ -482,7 +588,8 @@ VmaAllocationInfo RenderBatch::createBuffer(VkDeviceSize size, int memoryType, V
 	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
 	allocInfo.flags = memoryType;
 	vmaCreateBuffer(ctx.allocator, &bufferInfo, &allocInfo, &buffer, &allocation, &info);
-
+	ctx.bufferAllocations.insert({allocation, buffer});
+	std::cout << "Created VkBuffer handle: " << (void*)buffer << " with allocation: " << (void*)allocation << std::endl;
 	return info;
 }
 
@@ -491,7 +598,7 @@ void RenderBatch::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSiz
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = ctx.commandPool;
+	allocInfo.commandPool = ctx.commandPoolCopy;
 	allocInfo.commandBufferCount = 1;
 
 	VkCommandBuffer commandBuffer;
@@ -519,7 +626,7 @@ void RenderBatch::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSiz
 	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(ctx.graphicsQueue); // TODO: Implement async transfer
 
-	vkFreeCommandBuffers(ctx.device, ctx.commandPool, 1, &commandBuffer);
+	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
 }
 
 
@@ -528,21 +635,21 @@ void RenderBatch::DBGEnumerateObjects()
 {
 	std::cout << "------------- OBJECT LIST ON RENDER BATCH --------------" << name << std::endl;
 	for(int i = 0; i < objects.size(); i++){
-		std::cout << "Index: " << i << " --> " <<  objects[i].name << std::endl;
+		std::cout << "Index: " << i << " --> " <<  objects[i]->name << std::endl;
 		
-		std::cout << "Translation: (x=" << objects[i].transformation.translation.x << ", y=" << objects[i].transformation.translation.y << ", z=" << objects[i].transformation.translation.z << ")" << std::endl;
-		std::cout << "Rotation: (x=" << objects[i].transformation.rotation.x << ", y=" << objects[i].transformation.rotation.y << ", z=" << objects[i].transformation.rotation.z << ", w=" << objects[i].transformation.rotation.w << ")" << std::endl;
-		std::cout << "Scale: (x=" << objects[i].transformation.scale.x << ", y=" << objects[i].transformation.scale.y << ", z=" << objects[i].transformation.scale.z << ")" << std::endl;
+		std::cout << "Translation: (x=" << objects[i]->transformation.translation.x << ", y=" << objects[i]->transformation.translation.y << ", z=" << objects[i]->transformation.translation.z << ")" << std::endl;
+		std::cout << "Rotation: (x=" << objects[i]->transformation.rotation.x << ", y=" << objects[i]->transformation.rotation.y << ", z=" << objects[i]->transformation.rotation.z << ", w=" << objects[i]->transformation.rotation.w << ")" << std::endl;
+		std::cout << "Scale: (x=" << objects[i]->transformation.scale.x << ", y=" << objects[i]->transformation.scale.y << ", z=" << objects[i]->transformation.scale.z << ")" << std::endl;
 
 		std::cout << "**** Primitives Start ****" << std::endl;
-		std::cout << "Primitive count: " << objects[i].primitives.size() << std::endl;
-		for(int j = 0; j < objects[i].primitives.size(); j++){
+		std::cout << "Primitive count: " << objects[i]->primitives.size() << std::endl;
+		for(int j = 0; j < objects[i]->primitives.size(); j++){
 			
-			std::cout << "Index: " << j << ", Mode: " << objects[i].primitives[j].mode << ", Vertices: " << objects[i].primitives[j].vertices.size() << 
-			", Normals: " << objects[i].primitives[j].normals.size() << 
-			", UV: " << objects[i].primitives[j].UV.size() << 
-			", Indices: " << objects[i].primitives[j].indices.size() << 
-			", Material name: " << objects[i].primitives[j].materialName << std::endl;
+			std::cout << "Index: " << j << ", Mode: " << objects[i]->primitives[j].mode << ", Vertices: " << objects[i]->primitives[j].vertices.size() << 
+			", Normals: " << objects[i]->primitives[j].normals.size() << 
+			", UV: " << objects[i]->primitives[j].UV.size() << 
+			", Indices: " << objects[i]->primitives[j].indices.size() << 
+			", Material name: " << objects[i]->primitives[j].materialName << std::endl;
 		}
 		std::cout << "**** Primitives End ****" << std::endl;
 
@@ -565,6 +672,70 @@ int RenderBatch::findTextureIndex(std::string & p_name)
 	std::cout << "Couldn't find texture for material use: " << p_name << std::endl;
 
     return -1;
+}
+
+int RenderBatch::findMaterialIndex(std::string & p_name)
+{
+
+	for(int i = 0; i < ctx.materialNames.size();i++){
+		if(ctx.materialNames[i] == p_name){
+			return i;
+		}
+	}
+
+
+    return -1;
+}
+
+int RenderBatch::createMaterial(std::string& path, tinygltf::Model& model, tinygltf::Material &material)
+{
+
+	//std::cout << "Creating material:" << material.name << std::endl;
+
+	Material tmpMat;
+	tmpMat.baseColorFactor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	if (material.pbrMetallicRoughness.baseColorFactor.size() == 4) {
+		tmpMat.baseColorFactor = glm::vec4(
+			material.pbrMetallicRoughness.baseColorFactor[0],
+			material.pbrMetallicRoughness.baseColorFactor[1],
+			material.pbrMetallicRoughness.baseColorFactor[2],
+			material.pbrMetallicRoughness.baseColorFactor[3]
+		);
+
+		
+		tmpMat.baseColorFactorEnabled = 1;
+	
+	}else{
+		tmpMat.baseColorFactorEnabled = 0;
+	}
+
+	if(material.pbrMetallicRoughness.baseColorTexture.index > -1){
+		int texIndex = findTextureIndex(path.append(std::to_string(model.textures[material.pbrMetallicRoughness.baseColorTexture.index].source)));
+		//std::cout << "Material: " << material.name  << " uses texture " << path << std::endl;
+
+		if(texIndex < 0){
+			tmpMat.textureIndex = 0;
+			tmpMat.textureEnabled = 0;
+			
+		}else{
+			tmpMat.textureIndex = texIndex;
+			tmpMat.textureEnabled = 1;
+		}
+	}else{
+		tmpMat.textureEnabled = 0;
+		tmpMat.textureIndex = 0;
+	}
+
+	ctx.materialNames.push_back(material.name);
+	ctx.materialList.push_back(tmpMat);
+
+	if(ctx.materialList.size() != ctx.materialNames.size()){
+		throw std::runtime_error("Internal consistency on material list!");
+	}
+
+	
+
+    return ctx.materialList.size()-1;
 }
 
 bool RenderBatch::LoadModelTextures(tinygltf::Model& model, std::string& path) {
@@ -639,6 +810,9 @@ bool RenderBatch::LoadModelTextures(tinygltf::Model& model, std::string& path) {
 				throw std::runtime_error("failed to create texture sampler!");
 			}
 
+			samplers.push_back(textureSampler);
+
+
 			VkBuffer stagingBufferTexture;
 			VkDeviceMemory stagingBufferMemoryTexture;
 
@@ -683,6 +857,7 @@ bool RenderBatch::LoadModelTextures(tinygltf::Model& model, std::string& path) {
 
 			VmaAllocation alloc;
 			vmaCreateImage(ctx.allocator, &imageInfo, &allocInfo, &textureImage, &alloc, nullptr);
+			images.insert({alloc, textureImage});
 
 			transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
 				VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -706,6 +881,7 @@ bool RenderBatch::LoadModelTextures(tinygltf::Model& model, std::string& path) {
 			if (vkCreateImageView(ctx.device, &viewInfo, nullptr, &textureImageView) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create texture image view!");
 			}
+			imageViews.push_back(textureImageView);
 
 			vmaDestroyBuffer(ctx.allocator, buffer, allocation);
 
@@ -836,7 +1012,7 @@ void RenderBatch::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wid
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = ctx.commandPool;
+	allocInfo.commandPool = ctx.commandPoolCopy;
 	allocInfo.commandBufferCount = 1;
 
 	VkCommandBuffer commandBuffer;
@@ -884,45 +1060,81 @@ void RenderBatch::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wid
 	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(ctx.graphicsQueue);
 
-	vkFreeCommandBuffers(ctx.device, ctx.commandPool, 1, &commandBuffer);
+	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
 }
 
 void RenderBatch::updateModelMatrices()
 {
-    graphicPipeline.pushConstant.modelBufferAddress = ctx.bufferAddress;
+    graphicPipeline->pushConstant.modelBufferAddress = ctx.bufferAddress;
 
 	for(int i = 0; i < objects.size();i++){
 
-		glm::mat4 modelMat = glm::mat4(1.0f);
-		modelMat = glm::translate(modelMat, objects[i].transformation.translation);
-		modelMat = modelMat * glm::mat4_cast(objects[i].transformation.rotation);
-		modelMat = glm::scale(modelMat, objects[i].transformation.scale);
+		if(objects[i]->parentObject == nullptr){
+			updateModelMatrixRecursive(objects[i]);
+		}
+
+	}
 
 
-		ctx.modelMatrixList[objects[i].modelIndex] = modelMat;
+	for(int i = 0; i < objects.size();i++){
+		
+		ctx.modelMatrixList[objects[i]->modelIndex] = objects[i]->modelMatrix;
+	}
+}
+
+
+
+void RenderBatch::updateMaterialIndices()
+{
+
+}
+
+void RenderBatch::updateModelMatrixRecursive(Object *obj)
+{
+	obj->localMatrix = glm::mat4(1.0f);
+
+	glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), obj->transformation.translation);
+	glm::mat4 rotationMatrix = glm::mat4_cast(obj->transformation.rotation);
+	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), obj->transformation.scale);
+
+
+	obj->localMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+
+
+
+	if(obj->parentObject != nullptr){
+		obj->modelMatrix = obj->parentObject->modelMatrix * obj->localMatrix;
+	}else{
+		obj->modelMatrix = obj->localMatrix;
+	}
+
+	if(obj->childObjects.size() > 0){
+		for(int i = 0; i < obj->childObjects.size(); i++){
+			updateModelMatrixRecursive(obj->childObjects[i]);
+		}
 	}
 }
 
 void RenderBatch::uploadPD()
 {
 	for(int i = 0; i < objects.size();i++){
-		for(int j = 0; j < objects[i].primitives.size();j++){
-			size_t start = CTX::AUX::allocateVertexMemory(ctx, graphicPipeline.strideSize, objects[i].primitives[j].vertices.size());
-			size_t startIndex = CTX::AUX::allocateIndexMemory(ctx, objects[i].primitives[j].indices.size());
+		for(int j = 0; j < objects[i]->primitives.size();j++){
+			size_t start = CTX::AUX::allocateVertexMemory(ctx, graphicPipeline->strideSize, objects[i]->primitives[j].vertices.size());
+			size_t startIndex = CTX::AUX::allocateIndexMemory(ctx, objects[i]->primitives[j].indices.size());
 			
-			objects[i].primitives[j].startOffsetVertex = start;
-			objects[i].primitives[j].vertexCount = objects[i].primitives[j].vertices.size();
-			objects[i].primitives[j].endOffsetVertex = start + objects[i].primitives[j].vertices.size();
+			objects[i]->primitives[j].startOffsetVertex = start;
+			objects[i]->primitives[j].vertexCount = objects[i]->primitives[j].vertices.size();
+			objects[i]->primitives[j].endOffsetVertex = start + objects[i]->primitives[j].vertices.size();
 
-			objects[i].primitives[j].startOffsetIndex = startIndex;
-			objects[i].primitives[j].indexCount = objects[i].primitives[j].indices.size();
-			objects[i].primitives[j].endOffsetIndex = startIndex + objects[i].primitives[j].indices.size();
+			objects[i]->primitives[j].startOffsetIndex = startIndex;
+			objects[i]->primitives[j].indexCount = objects[i]->primitives[j].indices.size();
+			objects[i]->primitives[j].endOffsetIndex = startIndex + objects[i]->primitives[j].indices.size();
 
 
-			uploadData(objects[i].primitives[j].dataBuffer, ctx.vertexBuffer, objects[i].primitives[j].dataSize, start*graphicPipeline.strideSize);
-			uploadData(objects[i].primitives[j].indices.data(), ctx.indexBuffer, objects[i].primitives[j].indices.size() * sizeof(uint32_t), startIndex*sizeof(uint32_t));
+			uploadData(objects[i]->primitives[j].dataBuffer, ctx.vertexBuffer, objects[i]->primitives[j].dataSize, start*graphicPipeline->strideSize);
+			uploadData(objects[i]->primitives[j].indices.data(), ctx.indexBuffer, objects[i]->primitives[j].indices.size() * sizeof(uint32_t), startIndex*sizeof(uint32_t));
 			
-			ctx.primitiveData.push_back(objects[i].primitives[j]);
+			ctx.primitiveData.push_back(objects[i]->primitives[j]);
 		}
 	}
 }

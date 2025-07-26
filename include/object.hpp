@@ -34,6 +34,12 @@ class Object{
         std::vector<float> vertexData;
         std::vector<int32_t> instanceData;
         uint32_t modelIndex;
+        Object* parentObject;
+        std::vector<Object*> childObjects;
+        uint32_t objectID;
+
+        glm::mat4 modelMatrix;
+        glm::mat4 localMatrix;
 
     
 

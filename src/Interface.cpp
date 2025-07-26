@@ -12,6 +12,7 @@ Interface::Interface(const vk_ctx& p_context)
 
 Interface::~Interface()
 {
+    vkDestroyDescriptorPool(context.device, descriptorPool, nullptr);
 }
 
 void Interface::init()
@@ -19,7 +20,6 @@ void Interface::init()
 
     ImGui::CreateContext();
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
 
     VkDescriptorPoolSize pool_sizes[] =
     {
@@ -91,4 +91,7 @@ void Interface::start_frame()
     ImGui::NewFrame();
 }
 
+void Interface::showObjects()
+{
 
+}

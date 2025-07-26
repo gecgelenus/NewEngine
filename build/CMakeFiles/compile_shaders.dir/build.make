@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/talha/Documents/NewEngine
+CMAKE_SOURCE_DIR = /home/talha/Desktop/MyProjects/Engine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/talha/Documents/NewEngine/build
+CMAKE_BINARY_DIR = /home/talha/Desktop/MyProjects/Engine/build
 
 # Utility rule file for compile_shaders.
 
@@ -70,12 +70,12 @@ CMakeFiles/compile_shaders: ../shaders/bin/simple.frag.spv
 CMakeFiles/compile_shaders: ../shaders/bin/simple.vert.spv
 
 ../shaders/bin/simple.frag.spv: ../shaders/src/simple.frag
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Compiling shader: /home/talha/Documents/NewEngine/./shaders/src/simple.frag"
-	/bin/glslangValidator -V -o /home/talha/Documents/NewEngine/build/../shaders/bin/simple.frag.spv /home/talha/Documents/NewEngine/./shaders/src/simple.frag
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Compiling shader: /home/talha/Desktop/MyProjects/Engine/./shaders/src/simple.frag"
+	/bin/glslangValidator -V -o /home/talha/Desktop/MyProjects/Engine/build/../shaders/bin/simple.frag.spv /home/talha/Desktop/MyProjects/Engine/./shaders/src/simple.frag
 
 ../shaders/bin/simple.vert.spv: ../shaders/src/simple.vert
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Compiling shader: /home/talha/Documents/NewEngine/./shaders/src/simple.vert"
-	/bin/glslangValidator -V -o /home/talha/Documents/NewEngine/build/../shaders/bin/simple.vert.spv /home/talha/Documents/NewEngine/./shaders/src/simple.vert
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Compiling shader: /home/talha/Desktop/MyProjects/Engine/./shaders/src/simple.vert"
+	/bin/glslangValidator -V -o /home/talha/Desktop/MyProjects/Engine/build/../shaders/bin/simple.vert.spv /home/talha/Desktop/MyProjects/Engine/./shaders/src/simple.vert
 
 compile_shaders: CMakeFiles/compile_shaders
 compile_shaders: ../shaders/bin/simple.frag.spv
@@ -92,6 +92,6 @@ CMakeFiles/compile_shaders.dir/clean:
 .PHONY : CMakeFiles/compile_shaders.dir/clean
 
 CMakeFiles/compile_shaders.dir/depend:
-	cd /home/talha/Documents/NewEngine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/talha/Documents/NewEngine /home/talha/Documents/NewEngine /home/talha/Documents/NewEngine/build /home/talha/Documents/NewEngine/build /home/talha/Documents/NewEngine/build/CMakeFiles/compile_shaders.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/talha/Desktop/MyProjects/Engine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/talha/Desktop/MyProjects/Engine /home/talha/Desktop/MyProjects/Engine /home/talha/Desktop/MyProjects/Engine/build /home/talha/Desktop/MyProjects/Engine/build /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles/compile_shaders.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/compile_shaders.dir/depend
 

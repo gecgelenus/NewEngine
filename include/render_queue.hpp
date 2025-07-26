@@ -12,27 +12,38 @@ class RenderQueue{
         RenderQueue(vk_ctx&, vk_instance_params&);
         ~RenderQueue();
 
-        void addBatch(RenderBatch&);
+        void addBatch(RenderBatch*);
         void drawQueue();
 
 
         vk_ctx& ctx;
         vk_instance_params instance_params;
-        std::vector<RenderBatch> batchList;
+        std::vector<RenderBatch*> batchList;
         Interface* interface;
         ImDrawData* drawData = nullptr;
         uint32_t currentFrame = 0;
+
+        int selectedItem = -1;
 
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
 
         bool cameraInputEnabled = false;
-        GraphicPipeline pipeline;
 
         void processCameraInput();
         void updateCamera(uint32_t index);
         void createSyncObjects();
         void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index);
+
+        void guiListObjects();
+
+        void renderUI();
+        void renderLeftPanel();
+        void renderRightPanel();
+
+
+
+        void addChildObjectsToList(Object* obj);
 
 };
