@@ -8,6 +8,69 @@
 #include "vma.h"
 #include <iostream>
 
+
+/*
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT messageType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData) {
+
+    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+
+    // Optional: if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+    //    // You can add a breakpoint here to catch warnings/errors in your debugger
+    // }
+
+    // The callback returns a VkBool32, indicating whether the Vulkan call that triggered
+    // the message should be aborted. VK_FALSE means the application should continue.
+    // For debugging, returning VK_TRUE might be useful to immediately stop at an error.
+    return VK_FALSE;
+}
+
+VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+
+void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    createInfo.pfnUserCallback = debugCallback;
+    createInfo.pUserData = nullptr; // Optional: A pointer to user-defined data passed to the callback
+    createInfo.flags = 0; 
+}
+
+VkDebugUtilsMessengerEXT debugMessenger;
+
+// Helper function to create the debug messenger
+VkResult CreateDebugUtilsMessengerEXT(vk_ctx& ctx, VkInstance instance,
+                                      const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+                                      const VkAllocationCallbacks* pAllocator,
+                                      VkDebugUtilsMessengerEXT* pDebugMessenger) {
+    // Dynamically load the extension function address
+    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    if (func != nullptr) {
+        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+    } else {
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    }
+}
+
+void setupDebugMessenger(vk_ctx& ctx) {
+
+    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    populateDebugMessengerCreateInfo(createInfo);
+
+    if (CreateDebugUtilsMessengerEXT(ctx, ctx.instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+        throw std::runtime_error("failed to set up debug messenger!");
+    }
+}
+
+*/
 void CTX::createInstance(vk_ctx& context, const vk_instance_params& p_instance_params){
 
     context.textureSet.resize(64);
@@ -30,8 +93,11 @@ void CTX::createInstance(vk_ctx& context, const vk_instance_params& p_instance_p
 
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
+    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    //extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+    createInfo.enabledExtensionCount = extensions.size();
+    createInfo.ppEnabledExtensionNames = extensions.data();
     if(p_instance_params.enableValidationLayers){
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -141,7 +207,7 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
     VkDeviceQueueCreateInfo queueCreateInfo{};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCreateInfo.queueFamilyIndex = context.graphicsFamilyIndex;
-    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.queueCount = 2;
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
     VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_feature {
@@ -211,6 +277,8 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
         SUCCESS(DEBUG_CTX, "Logical device created");
     }
     vkGetDeviceQueue(context.device, context.graphicsFamilyIndex, 0, &(context.graphicsQueue));
+    vkGetDeviceQueue(context.device, context.graphicsFamilyIndex, 1, &(context.transferQueue));
+
 
 }
 
@@ -479,11 +547,48 @@ void CTX::AUX::uploadData(vk_ctx &ctx, void *p_data, VkBuffer p_dstBuffer, size_
         vmaDestroyBuffer(ctx.allocator, stagingBuffer, stagingBufferAllocation);
 }
 
+void CTX::AUX::uploadDataDeviceBuffer(vk_ctx &ctx, void *p_data, VkDeviceAddress& deviceAddress, VmaAllocation& p_allocation, VkBuffer& p_dstBuffer, size_t p_size, uint64_t p_dstOffset)
+{
+
+        VmaAllocationInfo allocationInfo;
+        vmaGetAllocationInfo(ctx.allocator, p_allocation, &allocationInfo);
+
+        if(allocationInfo.size < p_size){
+            CTX::AUX::enlargeBuffer(ctx, p_size, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+                VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, p_dstBuffer, p_allocation);
+            
+            VkBufferDeviceAddressInfo addressInfo{};
+            addressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+            addressInfo.buffer = p_dstBuffer;
+
+            deviceAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfo);
+        }
+
+
+        VkBuffer stagingBuffer;
+        VmaAllocation stagingBufferAllocation;
+
+        CTX::AUX::createBuffer(ctx, p_size, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | 
+            VMA_ALLOCATION_CREATE_MAPPED_BIT,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            stagingBuffer, stagingBufferAllocation);
+
+        void* data;
+        vmaMapMemory(ctx.allocator, stagingBufferAllocation, &data);
+        memcpy(data, p_data, (size_t)p_size);
+        vmaUnmapMemory(ctx.allocator, stagingBufferAllocation);
+
+
+        CTX::AUX::copyBuffer(ctx, stagingBuffer, p_dstBuffer, p_size,0 ,p_dstOffset);
+        ctx.bufferAllocations.erase(stagingBufferAllocation);
+        vmaDestroyBuffer(ctx.allocator, stagingBuffer, stagingBufferAllocation);
+}
+
 void CTX::createCommandPool(vk_ctx& context)
 {
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolInfo.flags =  VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = context.graphicsFamilyIndex;
 
     if (vkCreateCommandPool(context.device, &poolInfo, nullptr, &(context.commandPool)) != VK_SUCCESS)
@@ -497,7 +602,7 @@ void CTX::createCommandPool(vk_ctx& context)
 
     VkCommandPoolCreateInfo poolInfo2{};
     poolInfo2.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo2.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolInfo2.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo2.queueFamilyIndex = context.graphicsFamilyIndex;
 
     if (vkCreateCommandPool(context.device, &poolInfo2, nullptr, &(context.commandPoolCopy)) != VK_SUCCESS)
@@ -652,8 +757,24 @@ float CTX::getDeltaTime(){
     return deltaTime;
 }
 
+void CTX::destroyBuffer(vk_ctx &ctx, VkBuffer buffer, VmaAllocation allocation)
+{
+    ctx.bufferAllocations.erase(allocation);
+    vmaDestroyBuffer(ctx.allocator, buffer, allocation);
+}
 
+void CTX::checkExpiredAllocations(vk_ctx &ctx)
+{
 
+    for(int i = ctx.expiredAllocations.size()-1; i >= 0; i--){
+        if(ctx.expiredAllocations[i].remainingCycle == 0){
+            destroyBuffer(ctx, ctx.expiredAllocations[i].buffer, ctx.expiredAllocations[i].allocation);
+            ctx.expiredAllocations.erase( ctx.expiredAllocations.begin() + i);
+        }else{
+            ctx.expiredAllocations[i].remainingCycle--;
+        }
+    }
+}
 
 void CTX::createCameraResources(vk_ctx& ctx){
     VkDeviceSize VPBufferSize = sizeof(glm::mat4);
@@ -737,6 +858,37 @@ VmaAllocationInfo CTX::AUX::createImage(vk_ctx &ctx, uint32_t width, uint32_t he
     return info;
 }
 
+void CTX::AUX::enlargeBuffer(vk_ctx &ctx, VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer &buffer, VmaAllocation &allocation)
+{
+    VmaAllocation tmpAllocation;
+    VkBuffer tmpBuffer;
+    
+    CTX::AUX::createBuffer(ctx, size, memoryType, usage, tmpBuffer, tmpAllocation);
+
+    VmaAllocationInfo allocationInfo;
+	vmaGetAllocationInfo(ctx.allocator, allocation, &allocationInfo);
+
+
+    std::cout << "Enlarging buffer from " << allocationInfo.size << " to " << size << std::endl;
+
+    CTX::AUX::copyBuffer(ctx, buffer, tmpBuffer, allocationInfo.size, 0, 0);
+
+    //ctx.bufferAllocations.erase(allocation);
+    //vmaDestroyBuffer(ctx.allocator, buffer, allocation);
+    
+    AllocationBundle tmpBundle;
+    tmpBundle.buffer = buffer;
+    tmpBundle.allocation = allocation;
+    tmpBundle.remainingCycle = ctx.swapchainImageViews.size() + 1;
+
+    ctx.expiredAllocations.push_back(tmpBundle);
+
+
+    buffer = tmpBuffer;
+    allocation = tmpAllocation;
+
+}
+
 void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_params){
     CTX::createWindow(context, p_instance_params);
 	CTX::createInstance(context, p_instance_params);
@@ -750,7 +902,7 @@ void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_para
 	CTX::createColorResources(context, p_instance_params);
 	CTX::createDepthResources(context, p_instance_params);
 	CTX::createCommandPool(context);
-
+    //setupDebugMessenger(context);
 	CTX::createCommandBuffers(context, p_instance_params);
 	CTX::createCameraResources(context);
     CTX::createGlobalBuffers(context);
@@ -855,8 +1007,8 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
 
 
 
-    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*50, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
     ctx.deviceBuffer, ctx.deviceBufferAllocation);
 
     VkBufferDeviceAddressInfo addressInfo{};
@@ -867,8 +1019,8 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
 
 
 
-    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*50, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
     ctx.materialBuffer, ctx.materialBufferAllocation);
 
     VkBufferDeviceAddressInfo addressInfoMaterial{};
@@ -882,7 +1034,7 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
     
     
     CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
     ctx.addressBuffer, ctx.addressBufferAllocation);
 
 
@@ -898,32 +1050,52 @@ void CTX::AUX::copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, V
 	allocInfo.commandPool = ctx.commandPoolCopy;
 	allocInfo.commandBufferCount = 1;
 
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(ctx.device, &allocInfo, &commandBuffer);
+	VkCommandBuffer tmpCommandBuffer;
+	vkAllocateCommandBuffers(ctx.device, &allocInfo, &tmpCommandBuffer);
 
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+	vkBeginCommandBuffer(tmpCommandBuffer, &beginInfo);
 
 	VkBufferCopy copyRegion{};
 	copyRegion.srcOffset = srcOffset; // Optional
 	copyRegion.dstOffset = dstOffset; // Optional
 	copyRegion.size = size;
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+	vkCmdCopyBuffer(tmpCommandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-	vkEndCommandBuffer(commandBuffer);
+	vkEndCommandBuffer(tmpCommandBuffer);
+
+
+        // Create a fence for this specific submission
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = 0; // Create an unsignaled fence
+
+    VkFence copyFence;
+    if (vkCreateFence(ctx.device, &fenceInfo, nullptr, &copyFence) != VK_SUCCESS) {
+        vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer); // Clean up
+        throw std::runtime_error("Failed to create copy fence!");
+    }
+
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
+	submitInfo.pCommandBuffers = &tmpCommandBuffer;
 
-	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(ctx.graphicsQueue); // TODO: Implement async transfer
 
-	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
+	if (vkQueueSubmit(ctx.transferQueue, 1, &submitInfo, copyFence) != VK_SUCCESS) {
+        vkDestroyFence(ctx.device, copyFence, nullptr);
+        vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer);
+        throw std::runtime_error("Failed to submit copy command buffer!");
+    }
+	vkWaitForFences(ctx.device, 1, &copyFence, VK_TRUE, UINT64_MAX); // Wait indefinitely
+
+    // Clean up the fence and command buffer
+    vkDestroyFence(ctx.device, copyFence, nullptr);
+    vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer);
 }
 
 
@@ -950,6 +1122,7 @@ void CTX::createGlobalDescriptorPool(vk_ctx& ctx){
 	poolInfo.poolSizeCount = 3;
 	poolInfo.pPoolSizes = sizes;
 	poolInfo.maxSets = static_cast<uint32_t>(ctx.swapchainImageViews.size()*3);
+    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
 
 	if (vkCreateDescriptorPool(ctx.device, &poolInfo, nullptr, &(ctx.globalDescriptorPool)) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor pool");

@@ -2732,7 +2732,6 @@ CMakeFiles/Engine.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/bits/stl_map.h \
   /usr/include/c++/11/bits/stl_multimap.h \
   ../include/render_queue.hpp \
-  ../include/resource_manager.hpp \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
   /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
@@ -4428,8 +4427,7 @@ CMakeFiles/Engine.dir/src/render_queue.cpp.o: ../src/render_queue.cpp \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/amxint8intrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/amxbf16intrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/prfchwintrin.h \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/keylockerintrin.h \
-  ../include/resource_manager.hpp
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/keylockerintrin.h
 
 CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o: ../src/spirv_reflect.cpp \
   /usr/include/stdc-predef.h \
@@ -5710,8 +5708,6 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 /usr/include/linux/types.h:
 
 /usr/include/x86_64-linux-gnu/bits/statx.h:
-
-../include/resource_manager.hpp:
 
 ../include/render_queue.hpp:
 

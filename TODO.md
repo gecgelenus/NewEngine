@@ -1,7 +1,8 @@
-Implement variable length buffers
+Update buffers partially
 
 Create sampler according to gltf file data
 
+Implement async transfer for buffer copies
 
 Implement instancing:
 -->Check if a primitive is an instance inside gltf. 

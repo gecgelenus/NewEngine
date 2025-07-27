@@ -13,20 +13,20 @@ RenderBatch::RenderBatch(vk_ctx& p_ctx, const std::string & p_name)
 void RenderBatch::__RenderBatch()
 {
 
-    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*200, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     vertexBuffer, vertexBufferAllocation);
 
-    CTX::AUX::createBuffer(ctx,(VkDeviceSize)SIZE_MB*20, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+    CTX::AUX::createBuffer(ctx,(VkDeviceSize)SIZE_KB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT |VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		indexBuffer, indexBufferAllocation);
 
-    CTX::AUX::createBuffer(ctx,(VkDeviceSize)(sizeof(VkDrawIndexedIndirectCommand) * 10000), VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
+    CTX::AUX::createBuffer(ctx,(VkDeviceSize)SIZE_KB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
 		drawBuffer, drawBufferAllocation);
 	
-	CTX::AUX::createBuffer(ctx,(VkDeviceSize)(sizeof(InstanceInfo) * 10000), VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+	CTX::AUX::createBuffer(ctx,(VkDeviceSize)SIZE_KB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		instanceBuffer, instanceBufferAllocation);
 
 	
@@ -117,6 +117,26 @@ void RenderBatch::processGltfFile(std::string& path) {
         processNode(model, path, node, nullptr); // Start with identity matrix for root
 
     }
+
+	VmaAllocationInfo allocationInfo;
+	vmaGetAllocationInfo(ctx.allocator, ctx.materialBufferAllocation, &allocationInfo);
+	VkDeviceSize materialDataSize = ctx.materialList.size()*sizeof(Material);
+
+	if(allocationInfo.size < materialDataSize){
+		CTX::AUX::enlargeBuffer(ctx, materialDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    		VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+    		ctx.materialBuffer, ctx.materialBufferAllocation);
+		
+		
+		VkBufferDeviceAddressInfo addressInfoMaterial{};
+    	addressInfoMaterial.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+    	addressInfoMaterial.buffer = ctx.materialBuffer;
+
+    	ctx.materialBufferAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfoMaterial);
+	}
+	
+	
+
 	CTX::AUX::uploadData(ctx, ctx.materialList.data(), ctx.materialBuffer, ctx.materialList.size()*sizeof(Material), 0);
 	graphicPipeline->pushConstant.materialBufferAddress = ctx.materialBufferAddress;
 }
@@ -422,8 +442,17 @@ void RenderBatch::updateDrawCommands()
 			currentInstance++;
 		}
 	}
+	VmaAllocationInfo allocationInfo;
 
-	CTX::AUX::uploadData(ctx, drawCommands.data(), drawBuffer, drawCommands.size() * sizeof(VkDrawIndexedIndirectCommand), 0);
+	VkDeviceSize drawDataSize = drawCommands.size() * sizeof(VkDrawIndexedIndirectCommand);
+	vmaGetAllocationInfo(ctx.allocator, drawBufferAllocation, &allocationInfo);
+	
+	if(allocationInfo.size < drawDataSize){
+		CTX::AUX::enlargeBuffer(ctx, (VkDeviceSize)drawDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    	VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
+	    drawBuffer, drawBufferAllocation);
+	}
+	CTX::AUX::uploadData(ctx, drawCommands.data(), drawBuffer, drawDataSize, 0);
 }
 
 void RenderBatch::updateTextureSets()
@@ -524,10 +553,35 @@ void RenderBatch::reloadObjectData()
 
 		}
 	}
-
+	VmaAllocationInfo allocationInfo;
+	vmaGetAllocationInfo(ctx.allocator, vertexBufferAllocation, &allocationInfo);
+	
+	if(allocationInfo.size < dataSize){
+		CTX::AUX::enlargeBuffer(ctx, (VkDeviceSize)dataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    	VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+	    vertexBuffer, vertexBufferAllocation);
+	}
 	CTX::AUX::uploadData(ctx, dataBuffer, vertexBuffer, dataSize, 0);
-	CTX::AUX::uploadData(ctx, tmpIndexBuffer.data(), indexBuffer, indexEntryCount * sizeof(uint32_t), 0);
-	CTX::AUX::uploadData(ctx, tmpInstanceBuffer.data(), instanceBuffer, instanceCount * sizeof(InstanceInfo), 0);
+	
+
+	VkDeviceSize indexDataSize = indexEntryCount * sizeof(uint32_t);
+	vmaGetAllocationInfo(ctx.allocator, indexBufferAllocation, &allocationInfo);
+	if(allocationInfo.size < indexDataSize){
+		CTX::AUX::enlargeBuffer(ctx, (VkDeviceSize)indexDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    	VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+	    indexBuffer, indexBufferAllocation);
+	}
+	CTX::AUX::uploadData(ctx, tmpIndexBuffer.data(), indexBuffer, indexDataSize, 0);
+	
+	
+	VkDeviceSize instanceDataSize = instanceCount * sizeof(InstanceInfo);
+	vmaGetAllocationInfo(ctx.allocator, instanceBufferAllocation, &allocationInfo);
+	if(allocationInfo.size < instanceDataSize){
+		CTX::AUX::enlargeBuffer(ctx, (VkDeviceSize)instanceDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    	VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+	    instanceBuffer, instanceBufferAllocation);
+	}
+	CTX::AUX::uploadData(ctx, tmpInstanceBuffer.data(), instanceBuffer, instanceDataSize, 0);
 
 	updateDrawCommands();
 

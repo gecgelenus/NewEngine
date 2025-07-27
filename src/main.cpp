@@ -101,10 +101,34 @@ int main(){
 
     while(!glfwWindowShouldClose(ctx.window)){
             glfwPollEvents(); 
+            CTX::checkExpiredAllocations(ctx);
             for(int i = 0; i < renderQueue.batchList.size();i++){
                 renderQueue.batchList[i]->updateModelMatrices();
             }
-            CTX::AUX::uploadData(ctx, ctx.modelMatrixList.data(), ctx.deviceBuffer, ctx.modelMatrixList.size()*sizeof(glm::mat4), 0);
+
+            VmaAllocationInfo allocationInfo;
+            vmaGetAllocationInfo(ctx.allocator, ctx.deviceBufferAllocation, &allocationInfo);
+            VkDeviceSize modelDataSize = ctx.modelMatrixList.size()*sizeof(glm::mat4);
+
+            if(allocationInfo.size < modelDataSize){
+
+            
+
+                CTX::AUX::enlargeBuffer(ctx, modelDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+                    ctx.deviceBuffer, ctx.deviceBufferAllocation);
+                
+                
+                VkBufferDeviceAddressInfo addressInfoMaterial{};
+                addressInfoMaterial.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+                addressInfoMaterial.buffer = ctx.deviceBuffer;
+
+                ctx.bufferAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfoMaterial);
+            }
+	
+
+
+            CTX::AUX::uploadData(ctx, ctx.modelMatrixList.data(), ctx.deviceBuffer, modelDataSize, 0);
             renderQueue.drawQueue();
             
     }

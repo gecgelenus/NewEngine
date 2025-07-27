@@ -25,6 +25,13 @@ struct InstanceInfo{
 };
 
 
+struct AllocationBundle{
+    VkBuffer buffer;
+    VmaAllocation allocation;
+    uint32_t remainingCycle;
+};
+
+
 struct ObjectTransformation{
     glm::vec3 translation;
     glm::quat rotation;
@@ -126,7 +133,11 @@ struct vk_ctx
     VkInstance instance;
     VkPhysicalDevice physicalDevice;
     VkDevice device;
+
     VkQueue graphicsQueue;
+    VkQueue transferQueue;
+    
+    
     uint32_t graphicsFamilyIndex = 0;
 
     VkDescriptorPool globalDescriptorPool; // Used for camera, buffer addresses and textures
@@ -153,6 +164,7 @@ struct vk_ctx
     std::vector<VkImageView> swapchainImageViews;
 
     std::unordered_map<VmaAllocation, VkBuffer> bufferAllocations; 
+    std::vector<AllocationBundle> expiredAllocations;
 
     VkBuffer instanceBuffer;
     VmaAllocation instanceBufferAllocation;
@@ -210,6 +222,7 @@ struct vk_ctx
     std::vector<TextureSlot> textureSet;
     
 
+    
 
 };
 
@@ -270,10 +283,26 @@ namespace CTX{
     float getDeltaTime();
 
 
-
-
+    void destroyBuffer(vk_ctx& ctx, VkBuffer buffer, VmaAllocation allocation);
+    void checkExpiredAllocations(vk_ctx& ctx);
 
     namespace AUX{
+
+        VmaAllocationInfo createBuffer(vk_ctx& context, VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation);
+        VmaAllocationInfo createImage(vk_ctx& ctx, uint32_t width, uint32_t height, VkSampleCountFlagBits numSample, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image,  VmaAllocation& allocation);
+
+        void enlargeBuffer(vk_ctx& ctx, VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation);
+        
+        void uploadData(vk_ctx& ctx, void* data, VkBuffer dstBuffer, size_t size, uint64_t dstOffset);
+        void uploadDataDeviceBuffer(vk_ctx& ctx, void* data, VkDeviceAddress& deviceAddress, VmaAllocation& allocation, VkBuffer& dstBuffer, size_t size, uint64_t dstOffset);
+        
+        void copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset);
+        void copyBufferToImage(vk_ctx& ctx, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+        
+        void transitionImageLayout(vk_ctx& ctx ,VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+
+
         uint32_t getGraphicsQueueIndex(VkPhysicalDevice physicalDevice);
         SwapChainSupportDetails querySwapChainSupport(const vk_ctx& context);
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
@@ -281,13 +310,7 @@ namespace CTX{
 	    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
 	    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, const vk_ctx& context);
 
-        VmaAllocationInfo createBuffer(vk_ctx& context, VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation);
-        VmaAllocationInfo createImage(vk_ctx& ctx, uint32_t width, uint32_t height, VkSampleCountFlagBits numSample, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image,  VmaAllocation& allocation);
-
-        void uploadData(vk_ctx& ctx, void* data, VkBuffer dstBuffer, size_t size, uint64_t dstOffset);
-        void copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset);
-        void copyBufferToImage(vk_ctx& ctx, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-        void transitionImageLayout(vk_ctx& ctx ,VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+        
     }
 }
 
@@ -300,4 +323,6 @@ const std::vector<const char *> deviceExtensions = {
     };
 
 	const std::vector<const char *> validationLayers = {
-		"VK_LAYER_KHRONOS_validation"};
+		"VK_LAYER_KHRONOS_validation"
+        
+    };
