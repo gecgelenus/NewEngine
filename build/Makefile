@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/talha/Desktop/MyProjects/Engine
+CMAKE_SOURCE_DIR = /home/talha/Documents/NewEngine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/talha/Desktop/MyProjects/Engine/build
+CMAKE_BINARY_DIR = /home/talha/Documents/NewEngine/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -132,9 +132,9 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles /home/talha/Desktop/MyProjects/Engine/build//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles /home/talha/Documents/NewEngine/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -527,30 +527,6 @@ src/render_queue.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/render_queue.cpp.s
 .PHONY : src/render_queue.cpp.s
 
-src/resource_manager.o: src/resource_manager.cpp.o
-.PHONY : src/resource_manager.o
-
-# target to build an object file
-src/resource_manager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/resource_manager.cpp.o
-.PHONY : src/resource_manager.cpp.o
-
-src/resource_manager.i: src/resource_manager.cpp.i
-.PHONY : src/resource_manager.i
-
-# target to preprocess a source file
-src/resource_manager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/resource_manager.cpp.i
-.PHONY : src/resource_manager.cpp.i
-
-src/resource_manager.s: src/resource_manager.cpp.s
-.PHONY : src/resource_manager.s
-
-# target to generate assembly for a file
-src/resource_manager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/resource_manager.cpp.s
-.PHONY : src/resource_manager.cpp.s
-
 src/spirv_reflect.o: src/spirv_reflect.cpp.o
 .PHONY : src/spirv_reflect.o
 
@@ -677,9 +653,6 @@ help:
 	@echo "... src/render_queue.o"
 	@echo "... src/render_queue.i"
 	@echo "... src/render_queue.s"
-	@echo "... src/resource_manager.o"
-	@echo "... src/resource_manager.i"
-	@echo "... src/resource_manager.s"
 	@echo "... src/spirv_reflect.o"
 	@echo "... src/spirv_reflect.i"
 	@echo "... src/spirv_reflect.s"

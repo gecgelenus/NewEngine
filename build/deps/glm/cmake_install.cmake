@@ -1,4 +1,4 @@
-# Install script for directory: /home/talha/Desktop/MyProjects/Engine/deps/glm
+# Install script for directory: /home/talha/Documents/NewEngine/deps/glm
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,6 +44,6 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/talha/Desktop/MyProjects/Engine/build/deps/glm/glm/cmake_install.cmake")
+  include("/home/talha/Documents/NewEngine/build/deps/glm/glm/cmake_install.cmake")
 endif()
 

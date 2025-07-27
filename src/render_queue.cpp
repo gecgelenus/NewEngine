@@ -329,7 +329,7 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
 
         vkCmdPushConstants(
             commandBuffer,
-            batchList[i]->graphicPipeline->pipelineLayout,              // The pipeline layout that defines the range
+            ctx.globalPipelineLayout,              // The pipeline layout that defines the range
             VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, // Must match stageFlags used in VkPushConstantRange
             0,                                                         // Offset into the push constant block (usually 0)
             sizeof(PushConstant),                                      // Size of the data being pushed
@@ -344,8 +344,8 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
         VkBuffer indexBuffer = batchList[i]->indexBuffer; // Get index buffer from pipeline
         vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        VkDescriptorSet descriptorSets[] = {batchList[i]->graphicPipeline->descriptorSetsVP[index], batchList[i]->graphicPipeline->descriptorSetsModel[index], batchList[i]->graphicPipeline->descriptorSetsTexture[index]};
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, batchList[i]->graphicPipeline->pipelineLayout, 0, 3, descriptorSets, 0, nullptr);
+        VkDescriptorSet descriptorSets[] = {ctx.cameraDescriptorSets[index], ctx.addressDescriptorSet, ctx.textureDescriptorSet};
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.globalPipelineLayout, 0, 3, descriptorSets, 0, nullptr);
         // Make sure graphicPipeline->drawBuffer and graphicPipeline->drawCommands are valid
         vkCmdDrawIndexedIndirect(commandBuffer, batchList[i]->drawBuffer, 0, batchList[i]->drawCommands.size(), sizeof(VkDrawIndexedIndirectCommand));
     }
@@ -640,3 +640,4 @@ void RenderQueue::addChildObjectsToList(Object *obj)
         }
     }
 }
+

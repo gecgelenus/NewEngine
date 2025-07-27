@@ -161,6 +161,12 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
     vulkan12Features.runtimeDescriptorArray = VK_TRUE; // Enable the feature
     vulkan12Features.descriptorIndexing = VK_TRUE;
     vulkan12Features.bufferDeviceAddress = VK_TRUE;
+    vulkan12Features.descriptorBindingVariableDescriptorCount = VK_TRUE;
+    vulkan12Features.descriptorBindingPartiallyBound = VK_TRUE;
+    vulkan12Features.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
+    vulkan12Features.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
+
+
 
     vulkan12Features.pNext = &dynamic_rendering_feature;
 
@@ -388,7 +394,8 @@ SwapChainSupportDetails CTX::AUX::querySwapChainSupport(const vk_ctx& context)
 void CTX::createDepthResources(vk_ctx& context, const vk_instance_params& p_instance_params)
 {
     CTX::AUX::createImage(context, context.swapchainExtent.width, context.swapchainExtent.height, p_instance_params.msaaSamples, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, context.depthImage, context.depthImageMemory);
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, context.depthImage, context.depthImageAllocation);
+    
     SUCCESS(DEBUG_CTX, "Created depth image");
 
     VkImageViewCreateInfo createInfo{}; 
@@ -420,7 +427,11 @@ void CTX::createColorResources(vk_ctx& context, const vk_instance_params& p_inst
     VkFormat colorFormat = context.swapchainImageFormat;
     SUCCESS(DEBUG_CTX, "Created color image");
 
-    CTX::AUX::createImage(context, context.swapchainExtent.width, context.swapchainExtent.height, p_instance_params.msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, context.colorImage, context.colorImageMemory);
+    CTX::AUX::createImage(context, context.swapchainExtent.width, context.swapchainExtent.height, 
+        p_instance_params.msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL,
+         VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+           context.colorImage, context.colorImageAllocation);
+    
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     createInfo.image = context.colorImage;
@@ -445,153 +456,6 @@ void CTX::createColorResources(vk_ctx& context, const vk_instance_params& p_inst
     }
 }
 
-void CTX::AUX::createBuffer(vk_ctx& context, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory)
-{
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    if (vkCreateBuffer(context.device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
-    {
-        ALERT(DEBUG_CTX, "Failed to create buffer! (AUX)");
-        throw std::runtime_error("failed to create buffer! (AUX)");
-    }
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(context.device, buffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(context,memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(context.device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
-    {
-        ALERT(DEBUG_CTX, "Failed to allocate buffer memory! (AUX)");
-        throw std::runtime_error("failed to allocate buffer memory! (AUX)");
-    }
-
-    vkBindBufferMemory(context.device, buffer, bufferMemory, 0);
-}
-
-void CTX::AUX::createImage(vk_ctx& context, uint32_t width, uint32_t height, VkSampleCountFlagBits numSample, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory)
-{
-    VkImageCreateInfo imageInfo{};
-    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = width;
-    imageInfo.extent.height = height;
-    imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
-    imageInfo.format = format;
-    imageInfo.tiling = tiling;
-    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageInfo.usage = usage;
-    imageInfo.samples = numSample;
-    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    if (vkCreateImage(context.device, &imageInfo, nullptr, &image) != VK_SUCCESS)
-    {
-        ALERT(DEBUG_CTX, "Failed to create image! (AUX)");
-        throw std::runtime_error("failed to create image! (AUX)");
-    }
-
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(context.device, image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = CTX::AUX::findMemoryType(context,memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(context.device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-    {
-        ALERT(DEBUG_CTX, "Failed to allocate image memory! (AUX)");
-        throw std::runtime_error("failed to allocate image memory! (AUX)");
-    }
-
-    vkBindImageMemory(context.device, image, imageMemory, 0);
-}
-
-void CTX::AUX::createDImage(vk_ctx& context, uint32_t width, uint32_t height, VkSampleCountFlagBits numSample, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory)
-{
-    VkImageCreateInfo imageInfo{};
-    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = width;
-    imageInfo.extent.height = height;
-    imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
-    imageInfo.format = format;
-    imageInfo.tiling = tiling;
-    imageInfo.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-    imageInfo.usage = usage;
-    imageInfo.samples = numSample;
-    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    if (vkCreateImage(context.device, &imageInfo, nullptr, &image) != VK_SUCCESS)
-    {
-        ALERT(DEBUG_CTX, "Failed to create image! (AUX)");
-        throw std::runtime_error("failed to create image! (AUX)");
-    }
-
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(context.device, image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = CTX::AUX::findMemoryType(context,memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(context.device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-    {
-        ALERT(DEBUG_CTX, "Failed to allocate image memory! (AUX)");
-        throw std::runtime_error("failed to allocate image memory! (AUX)");
-    }
-
-    vkBindImageMemory(context.device, image, imageMemory, 0);
-}
-
-uint32_t CTX::AUX::findMemoryType(vk_ctx& context, uint32_t typeFilter, VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(context.physicalDevice, &memProperties);
-
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-    {
-        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-        {
-            return i;
-        }
-    }
-    ALERT(DEBUG_CTX, "Failed to find suitable memory type!");
-    throw std::runtime_error("failed to find suitable memory type!");
-}
-
-size_t CTX::AUX::allocateVertexMemory(vk_ctx &context, size_t stride, size_t size)
-{
-    size_t start = 0;
-    if(context.vertexLast % stride != 0){
-        start = context.vertexLast / stride + stride;
-    }else{
-        start = context.vertexLast / stride;
-    }
-    context.vertexLast = start;
-    context.vertexLast += size * stride;
-    return start;
-}
-
-size_t CTX::AUX::allocateIndexMemory(vk_ctx &context, size_t size)
-{
-
-    context.indexLast += size;
-
-    return context.indexLast - size;
-}
 
 void CTX::AUX::uploadData(vk_ctx &ctx, void *p_data, VkBuffer p_dstBuffer, size_t p_size, uint64_t p_dstOffset)
 {
@@ -687,39 +551,39 @@ void CTX::createMemoryAllocator(vk_ctx& context){
     }
 }
 void CTX::createGlobalDescriptorLayouts(vk_ctx& p_ctx){
-    VkDescriptorSetLayoutBinding VP_matrix{};
-    VP_matrix.binding = 0;
-    VP_matrix.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	VP_matrix.descriptorCount = 1;
-	VP_matrix.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	VP_matrix.pImmutableSamplers = nullptr;
+    VkDescriptorSetLayoutBinding CameraMatrix{};
+    CameraMatrix.binding = 0;
+    CameraMatrix.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	CameraMatrix.descriptorCount = 1;
+	CameraMatrix.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	CameraMatrix.pImmutableSamplers = nullptr;
 
-    VkDescriptorSetLayoutBinding VP_bindings[] = {VP_matrix};
+    VkDescriptorSetLayoutBinding CameraBindings[] = {CameraMatrix};
 
-	VkDescriptorSetLayoutCreateInfo VP_layoutInfo{};
-	VP_layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	VP_layoutInfo.bindingCount = 1;
-	VP_layoutInfo.pBindings = VP_bindings;
+	VkDescriptorSetLayoutCreateInfo Camera_layoutInfo{};
+	Camera_layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	Camera_layoutInfo.bindingCount = 1;
+	Camera_layoutInfo.pBindings = CameraBindings;
 
-    if (vkCreateDescriptorSetLayout(p_ctx.device, &VP_layoutInfo, nullptr, &(p_ctx.setCameraLayout)) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(p_ctx.device, &Camera_layoutInfo, nullptr, &(p_ctx.setCameraLayout)) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor set layout: VP matrix");
 	}
 
-    VkDescriptorSetLayoutBinding Model_matrix{};
-    Model_matrix.binding = 0;
-    Model_matrix.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	Model_matrix.descriptorCount = 64;
-	Model_matrix.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	Model_matrix.pImmutableSamplers = nullptr;
+    VkDescriptorSetLayoutBinding AddressMatrix{};
+    AddressMatrix.binding = 0;
+    AddressMatrix.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	AddressMatrix.descriptorCount = 1;
+	AddressMatrix.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	AddressMatrix.pImmutableSamplers = nullptr;
 
-    VkDescriptorSetLayoutBinding Model_bindings[] = {Model_matrix};
+    VkDescriptorSetLayoutBinding AddressBindings[] = {AddressMatrix};
 
-	VkDescriptorSetLayoutCreateInfo Model_layoutInfo{};
-	Model_layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	Model_layoutInfo.bindingCount = 1;
-	Model_layoutInfo.pBindings = Model_bindings;
+	VkDescriptorSetLayoutCreateInfo AddressLayoutInfo{};
+	AddressLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	AddressLayoutInfo.bindingCount = 1;
+	AddressLayoutInfo.pBindings = AddressBindings;
 
-    if (vkCreateDescriptorSetLayout(p_ctx.device, &Model_layoutInfo, nullptr, &(p_ctx.setModelMatLayout)) != VK_SUCCESS) {
+    if (vkCreateDescriptorSetLayout(p_ctx.device, &AddressLayoutInfo, nullptr, &(p_ctx.setAddressLayout)) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor set layout: Model matrix");
 	}
 
@@ -727,9 +591,23 @@ void CTX::createGlobalDescriptorLayouts(vk_ctx& p_ctx){
     VkDescriptorSetLayoutBinding texture_set{};
     texture_set.binding = 0;
     texture_set.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	texture_set.descriptorCount = 64;
+	texture_set.descriptorCount = MAX_TEXTURE_BIND;
 	texture_set.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 	texture_set.pImmutableSamplers = nullptr;
+
+    VkDescriptorBindingFlags bindlessFlags =
+        VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT | // Allows variable count at alloc time
+        VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |          // Allows some array elements to be unbound
+        VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT |        // Crucial for bindless: update after set is bound
+        VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT; // Allows updating even if GPU is pending on it
+
+
+    VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsCreateInfo{};
+    bindingFlagsCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+    bindingFlagsCreateInfo.pNext = nullptr;
+    bindingFlagsCreateInfo.bindingCount = 1;
+    bindingFlagsCreateInfo.pBindingFlags = &bindlessFlags;
+
 
     VkDescriptorSetLayoutBinding texture_bindings[] = {texture_set};
 
@@ -737,9 +615,31 @@ void CTX::createGlobalDescriptorLayouts(vk_ctx& p_ctx){
 	texture_layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	texture_layoutInfo.bindingCount = 1;
 	texture_layoutInfo.pBindings = texture_bindings;
+    texture_layoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+    texture_layoutInfo.pNext = &bindingFlagsCreateInfo;
 
     if (vkCreateDescriptorSetLayout(p_ctx.device, &texture_layoutInfo, nullptr, &(p_ctx.setTextureLayout)) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create descriptor set layout: Model matrix");
+	}
+
+
+    VkDescriptorSetLayout layouts[] = { p_ctx.setCameraLayout , p_ctx.setAddressLayout, p_ctx.setTextureLayout};
+
+
+	VkPushConstantRange pushConstantRange{};
+	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT; // Accessible by VS and FS
+	pushConstantRange.offset = 0; // Start from the beginning of the push constant block
+	pushConstantRange.size = sizeof(PushConstant); // Size of your data
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 3;
+	pipelineLayoutInfo.pSetLayouts = layouts;
+	pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
+	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Optional
+
+	if (vkCreatePipelineLayout(p_ctx.device, &pipelineLayoutInfo, nullptr, &(p_ctx.globalPipelineLayout)) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create pipeline layout!");
 	}
 
 }
@@ -752,37 +652,8 @@ float CTX::getDeltaTime(){
     return deltaTime;
 }
 
-void CTX::reloadDrawBuffer(vk_ctx & ctx)
-{
-    ctx.drawCommands.clear();
-    ctx.drawCommands.resize(ctx.primitiveData.size());
 
-    for(int i = 0; i < ctx.drawCommands.size();i++){
-        VkDrawIndexedIndirectCommand tmpCmd{};
-        tmpCmd.firstIndex = ctx.primitiveData[i].startOffsetIndex;
-        tmpCmd.firstInstance = 0;
-        tmpCmd.indexCount = ctx.primitiveData[i].indexCount;
-        tmpCmd.instanceCount = 1;
-        tmpCmd.vertexOffset = ctx.primitiveData[i].startOffsetVertex;
-        ctx.drawCommands[i] = tmpCmd;
-    }
 
-    CTX::AUX::uploadData(ctx, ctx.drawCommands.data(), ctx.drawBuffer, ctx.drawCommands.size() * sizeof(VkDrawIndexedIndirectCommand), 0);
-}
-
-void CTX::reloadInstanceBuffer(vk_ctx & ctx)
-{
-    ctx.instanceInfos.clear();
-    ctx.instanceInfos.resize(ctx.primitiveData.size());
-
-    for(int i = 0; i < ctx.instanceInfos.size();i++){
-        ctx.instanceInfos[i].materialIndex = ctx.primitiveData[i].materialIndex;
-        ctx.instanceInfos[i].modelIndex = ctx.primitiveData[i].modelIndex;
-    }   
-
-    CTX::AUX::uploadData(ctx, ctx.instanceInfos.data(), ctx.instanceBuffer, ctx.instanceInfos.size() * sizeof(InstanceInfo), 0);
-
-}
 
 void CTX::createCameraResources(vk_ctx& ctx){
     VkDeviceSize VPBufferSize = sizeof(glm::mat4);
@@ -836,9 +707,35 @@ VmaAllocationInfo CTX::AUX::createBuffer(vk_ctx& context, VkDeviceSize size, int
 	return info;
 }
 
+VmaAllocationInfo CTX::AUX::createImage(vk_ctx &ctx, uint32_t width, uint32_t height, VkSampleCountFlagBits numSample, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image, VmaAllocation &allocation)
+{
+
+	    VmaAllocationInfo info;
 
 
+        VkImageCreateInfo imageInfo{};
+        imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+        imageInfo.imageType = VK_IMAGE_TYPE_2D;
+        imageInfo.extent.width = width;
+        imageInfo.extent.height = height;
+        imageInfo.extent.depth = 1;
+        imageInfo.mipLevels = 1;
+        imageInfo.arrayLayers = 1;
+        imageInfo.format = format;
+        imageInfo.tiling = tiling;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.usage = usage;
+        imageInfo.samples = numSample;
+        imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
+        VmaAllocationCreateInfo allocInfo = {};
+        allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+        allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+
+        vmaCreateImage(ctx.allocator, &imageInfo, &allocInfo, &image, &allocation, &info);
+
+    return info;
+}
 
 void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_params){
     CTX::createWindow(context, p_instance_params);
@@ -846,16 +743,20 @@ void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_para
 	CTX::createSurface(context);
 	CTX::pickPhysicalDevice(context, p_instance_params);
 	CTX::createLogicalDevice(context, p_instance_params);
+	CTX::createMemoryAllocator(context);
+
 	CTX::createSwapchain(context, p_instance_params);
 	CTX::createSwapchainImageViews(context);
 	CTX::createColorResources(context, p_instance_params);
 	CTX::createDepthResources(context, p_instance_params);
 	CTX::createCommandPool(context);
+
 	CTX::createCommandBuffers(context, p_instance_params);
-    CTX::createGlobalDescriptorLayouts(context);
-	CTX::createMemoryAllocator(context);
 	CTX::createCameraResources(context);
     CTX::createGlobalBuffers(context);
+    CTX::createGlobalDescriptorLayouts(context);
+    CTX::createGlobalDescriptorPool(context);
+    CTX::allocateGlobalDescriptorSets(context);
 
 }
 
@@ -868,12 +769,19 @@ void CTX::destroyContext(vk_ctx& context, const vk_instance_params& p_instance_p
     context.bufferAllocations.erase(context.deviceBufferAllocation);
     vmaDestroyBuffer(context.allocator, context.deviceBuffer, context.deviceBufferAllocation);
 
+    context.bufferAllocations.erase(context.addressBufferAllocation);
+    vmaDestroyBuffer(context.allocator, context.addressBuffer, context.addressBufferAllocation);
+
     context.bufferAllocations.erase(context.materialBufferAllocation);
     vmaDestroyBuffer(context.allocator, context.materialBuffer, context.materialBufferAllocation);
 
     vkDestroyDescriptorSetLayout(context.device, context.setCameraLayout, nullptr);
-    vkDestroyDescriptorSetLayout(context.device, context.setModelMatLayout, nullptr);
+    vkDestroyDescriptorSetLayout(context.device, context.setAddressLayout, nullptr);
     vkDestroyDescriptorSetLayout(context.device, context.setTextureLayout, nullptr);
+
+    vkDestroyDescriptorPool(context.device, context.globalDescriptorPool, nullptr);
+    vkDestroyPipelineLayout(context.device, context.globalPipelineLayout, nullptr);
+
 
 
     for(int i = 0; i < context.camera.bufferAllocations.size();i++){
@@ -884,16 +792,12 @@ void CTX::destroyContext(vk_ctx& context, const vk_instance_params& p_instance_p
     VERBOSE(DEBUG_CTX, "Destroying depth image view...");
     vkDestroyImageView(context.device, context.depthImageView, nullptr);
     VERBOSE(DEBUG_CTX, "Destroying depth image...");
-    vkDestroyImage(context.device, context.depthImage, nullptr);
-    VERBOSE(DEBUG_CTX, "Freeing depth image memory...");
-    vkFreeMemory(context.device, context.depthImageMemory, nullptr);
+    vmaDestroyImage(context.allocator, context.depthImage, context.depthImageAllocation);
     
     VERBOSE(DEBUG_CTX, "Destroying color image view...");
     vkDestroyImageView(context.device, context.colorImageView, nullptr);
     VERBOSE(DEBUG_CTX, "Destroying color image...");
-    vkDestroyImage(context.device, context.colorImage, nullptr);
-    VERBOSE(DEBUG_CTX, "Freeing color image memory...");
-    vkFreeMemory(context.device, context.colorImageMemory, nullptr);
+    vmaDestroyImage(context.allocator, context.colorImage, context.colorImageAllocation);
 
     VERBOSE(DEBUG_CTX, "Destroying swapchain image views...");
     for (auto imageView : context.swapchainImageViews)
@@ -972,6 +876,17 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
     addressInfoMaterial.buffer = ctx.materialBuffer;
 
     ctx.materialBufferAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfoMaterial);
+
+    
+    
+    
+    
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    ctx.addressBuffer, ctx.addressBufferAllocation);
+
+
+
 }
 
 
@@ -1009,4 +924,260 @@ void CTX::AUX::copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, V
 	vkQueueWaitIdle(ctx.graphicsQueue); // TODO: Implement async transfer
 
 	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
+}
+
+
+void CTX::createGlobalDescriptorPool(vk_ctx& ctx){
+
+
+    VkDescriptorPoolSize CameraSize{};
+	CameraSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	CameraSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
+
+    VkDescriptorPoolSize AddressSize{};
+	AddressSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	AddressSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size()) * 1;
+
+    VkDescriptorPoolSize TextureSize{};
+	TextureSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	TextureSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size()) * MAX_TEXTURE_BIND;
+
+	VkDescriptorPoolSize sizes[] = { CameraSize, AddressSize, TextureSize};
+
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 3;
+	poolInfo.pPoolSizes = sizes;
+	poolInfo.maxSets = static_cast<uint32_t>(ctx.swapchainImageViews.size()*3);
+
+	if (vkCreateDescriptorPool(ctx.device, &poolInfo, nullptr, &(ctx.globalDescriptorPool)) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor pool");
+	}
+}
+void CTX::allocateGlobalDescriptorSets(vk_ctx& ctx){
+    
+    std::vector<VkDescriptorSetLayout> CameraLayouts(ctx.swapchainImageViews.size(), ctx.setCameraLayout);
+
+
+	VkDescriptorSetAllocateInfo CameraAllocInfo{};
+	CameraAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	CameraAllocInfo.descriptorPool = ctx.globalDescriptorPool;
+	CameraAllocInfo.descriptorSetCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
+	CameraAllocInfo.pSetLayouts = CameraLayouts.data();
+
+	ctx.cameraDescriptorSets.resize(ctx.swapchainImageViews.size());
+	if (vkAllocateDescriptorSets(ctx.device, &CameraAllocInfo, ctx.cameraDescriptorSets.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
+
+    for (size_t i = 0; i < ctx.swapchainImageViews.size(); i++) {
+
+		VkDescriptorBufferInfo bufferInfo{};
+		bufferInfo.buffer = ctx.camera.buffers[i]; // <--- Your actual camera uniform buffer
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof(glm::mat4); // The size of the data in your buffer
+
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = ctx.cameraDescriptorSets[i]; // The descriptor set to update
+		descriptorWrite.dstBinding = 0;                       // Matches layout(binding = 0) in shader
+		descriptorWrite.dstArrayElement = 0;                  // If it's not an array, this is 0
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // Matches layout in shader
+		descriptorWrite.descriptorCount = 1;                  // Matches descriptorCount in layout
+		descriptorWrite.pBufferInfo = &bufferInfo;            // Link to your buffer info
+		descriptorWrite.pImageInfo = nullptr;
+		descriptorWrite.pTexelBufferView = nullptr;
+
+		vkUpdateDescriptorSets(ctx.device, 1, &descriptorWrite, 0, nullptr);
+	}
+
+
+    VkDescriptorSetAllocateInfo AddressAllocInfo{};
+	AddressAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	AddressAllocInfo.descriptorPool = ctx.globalDescriptorPool;
+	AddressAllocInfo.descriptorSetCount = 1;
+	AddressAllocInfo.pSetLayouts = &(ctx.setAddressLayout);
+
+    if (vkAllocateDescriptorSets(ctx.device, &AddressAllocInfo, &(ctx.addressDescriptorSet)) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
+    uint32_t variableDescriptorCount = MAX_TEXTURE_BIND; 
+
+    VkDescriptorSetVariableDescriptorCountAllocateInfo variableDescriptorCountInfo{};
+    variableDescriptorCountInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
+    variableDescriptorCountInfo.descriptorSetCount = 1;
+    variableDescriptorCountInfo.pDescriptorCounts = &variableDescriptorCount;
+
+        
+    VkDescriptorSetAllocateInfo TextureAllocInfo{};
+    TextureAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    TextureAllocInfo.pNext = &variableDescriptorCountInfo; // Link the variable count info
+    TextureAllocInfo.descriptorPool = ctx.globalDescriptorPool;
+    TextureAllocInfo.descriptorSetCount = 1;
+    TextureAllocInfo.pSetLayouts = &(ctx.setTextureLayout);
+
+    if (vkAllocateDescriptorSets(ctx.device, &TextureAllocInfo, &(ctx.textureDescriptorSet)) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
+
+
+    VkDescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = ctx.addressBuffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof(glm::mat4);
+
+
+
+    VkWriteDescriptorSet descriptorWrite{};
+    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.dstSet = ctx.addressDescriptorSet; // The descriptor set to update
+    descriptorWrite.dstBinding = 0;                       // Matches layout(binding = 0) in shader
+    descriptorWrite.dstArrayElement = 0;                  // If it's not an array, this is 0
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // Matches layout in shader
+    descriptorWrite.descriptorCount = 1;                  // Matches descriptorCount in layout
+    descriptorWrite.pBufferInfo = &bufferInfo;            // Link to your buffer info
+    descriptorWrite.pImageInfo = nullptr;
+    descriptorWrite.pTexelBufferView = nullptr;
+
+	vkUpdateDescriptorSets(ctx.device, 1, &descriptorWrite, 0, nullptr);
+
+
+
+}
+
+
+
+void CTX::AUX::copyBufferToImage(vk_ctx& ctx, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
+{
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = ctx.commandPoolCopy;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(ctx.device, &allocInfo, &commandBuffer);
+
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	VkBufferImageCopy region{};
+	region.bufferOffset = 0;
+	region.bufferRowLength = 0;
+	region.bufferImageHeight = 0;
+
+	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.imageSubresource.mipLevel = 0;
+	region.imageSubresource.baseArrayLayer = 0;
+	region.imageSubresource.layerCount = 1;
+
+	region.imageOffset = { 0, 0, 0 };
+	region.imageExtent = {
+		width,
+		height,
+		1
+	};
+
+	vkCmdCopyBufferToImage(
+		commandBuffer,
+		buffer,
+		image,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		1,
+		&region
+	);
+
+	vkEndCommandBuffer(commandBuffer);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(ctx.graphicsQueue);
+
+	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
+}
+
+void CTX::AUX::transitionImageLayout(vk_ctx& ctx ,VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+{
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = ctx.commandPool;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(ctx.device, &allocInfo, &commandBuffer);
+
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	VkImageMemoryBarrier barrier{};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = image;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.srcAccessMask = 0; // TODO
+	barrier.dstAccessMask = 0; // TODO
+
+	VkPipelineStageFlags sourceStage;
+	VkPipelineStageFlags destinationStage;
+
+	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+	else {
+		throw std::invalid_argument("unsupported layout transition!");
+	}
+
+	vkCmdPipelineBarrier(
+		commandBuffer,
+		sourceStage, destinationStage,
+		0,
+		0, nullptr,
+		0, nullptr,
+		1, &barrier
+	);
+
+	vkEndCommandBuffer(commandBuffer);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(ctx.graphicsQueue);
+
+	vkFreeCommandBuffers(ctx.device, ctx.commandPool, 1, &commandBuffer);
 }

@@ -16,33 +16,30 @@ class RenderBatch{
         ~RenderBatch();
 
 
-        void addObject(Object* p_object);
-        void readGLTF(std::string& path);
-        void updateDrawCommands();
-        void updateTextureSets();
-        void reloadObjectData();
-
-        void processGltfScene(tinygltf::Model& model);
         void processGltfFile(std::string& path);
-
         void processNode(tinygltf::Model& model, std::string& path, const tinygltf::Node& node, Object* parentObject);
         bool LoadModelTextures(tinygltf::Model& model, std::string& path);
-        void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
-        void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-        void updateModelMatrices();
-        void updateMaterialIndices();
 
+        void addObject(Object* p_object);
+
+        void reloadObjectData();
+
+        void updateModelMatrices();
         void updateModelMatrixRecursive(Object* obj);
 
-        void uploadPD();
+        void updateDrawCommands();
+        void updateTextureSets();
+
+
+
+
+
 
         std::string name;
         vk_ctx& ctx;
         std::vector<Object*> objects;
         GraphicPipeline* graphicPipeline;
 
-        std::vector<float> cpuVertexBuffer;
-        std::vector<uint32_t> cpuIndexBuffer;
 
         
         VkBuffer vertexBuffer;
@@ -53,25 +50,18 @@ class RenderBatch{
         
         VkBuffer drawBuffer;
         VmaAllocation drawBufferAllocation;
+        std::vector<VkDrawIndexedIndirectCommand> drawCommands;
 
         VkBuffer instanceBuffer;
         VmaAllocation instanceBufferAllocation;
 
+
         
-
-        uint64_t currVertexBufferSize = 0;
-        uint64_t currIndexBufferSize = 0;
-
-        std::vector<VkDrawIndexedIndirectCommand> drawCommands;
-        
-        std::vector<VkSampler> samplers;
-        std::unordered_map<VmaAllocation, VkImage> images;
-        std::vector<VkImageView> imageViews;
+        std::vector<VkSampler> samplers; // For resource lifetime tracking
+        std::unordered_map<VmaAllocation, VkImage> images; // For resource lifetime tracking
+        std::vector<VkImageView> imageViews; // For resource lifetime tracking
 
 
-        void uploadData(void* data, VkBuffer dstBuffer, size_t size, uint64_t dstOffset);
-        VmaAllocationInfo createBuffer(VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation);
-        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset);
         void DBGEnumerateObjects();
         int findTextureIndex(std::string& p_name);
         int findMaterialIndex(std::string & p_name);
@@ -81,3 +71,4 @@ class RenderBatch{
 
         
 };
+

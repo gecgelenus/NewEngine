@@ -13,25 +13,19 @@ RenderBatch::RenderBatch(vk_ctx& p_ctx, const std::string & p_name)
 void RenderBatch::__RenderBatch()
 {
 
-
-	cpuVertexBuffer.push_back(1.0f);
-	cpuVertexBuffer.clear();
-
-	cpuIndexBuffer.shrink_to_fit();
-
-    createBuffer((VkDeviceSize)SIZE_MB*200, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*200, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     vertexBuffer, vertexBufferAllocation);
 
-    createBuffer((VkDeviceSize)SIZE_MB*20, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    CTX::AUX::createBuffer(ctx,(VkDeviceSize)SIZE_MB*20, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 		indexBuffer, indexBufferAllocation);
 
-    createBuffer((VkDeviceSize)(sizeof(VkDrawIndexedIndirectCommand) * 10000), VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    CTX::AUX::createBuffer(ctx,(VkDeviceSize)(sizeof(VkDrawIndexedIndirectCommand) * 10000), VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
 		drawBuffer, drawBufferAllocation);
 	
-	createBuffer((VkDeviceSize)(sizeof(InstanceInfo) * 10000), VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+	CTX::AUX::createBuffer(ctx,(VkDeviceSize)(sizeof(InstanceInfo) * 10000), VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 		instanceBuffer, instanceBufferAllocation);
 
@@ -84,15 +78,6 @@ void RenderBatch::addObject(Object *p_object)
 	*/
 }
 
-void RenderBatch::readGLTF(std::string &path)
-{
-	
-}
-
-void RenderBatch::processGltfScene(tinygltf::Model& model) {
-    
-
-}
 
 void RenderBatch::processGltfFile(std::string& path) {
     
@@ -438,7 +423,7 @@ void RenderBatch::updateDrawCommands()
 		}
 	}
 
-	uploadData(drawCommands.data(), drawBuffer, drawCommands.size() * sizeof(VkDrawIndexedIndirectCommand), 0);
+	CTX::AUX::uploadData(ctx, drawCommands.data(), drawBuffer, drawCommands.size() * sizeof(VkDrawIndexedIndirectCommand), 0);
 }
 
 void RenderBatch::updateTextureSets()
@@ -467,7 +452,7 @@ void RenderBatch::updateTextureSets()
 
             VkWriteDescriptorSet descriptorWriteTex{};
             descriptorWriteTex.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWriteTex.dstSet = graphicPipeline->descriptorSetsTexture[frameIndex]; // Use outer loop variable
+            descriptorWriteTex.dstSet = ctx.textureDescriptorSet; // Use outer loop variable
             descriptorWriteTex.dstBinding = 0;
             descriptorWriteTex.dstArrayElement = 0;
             descriptorWriteTex.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; // <--- CHANGE TYPE HERE!
@@ -540,9 +525,9 @@ void RenderBatch::reloadObjectData()
 		}
 	}
 
-	uploadData(dataBuffer, vertexBuffer, dataSize, 0);
-	uploadData(tmpIndexBuffer.data(), indexBuffer, indexEntryCount * sizeof(uint32_t), 0);
-	uploadData(tmpInstanceBuffer.data(), instanceBuffer, instanceCount * sizeof(InstanceInfo), 0);
+	CTX::AUX::uploadData(ctx, dataBuffer, vertexBuffer, dataSize, 0);
+	CTX::AUX::uploadData(ctx, tmpIndexBuffer.data(), indexBuffer, indexEntryCount * sizeof(uint32_t), 0);
+	CTX::AUX::uploadData(ctx, tmpInstanceBuffer.data(), instanceBuffer, instanceCount * sizeof(InstanceInfo), 0);
 
 	updateDrawCommands();
 
@@ -553,81 +538,7 @@ void RenderBatch::reloadObjectData()
 
 
 
-void RenderBatch::uploadData(void *p_data, VkBuffer p_dstBuffer, size_t p_size, uint64_t p_dstOffset)
-{
-    VkBuffer stagingBuffer;
-	VmaAllocation stagingBufferAllocation;
 
-	createBuffer(p_size, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-		VMA_ALLOCATION_CREATE_MAPPED_BIT,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-		stagingBuffer, stagingBufferAllocation);
-
-	void* data;
-	vmaMapMemory(ctx.allocator, stagingBufferAllocation, &data);
-	memcpy(data, p_data, (size_t)p_size);
-	vmaUnmapMemory(ctx.allocator, stagingBufferAllocation);
-
-
-	copyBuffer(stagingBuffer, p_dstBuffer, p_size,0 ,p_dstOffset);
-
-	vmaDestroyBuffer(ctx.allocator, stagingBuffer ,stagingBufferAllocation);
-}
-
-VmaAllocationInfo RenderBatch::createBuffer(VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer &buffer, VmaAllocation &allocation)
-{
-	VmaAllocationInfo info;
-
-	VkBufferCreateInfo bufferInfo{};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = size;
-	bufferInfo.usage = usage;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-	VmaAllocationCreateInfo allocInfo{};
-	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-	allocInfo.flags = memoryType;
-	vmaCreateBuffer(ctx.allocator, &bufferInfo, &allocInfo, &buffer, &allocation, &info);
-	ctx.bufferAllocations.insert({allocation, buffer});
-	std::cout << "Created VkBuffer handle: " << (void*)buffer << " with allocation: " << (void*)allocation << std::endl;
-	return info;
-}
-
-void RenderBatch::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
-{
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = ctx.commandPoolCopy;
-	allocInfo.commandBufferCount = 1;
-
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(ctx.device, &allocInfo, &commandBuffer);
-
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-	VkBufferCopy copyRegion{};
-	copyRegion.srcOffset = srcOffset; // Optional
-	copyRegion.dstOffset = dstOffset; // Optional
-	copyRegion.size = size;
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-	vkEndCommandBuffer(commandBuffer);
-
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-
-	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(ctx.graphicsQueue); // TODO: Implement async transfer
-
-	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
-}
 
 
 
@@ -859,12 +770,12 @@ bool RenderBatch::LoadModelTextures(tinygltf::Model& model, std::string& path) {
 			vmaCreateImage(ctx.allocator, &imageInfo, &allocInfo, &textureImage, &alloc, nullptr);
 			images.insert({alloc, textureImage});
 
-			transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
+			CTX::AUX::transitionImageLayout(ctx, textureImage, VK_FORMAT_R8G8B8A8_SRGB,
 				VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-			copyBufferToImage(buffer, textureImage, static_cast<uint32_t>(gltfImage.width), static_cast<uint32_t>(gltfImage.height));
+			CTX::AUX::copyBufferToImage(ctx, buffer, textureImage, static_cast<uint32_t>(gltfImage.width), static_cast<uint32_t>(gltfImage.height));
 
-			transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
+			CTX::AUX::transitionImageLayout(ctx, textureImage, VK_FORMAT_R8G8B8A8_SRGB,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 			VkImageViewCreateInfo viewInfo{};
@@ -932,136 +843,9 @@ bool RenderBatch::LoadModelTextures(tinygltf::Model& model, std::string& path) {
     return true;
 }
 
-void RenderBatch::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
-{
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = ctx.commandPool;
-	allocInfo.commandBufferCount = 1;
 
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(ctx.device, &allocInfo, &commandBuffer);
 
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-	VkImageMemoryBarrier barrier{};
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.oldLayout = oldLayout;
-	barrier.newLayout = newLayout;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.image = image;
-	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	barrier.subresourceRange.baseMipLevel = 0;
-	barrier.subresourceRange.levelCount = 1;
-	barrier.subresourceRange.baseArrayLayer = 0;
-	barrier.subresourceRange.layerCount = 1;
-	barrier.srcAccessMask = 0; // TODO
-	barrier.dstAccessMask = 0; // TODO
-
-	VkPipelineStageFlags sourceStage;
-	VkPipelineStageFlags destinationStage;
-
-	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-	}
-	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	}
-	else {
-		throw std::invalid_argument("unsupported layout transition!");
-	}
-
-	vkCmdPipelineBarrier(
-		commandBuffer,
-		sourceStage, destinationStage,
-		0,
-		0, nullptr,
-		0, nullptr,
-		1, &barrier
-	);
-
-	vkEndCommandBuffer(commandBuffer);
-
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-
-	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(ctx.graphicsQueue);
-
-	vkFreeCommandBuffers(ctx.device, ctx.commandPool, 1, &commandBuffer);
-}
-
-void RenderBatch::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
-{
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = ctx.commandPoolCopy;
-	allocInfo.commandBufferCount = 1;
-
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(ctx.device, &allocInfo, &commandBuffer);
-
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-	VkBufferImageCopy region{};
-	region.bufferOffset = 0;
-	region.bufferRowLength = 0;
-	region.bufferImageHeight = 0;
-
-	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	region.imageSubresource.mipLevel = 0;
-	region.imageSubresource.baseArrayLayer = 0;
-	region.imageSubresource.layerCount = 1;
-
-	region.imageOffset = { 0, 0, 0 };
-	region.imageExtent = {
-		width,
-		height,
-		1
-	};
-
-	vkCmdCopyBufferToImage(
-		commandBuffer,
-		buffer,
-		image,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		1,
-		&region
-	);
-
-	vkEndCommandBuffer(commandBuffer);
-
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-
-	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(ctx.graphicsQueue);
-
-	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
-}
 
 void RenderBatch::updateModelMatrices()
 {
@@ -1084,10 +868,6 @@ void RenderBatch::updateModelMatrices()
 
 
 
-void RenderBatch::updateMaterialIndices()
-{
-
-}
 
 void RenderBatch::updateModelMatrixRecursive(Object *obj)
 {
@@ -1114,29 +894,4 @@ void RenderBatch::updateModelMatrixRecursive(Object *obj)
 		}
 	}
 }
-
-void RenderBatch::uploadPD()
-{
-	for(int i = 0; i < objects.size();i++){
-		for(int j = 0; j < objects[i]->primitives.size();j++){
-			size_t start = CTX::AUX::allocateVertexMemory(ctx, graphicPipeline->strideSize, objects[i]->primitives[j].vertices.size());
-			size_t startIndex = CTX::AUX::allocateIndexMemory(ctx, objects[i]->primitives[j].indices.size());
-			
-			objects[i]->primitives[j].startOffsetVertex = start;
-			objects[i]->primitives[j].vertexCount = objects[i]->primitives[j].vertices.size();
-			objects[i]->primitives[j].endOffsetVertex = start + objects[i]->primitives[j].vertices.size();
-
-			objects[i]->primitives[j].startOffsetIndex = startIndex;
-			objects[i]->primitives[j].indexCount = objects[i]->primitives[j].indices.size();
-			objects[i]->primitives[j].endOffsetIndex = startIndex + objects[i]->primitives[j].indices.size();
-
-
-			uploadData(objects[i]->primitives[j].dataBuffer, ctx.vertexBuffer, objects[i]->primitives[j].dataSize, start*graphicPipeline->strideSize);
-			uploadData(objects[i]->primitives[j].indices.data(), ctx.indexBuffer, objects[i]->primitives[j].indices.size() * sizeof(uint32_t), startIndex*sizeof(uint32_t));
-			
-			ctx.primitiveData.push_back(objects[i]->primitives[j]);
-		}
-	}
-}
-
 

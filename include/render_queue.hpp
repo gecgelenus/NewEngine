@@ -3,7 +3,6 @@
 #include "vulkan_context.hpp"
 #include "render_batch.hpp"
 #include "Interface.hpp"
-#include "resource_manager.hpp"
 
 class RenderQueue{
 

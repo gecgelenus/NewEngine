@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/talha/Desktop/MyProjects/Engine/deps/glm/glm/detail/glm.cpp" "deps/glm/glm/CMakeFiles/glm.dir/detail/glm.cpp.o" "gcc" "deps/glm/glm/CMakeFiles/glm.dir/detail/glm.cpp.o.d"
+  "/home/talha/Documents/NewEngine/deps/glm/glm/detail/glm.cpp" "deps/glm/glm/CMakeFiles/glm.dir/detail/glm.cpp.o" "gcc" "deps/glm/glm/CMakeFiles/glm.dir/detail/glm.cpp.o.d"
   )
 
 # Targets to which this target links.

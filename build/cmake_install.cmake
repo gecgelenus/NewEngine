@@ -1,4 +1,4 @@
-# Install script for directory: /home/talha/Desktop/MyProjects/Engine
+# Install script for directory: /home/talha/Documents/NewEngine
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -44,12 +44,12 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/talha/Desktop/MyProjects/Engine/build/deps/glfw-3.4/cmake_install.cmake")
+  include("/home/talha/Documents/NewEngine/build/deps/glfw-3.4/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/talha/Desktop/MyProjects/Engine/build/deps/glm/cmake_install.cmake")
+  include("/home/talha/Documents/NewEngine/build/deps/glm/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -60,5 +60,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/talha/Desktop/MyProjects/Engine/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/talha/Documents/NewEngine/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

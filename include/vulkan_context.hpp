@@ -9,7 +9,13 @@
 
 #define DEBUG_CTX "Vulkan Context"
 
+#define MAX_TEXTURE_BIND 8192
 
+struct PushConstant{
+    uint64_t modelBufferAddress;
+    uint64_t materialBufferAddress;
+
+};
 
 class Object;
 
@@ -122,9 +128,20 @@ struct vk_ctx
     VkDevice device;
     VkQueue graphicsQueue;
     uint32_t graphicsFamilyIndex = 0;
+
+    VkDescriptorPool globalDescriptorPool; // Used for camera, buffer addresses and textures
+
     VkDescriptorSetLayout setCameraLayout;
-    VkDescriptorSetLayout setModelMatLayout;
+    VkDescriptorSetLayout setAddressLayout;
     VkDescriptorSetLayout setTextureLayout;
+
+    std::vector<VkDescriptorSet> cameraDescriptorSets;
+    VkDescriptorSet addressDescriptorSet;
+    VkDescriptorSet textureDescriptorSet;
+
+    VkPipelineLayout globalPipelineLayout;
+
+
 
 
 
@@ -135,14 +152,6 @@ struct vk_ctx
     std::vector<VkImage> swapchainImages;
     std::vector<VkImageView> swapchainImageViews;
 
-    VkBuffer vertexBuffer;
-    VmaAllocation vertexBufferAllocation;
-    uint32_t vertexLast = 0;
-
-    VkBuffer indexBuffer;
-    VmaAllocation indexBufferAllocation;
-    uint32_t indexLast = 0;
-
     std::unordered_map<VmaAllocation, VkBuffer> bufferAllocations; 
 
     VkBuffer instanceBuffer;
@@ -150,6 +159,10 @@ struct vk_ctx
 
     VkBuffer drawBuffer;
     VmaAllocation drawBufferAllocation;
+
+    VkBuffer addressBuffer;
+    VmaAllocation addressBufferAllocation;
+
     
     std::vector<ObjectPrimitive> primitiveData;
     std::vector<VkDrawIndexedIndirectCommand> drawCommands;
@@ -182,12 +195,12 @@ struct vk_ctx
     VkExtent2D swapchainExtent;
 
     VkImage depthImage;
-	VkDeviceMemory depthImageMemory;
+	VmaAllocation depthImageAllocation;
 	VkImageView depthImageView;
 
 	VkImage colorImage;
-	VkDeviceMemory colorImageMemory;
-	VkImageView colorImageView;
+    VmaAllocation colorImageAllocation;
+    VkImageView colorImageView;
 
     VkCommandPool commandPool;
     VkCommandPool commandPoolCopy;
@@ -247,6 +260,9 @@ namespace CTX{
     void createCommandBuffers(vk_ctx&, const vk_instance_params&);
     void createMemoryAllocator(vk_ctx&);
     void createGlobalDescriptorLayouts(vk_ctx&);
+    void createGlobalDescriptorPool(vk_ctx&);
+    void allocateGlobalDescriptorSets(vk_ctx&);
+
     void createCameraResources(vk_ctx&);
     void recreateSwapchain(vk_ctx&, const vk_instance_params&);
     void createGlobalBuffers(vk_ctx&);
@@ -254,8 +270,6 @@ namespace CTX{
     float getDeltaTime();
 
 
-    void reloadDrawBuffer(vk_ctx&);
-    void reloadInstanceBuffer(vk_ctx&);
 
 
 
@@ -266,17 +280,14 @@ namespace CTX{
 
 	    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
 	    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, const vk_ctx& context);
-        void createBuffer(vk_ctx& context, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer, VkDeviceMemory &bufferMemory);
-	    VmaAllocationInfo createBuffer(vk_ctx& context, VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation);
-        void createImage(vk_ctx& context, uint32_t width, uint32_t height, VkSampleCountFlagBits numSample, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
-        void createDImage(vk_ctx& context, uint32_t width, uint32_t height, VkSampleCountFlagBits numSample, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage &image, VkDeviceMemory &imageMemory);
-        
-        uint32_t findMemoryType(vk_ctx& context, uint32_t typeFilter, VkMemoryPropertyFlags properties);
-        size_t allocateVertexMemory(vk_ctx& context, size_t stride, size_t size);
-        size_t allocateIndexMemory(vk_ctx& context, size_t size);
+
+        VmaAllocationInfo createBuffer(vk_ctx& context, VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation);
+        VmaAllocationInfo createImage(vk_ctx& ctx, uint32_t width, uint32_t height, VkSampleCountFlagBits numSample, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkImage &image,  VmaAllocation& allocation);
+
         void uploadData(vk_ctx& ctx, void* data, VkBuffer dstBuffer, size_t size, uint64_t dstOffset);
         void copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset);
-
+        void copyBufferToImage(vk_ctx& ctx, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+        void transitionImageLayout(vk_ctx& ctx ,VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
     }
 }
 

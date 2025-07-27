@@ -54,10 +54,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/talha/Desktop/MyProjects/Engine
+CMAKE_SOURCE_DIR = /home/talha/Documents/NewEngine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/talha/Desktop/MyProjects/Engine/build
+CMAKE_BINARY_DIR = /home/talha/Documents/NewEngine/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -168,14 +168,14 @@ deps/glm/glm/clean: deps/glm/glm/CMakeFiles/glm.dir/clean
 CMakeFiles/compile_shaders.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/compile_shaders.dir/build.make CMakeFiles/compile_shaders.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/compile_shaders.dir/build.make CMakeFiles/compile_shaders.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=18,19 "Built target compile_shaders"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=17,18 "Built target compile_shaders"
 .PHONY : CMakeFiles/compile_shaders.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/compile_shaders.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/compile_shaders.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 0
 .PHONY : CMakeFiles/compile_shaders.dir/rule
 
 # Convenience name for target.
@@ -194,14 +194,14 @@ CMakeFiles/compile_shaders.dir/clean:
 CMakeFiles/Engine.dir/all: deps/glfw-3.4/src/CMakeFiles/glfw.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 "Built target Engine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 "Built target Engine"
 .PHONY : CMakeFiles/Engine.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Engine.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 62
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 61
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Engine.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 0
 .PHONY : CMakeFiles/Engine.dir/rule
 
 # Convenience name for target.
@@ -220,14 +220,14 @@ CMakeFiles/Engine.dir/clean:
 deps/glfw-3.4/CMakeFiles/uninstall.dir/all:
 	$(MAKE) $(MAKESILENT) -f deps/glfw-3.4/CMakeFiles/uninstall.dir/build.make deps/glfw-3.4/CMakeFiles/uninstall.dir/depend
 	$(MAKE) $(MAKESILENT) -f deps/glfw-3.4/CMakeFiles/uninstall.dir/build.make deps/glfw-3.4/CMakeFiles/uninstall.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num= "Built target uninstall"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num= "Built target uninstall"
 .PHONY : deps/glfw-3.4/CMakeFiles/uninstall.dir/all
 
 # Build rule for subdir invocation for target.
 deps/glfw-3.4/CMakeFiles/uninstall.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 0
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/glfw-3.4/CMakeFiles/uninstall.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 0
 .PHONY : deps/glfw-3.4/CMakeFiles/uninstall.dir/rule
 
 # Convenience name for target.
@@ -246,14 +246,14 @@ deps/glfw-3.4/CMakeFiles/uninstall.dir/clean:
 deps/glfw-3.4/src/CMakeFiles/glfw.dir/all:
 	$(MAKE) $(MAKESILENT) -f deps/glfw-3.4/src/CMakeFiles/glfw.dir/build.make deps/glfw-3.4/src/CMakeFiles/glfw.dir/depend
 	$(MAKE) $(MAKESILENT) -f deps/glfw-3.4/src/CMakeFiles/glfw.dir/build.make deps/glfw-3.4/src/CMakeFiles/glfw.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64 "Built target glfw"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63 "Built target glfw"
 .PHONY : deps/glfw-3.4/src/CMakeFiles/glfw.dir/all
 
 # Build rule for subdir invocation for target.
 deps/glfw-3.4/src/CMakeFiles/glfw.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 45
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 45
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/glfw-3.4/src/CMakeFiles/glfw.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 0
 .PHONY : deps/glfw-3.4/src/CMakeFiles/glfw.dir/rule
 
 # Convenience name for target.
@@ -272,14 +272,14 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/clean:
 deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/all:
 	$(MAKE) $(MAKESILENT) -f deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/build.make deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/depend
 	$(MAKE) $(MAKESILENT) -f deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/build.make deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=67 "Built target update_mappings"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=66 "Built target update_mappings"
 .PHONY : deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/all
 
 # Build rule for subdir invocation for target.
 deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 1
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 0
 .PHONY : deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/rule
 
 # Convenience name for target.
@@ -298,14 +298,14 @@ deps/glfw-3.4/src/CMakeFiles/update_mappings.dir/clean:
 deps/glm/glm/CMakeFiles/glm.dir/all:
 	$(MAKE) $(MAKESILENT) -f deps/glm/glm/CMakeFiles/glm.dir/build.make deps/glm/glm/CMakeFiles/glm.dir/depend
 	$(MAKE) $(MAKESILENT) -f deps/glm/glm/CMakeFiles/glm.dir/build.make deps/glm/glm/CMakeFiles/glm.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=65,66 "Built target glm"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=64,65 "Built target glm"
 .PHONY : deps/glm/glm/CMakeFiles/glm.dir/all
 
 # Build rule for subdir invocation for target.
 deps/glm/glm/CMakeFiles/glm.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deps/glm/glm/CMakeFiles/glm.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/talha/Documents/NewEngine/build/CMakeFiles 0
 .PHONY : deps/glm/glm/CMakeFiles/glm.dir/rule
 
 # Convenience name for target.

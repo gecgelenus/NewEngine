@@ -1,4 +1,4 @@
-# Install script for directory: /home/talha/Desktop/MyProjects/Engine/deps/glm/glm
+# Install script for directory: /home/talha/Documents/NewEngine/deps/glm/glm
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

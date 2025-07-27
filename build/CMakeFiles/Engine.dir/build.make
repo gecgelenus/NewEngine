@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/talha/Desktop/MyProjects/Engine
+CMAKE_SOURCE_DIR = /home/talha/Documents/NewEngine
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/talha/Desktop/MyProjects/Engine/build
+CMAKE_BINARY_DIR = /home/talha/Documents/NewEngine/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/Engine.dir/depend.make
@@ -72,226 +72,212 @@ include CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/Interface.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/Interface.cpp.o: ../src/Interface.cpp
 CMakeFiles/Engine.dir/src/Interface.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Engine.dir/src/Interface.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/Interface.cpp.o -MF CMakeFiles/Engine.dir/src/Interface.cpp.o.d -o CMakeFiles/Engine.dir/src/Interface.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/Interface.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Engine.dir/src/Interface.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/Interface.cpp.o -MF CMakeFiles/Engine.dir/src/Interface.cpp.o.d -o CMakeFiles/Engine.dir/src/Interface.cpp.o -c /home/talha/Documents/NewEngine/src/Interface.cpp
 
 CMakeFiles/Engine.dir/src/Interface.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/Interface.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/Interface.cpp > CMakeFiles/Engine.dir/src/Interface.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/Interface.cpp > CMakeFiles/Engine.dir/src/Interface.cpp.i
 
 CMakeFiles/Engine.dir/src/Interface.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/Interface.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/Interface.cpp -o CMakeFiles/Engine.dir/src/Interface.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/Interface.cpp -o CMakeFiles/Engine.dir/src/Interface.cpp.s
 
 CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o: ../src/graphic_pipeline.cpp
 CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o -MF CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o.d -o CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/graphic_pipeline.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o -MF CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o.d -o CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o -c /home/talha/Documents/NewEngine/src/graphic_pipeline.cpp
 
 CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/graphic_pipeline.cpp > CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/graphic_pipeline.cpp > CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.i
 
 CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/graphic_pipeline.cpp -o CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/graphic_pipeline.cpp -o CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.s
 
 CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o: ../src/imgui/imgui.cpp
 CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o -c /home/talha/Documents/NewEngine/src/imgui/imgui.cpp
 
 CMakeFiles/Engine.dir/src/imgui/imgui.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/imgui/imgui.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui.cpp > CMakeFiles/Engine.dir/src/imgui/imgui.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/imgui/imgui.cpp > CMakeFiles/Engine.dir/src/imgui/imgui.cpp.i
 
 CMakeFiles/Engine.dir/src/imgui/imgui.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/imgui/imgui.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/imgui/imgui.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui.cpp.s
 
 CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o: ../src/imgui/imgui_draw.cpp
 CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_draw.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o -c /home/talha/Documents/NewEngine/src/imgui/imgui_draw.cpp
 
 CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_draw.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/imgui/imgui_draw.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.i
 
 CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_draw.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/imgui/imgui_draw.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.s
 
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o: ../src/imgui/imgui_impl_glfw.cpp
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_impl_glfw.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.o -c /home/talha/Documents/NewEngine/src/imgui/imgui_impl_glfw.cpp
 
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_impl_glfw.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/imgui/imgui_impl_glfw.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.i
 
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_impl_glfw.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/imgui/imgui_impl_glfw.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_impl_glfw.cpp.s
 
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o: ../src/imgui/imgui_impl_vulkan.cpp
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_impl_vulkan.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.o -c /home/talha/Documents/NewEngine/src/imgui/imgui_impl_vulkan.cpp
 
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_impl_vulkan.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/imgui/imgui_impl_vulkan.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.i
 
 CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_impl_vulkan.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/imgui/imgui_impl_vulkan.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_impl_vulkan.cpp.s
 
 CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o: ../src/imgui/imgui_tables.cpp
 CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_tables.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.o -c /home/talha/Documents/NewEngine/src/imgui/imgui_tables.cpp
 
 CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_tables.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/imgui/imgui_tables.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.i
 
 CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_tables.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/imgui/imgui_tables.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_tables.cpp.s
 
 CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o: ../src/imgui/imgui_widgets.cpp
 CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_widgets.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o -MF CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o.d -o CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o -c /home/talha/Documents/NewEngine/src/imgui/imgui_widgets.cpp
 
 CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_widgets.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/imgui/imgui_widgets.cpp > CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.i
 
 CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/imgui/imgui_widgets.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/imgui/imgui_widgets.cpp -o CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.s
 
 CMakeFiles/Engine.dir/src/main.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/main.cpp.o: ../src/main.cpp
 CMakeFiles/Engine.dir/src/main.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/Engine.dir/src/main.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/main.cpp.o -MF CMakeFiles/Engine.dir/src/main.cpp.o.d -o CMakeFiles/Engine.dir/src/main.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/Engine.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/main.cpp.o -MF CMakeFiles/Engine.dir/src/main.cpp.o.d -o CMakeFiles/Engine.dir/src/main.cpp.o -c /home/talha/Documents/NewEngine/src/main.cpp
 
 CMakeFiles/Engine.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/main.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/main.cpp > CMakeFiles/Engine.dir/src/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/main.cpp > CMakeFiles/Engine.dir/src/main.cpp.i
 
 CMakeFiles/Engine.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/main.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/main.cpp -o CMakeFiles/Engine.dir/src/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/main.cpp -o CMakeFiles/Engine.dir/src/main.cpp.s
 
 CMakeFiles/Engine.dir/src/object.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/object.cpp.o: ../src/object.cpp
 CMakeFiles/Engine.dir/src/object.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/Engine.dir/src/object.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/object.cpp.o -MF CMakeFiles/Engine.dir/src/object.cpp.o.d -o CMakeFiles/Engine.dir/src/object.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/object.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/Engine.dir/src/object.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/object.cpp.o -MF CMakeFiles/Engine.dir/src/object.cpp.o.d -o CMakeFiles/Engine.dir/src/object.cpp.o -c /home/talha/Documents/NewEngine/src/object.cpp
 
 CMakeFiles/Engine.dir/src/object.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/object.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/object.cpp > CMakeFiles/Engine.dir/src/object.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/object.cpp > CMakeFiles/Engine.dir/src/object.cpp.i
 
 CMakeFiles/Engine.dir/src/object.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/object.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/object.cpp -o CMakeFiles/Engine.dir/src/object.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/object.cpp -o CMakeFiles/Engine.dir/src/object.cpp.s
 
 CMakeFiles/Engine.dir/src/render_batch.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/render_batch.cpp.o: ../src/render_batch.cpp
 CMakeFiles/Engine.dir/src/render_batch.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/Engine.dir/src/render_batch.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/render_batch.cpp.o -MF CMakeFiles/Engine.dir/src/render_batch.cpp.o.d -o CMakeFiles/Engine.dir/src/render_batch.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/render_batch.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/Engine.dir/src/render_batch.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/render_batch.cpp.o -MF CMakeFiles/Engine.dir/src/render_batch.cpp.o.d -o CMakeFiles/Engine.dir/src/render_batch.cpp.o -c /home/talha/Documents/NewEngine/src/render_batch.cpp
 
 CMakeFiles/Engine.dir/src/render_batch.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/render_batch.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/render_batch.cpp > CMakeFiles/Engine.dir/src/render_batch.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/render_batch.cpp > CMakeFiles/Engine.dir/src/render_batch.cpp.i
 
 CMakeFiles/Engine.dir/src/render_batch.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/render_batch.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/render_batch.cpp -o CMakeFiles/Engine.dir/src/render_batch.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/render_batch.cpp -o CMakeFiles/Engine.dir/src/render_batch.cpp.s
 
 CMakeFiles/Engine.dir/src/render_queue.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/render_queue.cpp.o: ../src/render_queue.cpp
 CMakeFiles/Engine.dir/src/render_queue.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/Engine.dir/src/render_queue.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/render_queue.cpp.o -MF CMakeFiles/Engine.dir/src/render_queue.cpp.o.d -o CMakeFiles/Engine.dir/src/render_queue.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/render_queue.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/Engine.dir/src/render_queue.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/render_queue.cpp.o -MF CMakeFiles/Engine.dir/src/render_queue.cpp.o.d -o CMakeFiles/Engine.dir/src/render_queue.cpp.o -c /home/talha/Documents/NewEngine/src/render_queue.cpp
 
 CMakeFiles/Engine.dir/src/render_queue.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/render_queue.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/render_queue.cpp > CMakeFiles/Engine.dir/src/render_queue.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/render_queue.cpp > CMakeFiles/Engine.dir/src/render_queue.cpp.i
 
 CMakeFiles/Engine.dir/src/render_queue.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/render_queue.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/render_queue.cpp -o CMakeFiles/Engine.dir/src/render_queue.cpp.s
-
-CMakeFiles/Engine.dir/src/resource_manager.cpp.o: CMakeFiles/Engine.dir/flags.make
-CMakeFiles/Engine.dir/src/resource_manager.cpp.o: ../src/resource_manager.cpp
-CMakeFiles/Engine.dir/src/resource_manager.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/Engine.dir/src/resource_manager.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/resource_manager.cpp.o -MF CMakeFiles/Engine.dir/src/resource_manager.cpp.o.d -o CMakeFiles/Engine.dir/src/resource_manager.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/resource_manager.cpp
-
-CMakeFiles/Engine.dir/src/resource_manager.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/resource_manager.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/resource_manager.cpp > CMakeFiles/Engine.dir/src/resource_manager.cpp.i
-
-CMakeFiles/Engine.dir/src/resource_manager.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/resource_manager.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/resource_manager.cpp -o CMakeFiles/Engine.dir/src/resource_manager.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/render_queue.cpp -o CMakeFiles/Engine.dir/src/render_queue.cpp.s
 
 CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o: ../src/spirv_reflect.cpp
 CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o -MF CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o.d -o CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/spirv_reflect.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o -MF CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o.d -o CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o -c /home/talha/Documents/NewEngine/src/spirv_reflect.cpp
 
 CMakeFiles/Engine.dir/src/spirv_reflect.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/spirv_reflect.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/spirv_reflect.cpp > CMakeFiles/Engine.dir/src/spirv_reflect.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/spirv_reflect.cpp > CMakeFiles/Engine.dir/src/spirv_reflect.cpp.i
 
 CMakeFiles/Engine.dir/src/spirv_reflect.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/spirv_reflect.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/spirv_reflect.cpp -o CMakeFiles/Engine.dir/src/spirv_reflect.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/spirv_reflect.cpp -o CMakeFiles/Engine.dir/src/spirv_reflect.cpp.s
 
 CMakeFiles/Engine.dir/src/util.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/util.cpp.o: ../src/util.cpp
 CMakeFiles/Engine.dir/src/util.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/Engine.dir/src/util.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/util.cpp.o -MF CMakeFiles/Engine.dir/src/util.cpp.o.d -o CMakeFiles/Engine.dir/src/util.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/util.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/Engine.dir/src/util.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/util.cpp.o -MF CMakeFiles/Engine.dir/src/util.cpp.o.d -o CMakeFiles/Engine.dir/src/util.cpp.o -c /home/talha/Documents/NewEngine/src/util.cpp
 
 CMakeFiles/Engine.dir/src/util.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/util.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/util.cpp > CMakeFiles/Engine.dir/src/util.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/util.cpp > CMakeFiles/Engine.dir/src/util.cpp.i
 
 CMakeFiles/Engine.dir/src/util.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/util.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/util.cpp -o CMakeFiles/Engine.dir/src/util.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/util.cpp -o CMakeFiles/Engine.dir/src/util.cpp.s
 
 CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: CMakeFiles/Engine.dir/flags.make
 CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp
 CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: CMakeFiles/Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/Engine.dir/src/vulkan_context.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/vulkan_context.cpp.o -MF CMakeFiles/Engine.dir/src/vulkan_context.cpp.o.d -o CMakeFiles/Engine.dir/src/vulkan_context.cpp.o -c /home/talha/Desktop/MyProjects/Engine/src/vulkan_context.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/Engine.dir/src/vulkan_context.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Engine.dir/src/vulkan_context.cpp.o -MF CMakeFiles/Engine.dir/src/vulkan_context.cpp.o.d -o CMakeFiles/Engine.dir/src/vulkan_context.cpp.o -c /home/talha/Documents/NewEngine/src/vulkan_context.cpp
 
 CMakeFiles/Engine.dir/src/vulkan_context.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Engine.dir/src/vulkan_context.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Desktop/MyProjects/Engine/src/vulkan_context.cpp > CMakeFiles/Engine.dir/src/vulkan_context.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/talha/Documents/NewEngine/src/vulkan_context.cpp > CMakeFiles/Engine.dir/src/vulkan_context.cpp.i
 
 CMakeFiles/Engine.dir/src/vulkan_context.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Engine.dir/src/vulkan_context.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Desktop/MyProjects/Engine/src/vulkan_context.cpp -o CMakeFiles/Engine.dir/src/vulkan_context.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/talha/Documents/NewEngine/src/vulkan_context.cpp -o CMakeFiles/Engine.dir/src/vulkan_context.cpp.s
 
 # Object files for target Engine
 Engine_OBJECTS = \
@@ -307,7 +293,6 @@ Engine_OBJECTS = \
 "CMakeFiles/Engine.dir/src/object.cpp.o" \
 "CMakeFiles/Engine.dir/src/render_batch.cpp.o" \
 "CMakeFiles/Engine.dir/src/render_queue.cpp.o" \
-"CMakeFiles/Engine.dir/src/resource_manager.cpp.o" \
 "CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o" \
 "CMakeFiles/Engine.dir/src/util.cpp.o" \
 "CMakeFiles/Engine.dir/src/vulkan_context.cpp.o"
@@ -327,7 +312,6 @@ Engine: CMakeFiles/Engine.dir/src/main.cpp.o
 Engine: CMakeFiles/Engine.dir/src/object.cpp.o
 Engine: CMakeFiles/Engine.dir/src/render_batch.cpp.o
 Engine: CMakeFiles/Engine.dir/src/render_queue.cpp.o
-Engine: CMakeFiles/Engine.dir/src/resource_manager.cpp.o
 Engine: CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o
 Engine: CMakeFiles/Engine.dir/src/util.cpp.o
 Engine: CMakeFiles/Engine.dir/src/vulkan_context.cpp.o
@@ -337,7 +321,7 @@ Engine: deps/glfw-3.4/src/libglfw3.a
 Engine: /usr/lib/x86_64-linux-gnu/librt.a
 Engine: /usr/lib/x86_64-linux-gnu/libm.so
 Engine: CMakeFiles/Engine.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/talha/Desktop/MyProjects/Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX executable Engine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Linking CXX executable Engine"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Engine.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -349,6 +333,6 @@ CMakeFiles/Engine.dir/clean:
 .PHONY : CMakeFiles/Engine.dir/clean
 
 CMakeFiles/Engine.dir/depend:
-	cd /home/talha/Desktop/MyProjects/Engine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/talha/Desktop/MyProjects/Engine /home/talha/Desktop/MyProjects/Engine /home/talha/Desktop/MyProjects/Engine/build /home/talha/Desktop/MyProjects/Engine/build /home/talha/Desktop/MyProjects/Engine/build/CMakeFiles/Engine.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/talha/Documents/NewEngine/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/talha/Documents/NewEngine /home/talha/Documents/NewEngine /home/talha/Documents/NewEngine/build /home/talha/Documents/NewEngine/build /home/talha/Documents/NewEngine/build/CMakeFiles/Engine.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/Engine.dir/depend
 

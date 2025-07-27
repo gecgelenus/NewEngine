@@ -28,39 +28,18 @@ GraphicPipeline::GraphicPipeline(const vk_ctx &context, const std::string &p_ver
     }else{
         ALERT(GRAPHICS_PIPELINE_CTX, "Failed to create fragment shader module (SPIRV REFLECT)");
     }
-	createDescriptorPool();
-	allocateDescriptorSets();
-	createUniformBuffers();
     createGraphicPipeline(context, p_instance_params);
 }
 
 GraphicPipeline::~GraphicPipeline()
 {
-	if(!destroyed){
-		//spvReflectDestroyShaderModule(&vertexShaderReflect);
-		//spvReflectDestroyShaderModule(&fragmentShaderReflect);
+	//spvReflectDestroyShaderModule(&vertexShaderReflect);
+	//spvReflectDestroyShaderModule(&fragmentShaderReflect);
 
-		vkDestroyShaderModule(ctx.device, vertexShader, nullptr);
-		vkDestroyShaderModule(ctx.device, fragmentShader, nullptr);
+	vkDestroyShaderModule(ctx.device, vertexShader, nullptr);
+	vkDestroyShaderModule(ctx.device, fragmentShader, nullptr);
 
-		vkDestroyPipeline(ctx.device, pipeline, nullptr);
-		vkDestroyPipelineLayout(ctx.device, pipelineLayout, nullptr);
-		
-		vkDestroyDescriptorPool(ctx.device, descriptorPool, nullptr);
-
-		for(int i = 0; i < ctx.swapchainImageViews.size();i++){
-			ctx.bufferAllocations.erase(ModelMatrixBufferAllocation[i]);
-			vmaDestroyBuffer(ctx.allocator, ModelMatrixBuffer[i], ModelMatrixBufferAllocation[i]);
-		}
-
-		ctx.bufferAllocations.erase(vertexBufferAllocation);
-		vmaDestroyBuffer(ctx.allocator, vertexBuffer, vertexBufferAllocation);
-		vmaDestroyBuffer(ctx.allocator, indexBuffer, indexBufferAllocation);
-		vmaDestroyBuffer(ctx.allocator, drawBuffer, drawBufferAllocation);
-
-
-		destroyed = true;
-	}
+	vkDestroyPipeline(ctx.device, pipeline, nullptr);
 
     
 }
@@ -335,24 +314,7 @@ void GraphicPipeline::createGraphicPipeline(const vk_ctx& context, const vk_inst
 
 	// PIPELINE LAYOUT
 
-	VkDescriptorSetLayout layouts[] = { ctx.setCameraLayout , ctx.setModelMatLayout, ctx.setTextureLayout};
 
-
-	VkPushConstantRange pushConstantRange{};
-	pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT; // Accessible by VS and FS
-	pushConstantRange.offset = 0; // Start from the beginning of the push constant block
-	pushConstantRange.size = sizeof(PushConstant); // Size of your data
-
-	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 3;
-	pipelineLayoutInfo.pSetLayouts = layouts;
-	pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
-	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Optional
-
-	if (vkCreatePipelineLayout(context.device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create pipeline layout!");
-	}
     
     VkPipelineRenderingCreateInfoKHR pipeline_create{VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR};
     pipeline_create.pNext                   = VK_NULL_HANDLE;
@@ -375,7 +337,7 @@ void GraphicPipeline::createGraphicPipeline(const vk_ctx& context, const vk_inst
 	pipelineInfo.pDepthStencilState = &depthStencil;
 	pipelineInfo.pColorBlendState = &colorBlending;
 	pipelineInfo.pDynamicState = &dynamicState;
-	pipelineInfo.layout = pipelineLayout;
+	pipelineInfo.layout = ctx.globalPipelineLayout;
 	pipelineInfo.renderPass = nullptr;
 	pipelineInfo.subpass = 0;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
@@ -390,207 +352,9 @@ void GraphicPipeline::createGraphicPipeline(const vk_ctx& context, const vk_inst
 
 }
 
-VmaAllocationInfo GraphicPipeline::createBuffer(VkDeviceSize size, int memoryType, VkBufferUsageFlags usage, VkBuffer& buffer, VmaAllocation& allocation)
-{
-	VmaAllocationInfo info;
-
-	VkBufferCreateInfo bufferInfo{};
-	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = size;
-	bufferInfo.usage = usage;
-	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-	VmaAllocationCreateInfo allocInfo{};
-	allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-	allocInfo.flags = memoryType;
-	vmaCreateBuffer(ctx.allocator, &bufferInfo, &allocInfo, &buffer, &allocation, &info);
-	ctx.bufferAllocations.insert({allocation, buffer});
-	std::cout << "Created VkBuffer handle: " << (void*)buffer << " with allocation: " << (void*)allocation << std::endl;
-	return info;
-}
-
-void GraphicPipeline::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset)
-{
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = ctx.commandPoolCopy;
-	allocInfo.commandBufferCount = 1;
-
-	VkCommandBuffer commandBuffer;
-	vkAllocateCommandBuffers(ctx.device, &allocInfo, &commandBuffer);
-
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-	VkBufferCopy copyRegion{};
-	copyRegion.srcOffset = srcOffset; // Optional
-	copyRegion.dstOffset = dstOffset; // Optional
-	copyRegion.size = size;
-	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-	vkEndCommandBuffer(commandBuffer);
-
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &commandBuffer;
-
-	vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(ctx.graphicsQueue); // TODO: Implement async transfer
-
-	vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &commandBuffer);
-}
-
-void GraphicPipeline::createDescriptorPool()
-{
-	VkDescriptorPoolSize VPSize{};
-	VPSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	VPSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
-
-	VkDescriptorPoolSize ModelSize{};
-	ModelSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	ModelSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size()) * 64;
-
-	VkDescriptorPoolSize TextureSize{};
-	TextureSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	TextureSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size()) * 64;
-
-	VkDescriptorPoolSize sizes[] = { VPSize, ModelSize, TextureSize};
-
-	VkDescriptorPoolCreateInfo poolInfo{};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 3;
-	poolInfo.pPoolSizes = sizes;
-	poolInfo.maxSets = static_cast<uint32_t>(ctx.swapchainImageViews.size()*3);
-
-	if (vkCreateDescriptorPool(ctx.device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create descriptor pool");
-	}
-
-
-}
-
-void GraphicPipeline::allocateDescriptorSets()
-{
-
-	std::vector<VkDescriptorSetLayout> VPlayouts(ctx.swapchainImageViews.size(), ctx.setCameraLayout);
-
-
-	VkDescriptorSetAllocateInfo VPallocInfo{};
-	VPallocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	VPallocInfo.descriptorPool = descriptorPool;
-	VPallocInfo.descriptorSetCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
-	VPallocInfo.pSetLayouts = VPlayouts.data();
-
-	descriptorSetsVP.resize(ctx.swapchainImageViews.size());
-	if (vkAllocateDescriptorSets(ctx.device, &VPallocInfo, descriptorSetsVP.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-	
-
-	std::vector<VkDescriptorSetLayout> Modellayouts(ctx.swapchainImageViews.size(), ctx.setModelMatLayout);
-
-
-	VkDescriptorSetAllocateInfo ModelallocInfo{};
-	ModelallocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	ModelallocInfo.descriptorPool = descriptorPool;
-	ModelallocInfo.descriptorSetCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
-	ModelallocInfo.pSetLayouts = Modellayouts.data();
-
-	descriptorSetsModel.resize(ctx.swapchainImageViews.size());
-	if (vkAllocateDescriptorSets(ctx.device, &ModelallocInfo, descriptorSetsModel.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-
-
-	std::vector<VkDescriptorSetLayout> Texturelayouts(ctx.swapchainImageViews.size(), ctx.setTextureLayout);
-
-
-	VkDescriptorSetAllocateInfo TextureAllocInfo{};
-	TextureAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	TextureAllocInfo.descriptorPool = descriptorPool;
-	TextureAllocInfo.descriptorSetCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
-	TextureAllocInfo.pSetLayouts = Texturelayouts.data();
-
-	descriptorSetsTexture.resize(ctx.swapchainImageViews.size());
-	if (vkAllocateDescriptorSets(ctx.device, &TextureAllocInfo, descriptorSetsTexture.data()) != VK_SUCCESS) {
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
 
 
 
-}
-
-void GraphicPipeline::createUniformBuffers()
-{
-
-	VkDeviceSize ModelBufferSize = sizeof(glm::mat4) * 64;
-
-	for (size_t i = 0; i < ctx.swapchainImageViews.size(); i++) {
-
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = ctx.camera.buffers[i]; // <--- Your actual camera uniform buffer
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(glm::mat4); // The size of the data in your buffer
-
-		VkWriteDescriptorSet descriptorWrite{};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = descriptorSetsVP[i]; // The descriptor set to update
-		descriptorWrite.dstBinding = 0;                       // Matches layout(binding = 0) in shader
-		descriptorWrite.dstArrayElement = 0;                  // If it's not an array, this is 0
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // Matches layout in shader
-		descriptorWrite.descriptorCount = 1;                  // Matches descriptorCount in layout
-		descriptorWrite.pBufferInfo = &bufferInfo;            // Link to your buffer info
-		descriptorWrite.pImageInfo = nullptr;
-		descriptorWrite.pTexelBufferView = nullptr;
-
-		vkUpdateDescriptorSets(ctx.device, 1, &descriptorWrite, 0, nullptr);
-	}
-
-
-
-	ModelMatrixBuffer.resize(ctx.swapchainImageViews.size());
-	ModelMatrixBufferAllocation.resize(ctx.swapchainImageViews.size());
-	ModelMatrixBufferMapped.resize(ctx.swapchainImageViews.size());
-
-	for (size_t i = 0; i < ctx.swapchainImageViews.size(); i++) {
-		
-
-		VmaAllocationInfo info =  createBuffer(ModelBufferSize, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
-			VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT |
-			VMA_ALLOCATION_CREATE_MAPPED_BIT,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, ModelMatrixBuffer[i], ModelMatrixBufferAllocation[i]);
-
-			
-		std::vector<VkDescriptorBufferInfo> bufferInfos(64);
-
-		for (uint32_t j = 0; j < 64; j++) {
-			bufferInfos[j].buffer = ModelMatrixBuffer[i];
-			bufferInfos[j].offset = j * sizeof(glm::mat4);                        
-			bufferInfos[j].range = sizeof(glm::mat4);          
-		}
-
-		VkWriteDescriptorSet descriptorWrite{};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = descriptorSetsModel[i]; // The VkDescriptorSet for Set 1 (from previous discussion)
-		descriptorWrite.dstBinding = 0;                         // Matches layout(binding = 0) in your shader
-		descriptorWrite.dstArrayElement = 0;                    // <--- Start updating from the first element (index 0) of the array
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // Matches type in shader
-		descriptorWrite.descriptorCount = 64;                   // <--- The total number of elements in the array you are updating
-		descriptorWrite.pBufferInfo = bufferInfos.data();       // <--- Pointer to the array of VkDescriptorBufferInfo
-		descriptorWrite.pImageInfo = nullptr;
-		descriptorWrite.pTexelBufferView = nullptr;
-
-		vkUpdateDescriptorSets(ctx.device, 1, &descriptorWrite, 0, nullptr);
-
-		ModelMatrixBufferMapped[i] = info.pMappedData;
-	}
-
-}
 
 bool GraphicPipeline::isContaints(std::vector<std::string> &array, std::string element)
 {
