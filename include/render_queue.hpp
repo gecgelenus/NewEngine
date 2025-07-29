@@ -30,6 +30,8 @@ class RenderQueue{
 
         bool cameraInputEnabled = false;
 
+        std::vector<std::string> consoleBuffer;
+    
         void processCameraInput();
         void updateCamera(uint32_t index);
         void createSyncObjects();
@@ -40,6 +42,8 @@ class RenderQueue{
         void renderUI();
         void renderLeftPanel();
         void renderRightPanel();
+        void renderConsole();
+
 
 
 

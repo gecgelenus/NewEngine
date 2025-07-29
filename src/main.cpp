@@ -33,14 +33,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         }
 
     }
- 
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
 }
-
-
+void char_callback(GLFWwindow* window, unsigned int c) {
+    ImGui_ImplGlfw_CharCallback(window, c);
+}
 int main(){
     
     vk_ctx ctx{};
     pCtx = &ctx;
+    ctx.console = new ConsoleInstance();
     
     vk_instance_params instance_params{};
     
@@ -88,13 +90,14 @@ int main(){
 
     
 
-
     
     RenderQueue renderQueue(ctx, instance_params);
     renderQueue.addBatch(&rBatch);
 
 
     glfwSetKeyCallback(ctx.window, key_callback);
+    glfwSetCharCallback(ctx.window, char_callback);
+
     for(int i = 0; i < renderQueue.batchList.size();i++){
         renderQueue.batchList[i]->graphicPipeline->pushConstant.modelBufferAddress = ctx.bufferAddress;
     }
@@ -106,29 +109,7 @@ int main(){
                 renderQueue.batchList[i]->updateModelMatrices();
             }
 
-            VmaAllocationInfo allocationInfo;
-            vmaGetAllocationInfo(ctx.allocator, ctx.deviceBufferAllocation, &allocationInfo);
-            VkDeviceSize modelDataSize = ctx.modelMatrixList.size()*sizeof(glm::mat4);
-
-            if(allocationInfo.size < modelDataSize){
-
             
-
-                CTX::AUX::enlargeBuffer(ctx, modelDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-                    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-                    ctx.deviceBuffer, ctx.deviceBufferAllocation);
-                
-                
-                VkBufferDeviceAddressInfo addressInfoMaterial{};
-                addressInfoMaterial.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-                addressInfoMaterial.buffer = ctx.deviceBuffer;
-
-                ctx.bufferAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfoMaterial);
-            }
-	
-
-
-            CTX::AUX::uploadData(ctx, ctx.modelMatrixList.data(), ctx.deviceBuffer, modelDataSize, 0);
             renderQueue.drawQueue();
             
     }

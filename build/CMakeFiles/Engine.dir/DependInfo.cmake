@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/talha/Documents/NewEngine/src/Interface.cpp" "CMakeFiles/Engine.dir/src/Interface.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/Interface.cpp.o.d"
+  "/home/talha/Documents/NewEngine/src/console.cpp" "CMakeFiles/Engine.dir/src/console.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/console.cpp.o.d"
   "/home/talha/Documents/NewEngine/src/graphic_pipeline.cpp" "CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o.d"
   "/home/talha/Documents/NewEngine/src/imgui/imgui.cpp" "CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/imgui/imgui.cpp.o.d"
   "/home/talha/Documents/NewEngine/src/imgui/imgui_draw.cpp" "CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/imgui/imgui_draw.cpp.o.d"

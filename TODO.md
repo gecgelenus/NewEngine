@@ -1,4 +1,6 @@
 Update buffers partially
+Model: done
+
 
 Create sampler according to gltf file data
 

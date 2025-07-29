@@ -19,3 +19,4 @@ std::vector<char> util::readFile(const std::string& filename)
 
 		return buffer;
 	}
+

@@ -25,7 +25,7 @@ class RenderBatch{
         void reloadObjectData();
 
         void updateModelMatrices();
-        void updateModelMatrixRecursive(Object* obj);
+        void updateModelMatrixRecursive(Object* obj, std::vector<VkBufferCopy>& regions);
 
         void updateDrawCommands();
         void updateTextureSets();

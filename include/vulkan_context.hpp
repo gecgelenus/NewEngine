@@ -1,7 +1,9 @@
 #pragma once
 #include <unordered_map>
 #include "util.hpp"
+#include "console.hpp"
 #include "vma.h"
+
 
 #include <GLFW/glfw3.h>
 
@@ -10,6 +12,8 @@
 #define DEBUG_CTX "Vulkan Context"
 
 #define MAX_TEXTURE_BIND 8192
+
+
 
 struct PushConstant{
     uint64_t modelBufferAddress;
@@ -39,6 +43,7 @@ struct ObjectTransformation{
     glm::vec3 scale;
     glm::mat4 matrix;
 
+    bool operator==(const ObjectTransformation&) const = default;
     
 
 };
@@ -221,7 +226,7 @@ struct vk_ctx
     Camera camera;
     std::vector<TextureSlot> textureSet;
     
-
+    ConsoleInstance* console;
     
 
 };
@@ -297,6 +302,8 @@ namespace CTX{
         void uploadDataDeviceBuffer(vk_ctx& ctx, void* data, VkDeviceAddress& deviceAddress, VmaAllocation& allocation, VkBuffer& dstBuffer, size_t size, uint64_t dstOffset);
         
         void copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDeviceSize srcOffset, VkDeviceSize dstOffset);
+        void copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, std::vector<VkBufferCopy>& cmds);
+        
         void copyBufferToImage(vk_ctx& ctx, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
         
         void transitionImageLayout(vk_ctx& ctx ,VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);

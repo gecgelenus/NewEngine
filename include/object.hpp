@@ -45,6 +45,8 @@ class Object{
 
         std::vector<ObjectPrimitive> primitives; 
         ObjectTransformation transformation;
+        ObjectTransformation oldTransformation;
+
         ObjectTransformation parentTransformation;
         uint64_t vertexIndex;
         std::vector<uint32_t> indexData;

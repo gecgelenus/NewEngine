@@ -263,6 +263,30 @@ src/Interface.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/Interface.cpp.s
 .PHONY : src/Interface.cpp.s
 
+src/console.o: src/console.cpp.o
+.PHONY : src/console.o
+
+# target to build an object file
+src/console.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/console.cpp.o
+.PHONY : src/console.cpp.o
+
+src/console.i: src/console.cpp.i
+.PHONY : src/console.i
+
+# target to preprocess a source file
+src/console.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/console.cpp.i
+.PHONY : src/console.cpp.i
+
+src/console.s: src/console.cpp.s
+.PHONY : src/console.s
+
+# target to generate assembly for a file
+src/console.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/console.cpp.s
+.PHONY : src/console.cpp.s
+
 src/graphic_pipeline.o: src/graphic_pipeline.cpp.o
 .PHONY : src/graphic_pipeline.o
 
@@ -620,6 +644,9 @@ help:
 	@echo "... src/Interface.o"
 	@echo "... src/Interface.i"
 	@echo "... src/Interface.s"
+	@echo "... src/console.o"
+	@echo "... src/console.i"
+	@echo "... src/console.s"
 	@echo "... src/graphic_pipeline.o"
 	@echo "... src/graphic_pipeline.i"
 	@echo "... src/graphic_pipeline.s"

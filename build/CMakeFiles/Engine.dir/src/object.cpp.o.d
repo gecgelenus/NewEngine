@@ -421,6 +421,9 @@ CMakeFiles/Engine.dir/src/object.cpp.o: \
  /home/talha/Documents/NewEngine/./include/spirv_reflect.h \
  /home/talha/Documents/NewEngine/./include/spirv/unified1/spirv.h \
  /home/talha/Documents/NewEngine/./include/vulkan_context.hpp \
+ /home/talha/Documents/NewEngine/./include/console.hpp \
+ /home/talha/Documents/NewEngine/./include/imgui/imgui.h \
+ /home/talha/Documents/NewEngine/./include/imgui/imconfig.h \
  /home/talha/Documents/NewEngine/./include/vma.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/include/GLFW/glfw3.h \
  /usr/include/GL/gl.h /usr/include/GL/glext.h \

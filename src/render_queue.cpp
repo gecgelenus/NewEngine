@@ -1,5 +1,6 @@
 #include "render_queue.hpp"
 #include <iostream>
+#include <sstream>
 
 RenderQueue::RenderQueue(vk_ctx &p_ctx, vk_instance_params &p_instance_params) : ctx(p_ctx)
 {
@@ -443,16 +444,14 @@ void RenderQueue::renderUI()
         // Dock windows
         ImGui::DockBuilderDockWindow("Inspector", dock_id_right);
         ImGui::DockBuilderDockWindow("LeftPanel", dock_id_left);
-        ImGui::DockBuilderDockWindow("BottomPanel", dock_id_bottom);
+        ImGui::DockBuilderDockWindow("Console", dock_id_bottom);
 
         ImGui::DockBuilderFinish(dockspace_id);
     }
     ImGui::End();
     renderLeftPanel();
     renderRightPanel();
-    ImGui::Begin("BottomPanel");
-    ImGui::Text("Console / Logs");
-    ImGui::End();
+    renderConsole();
     ImGui::Render();
 }
 
@@ -529,6 +528,8 @@ void RenderQueue::renderRightPanel()
                  std::to_string(ctx.objectIDMap[selectedItem]->transformation.translation.y) + " " +
                  std::to_string(ctx.objectIDMap[selectedItem]->transformation.translation.z) + " ";
         ImGui::Text(tmpStr.c_str());
+        
+        tmpStr = "Primitive count: " + std::to_string(ctx.objectIDMap[selectedItem]->primitives.size());
 
         if(ctx.objectIDMap[selectedItem]->primitives.size() > 0){
             tmpStr = "Primitives: " + std::to_string(ctx.objectIDMap[selectedItem]->primitives.size());
@@ -590,8 +591,15 @@ void RenderQueue::renderRightPanel()
             
             }
         }
-        tmpStr = "Primitives: " + std::to_string(ctx.objectIDMap[selectedItem]->primitives.size());
         ImGui::Text(tmpStr.c_str());
+
+        ImGui::Text("Position (x,y,z): ");
+        ImGui::SameLine();
+
+        if(ImGui::InputFloat3("##position", &(ctx.objectIDMap[selectedItem]->transformation.translation.x), "%.3f")){
+
+        }
+
 
         if(ctx.objectIDMap[selectedItem]->primitives.size() > 0){
             
@@ -600,6 +608,34 @@ void RenderQueue::renderRightPanel()
         ImGui::Text(tmpStr.c_str());
     }
     ImGui::End();
+}
+
+void RenderQueue::renderConsole()
+{
+        
+        static char textBuffer[512];
+
+
+        ImGui::Begin("Console");
+
+        ImGui::BeginChild("OutputField", ImVec2(0, -ImGui::GetTextLineHeightWithSpacing()), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar);
+
+        for (const ConsoleText& message : ctx.console->consoleBuffer) {
+            ImGui::TextColored(message.color, message.text.c_str());
+        }
+
+        ImGui::EndChild();
+        ImGuiInputTextFlags input_flags = ImGuiInputTextFlags_EnterReturnsTrue;
+        
+        if(ImGui::InputText("##position", textBuffer, 512, input_flags)){
+            if(strlen(textBuffer) > 0){
+                ctx.console->output(textBuffer, IMGUI_COLOR_WHITE);
+            }
+            textBuffer[0] = '\0';
+            ImGui::SetKeyboardFocusHere(-1);
+        }
+
+        ImGui::End();
 }
 
 void RenderQueue::addChildObjectsToList(Object *obj)

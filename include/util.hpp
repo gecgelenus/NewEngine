@@ -3,12 +3,18 @@
 #include <vulkan/vulkan.hpp>
 
 #include <fstream>
-#include "colorlog.h"
 #include <stddef.h>
+#include <string>
+
+#include "colorlog.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>         // For glm::make_mat4, glm::value_ptr (useful for copying to UBOs)
 #include <glm/gtc/quaternion.hpp> 
 #include <glm/gtc/matrix_transform.hpp> 
+
+
+
 #define UTIL_CTX "Utility"
 
 #define SIZE_BYTE 1
@@ -30,3 +36,4 @@ struct SwapChainSupportDetails {
 namespace util{
 	std::vector<char> readFile(const std::string& filename);
 }
+

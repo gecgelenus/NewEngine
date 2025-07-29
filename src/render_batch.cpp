@@ -105,6 +105,10 @@ void RenderBatch::processGltfFile(std::string& path) {
     const tinygltf::Scene& scene = model.scenes[model.defaultScene > -1 ? model.defaultScene : 0];
 
     std::cout << "Processing scene: " << scene.name << std::endl;
+	std::stringstream ss;
+	ss << "Processing scene: " << scene.name;
+	ctx.console->output(ss.str(), IMGUI_COLOR_BLUE);
+
 	LoadModelTextures(model, path);
 	updateTextureSets();
 
@@ -904,13 +908,18 @@ bool RenderBatch::LoadModelTextures(tinygltf::Model& model, std::string& path) {
 void RenderBatch::updateModelMatrices()
 {
     graphicPipeline->pushConstant.modelBufferAddress = ctx.bufferAddress;
-
+	std::vector<VkBufferCopy> regions;
 	for(int i = 0; i < objects.size();i++){
 
 		if(objects[i]->parentObject == nullptr){
-			updateModelMatrixRecursive(objects[i]);
+			updateModelMatrixRecursive(objects[i], regions);
 		}
 
+	}
+
+	
+	if(regions.size() <= 0){
+		return;
 	}
 
 
@@ -918,33 +927,82 @@ void RenderBatch::updateModelMatrices()
 		
 		ctx.modelMatrixList[objects[i]->modelIndex] = objects[i]->modelMatrix;
 	}
+
+
+	
+	// Check if buffer is enough to contain data
+	VmaAllocationInfo allocationInfo;
+	vmaGetAllocationInfo(ctx.allocator, ctx.deviceBufferAllocation, &allocationInfo);
+	VkDeviceSize modelDataSize = ctx.modelMatrixList.size()*sizeof(glm::mat4);
+
+	if(allocationInfo.size < modelDataSize){
+
+	
+
+		CTX::AUX::enlargeBuffer(ctx, modelDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+			ctx.deviceBuffer, ctx.deviceBufferAllocation);
+		
+		
+		VkBufferDeviceAddressInfo addressInfoMaterial{};
+		addressInfoMaterial.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+		addressInfoMaterial.buffer = ctx.deviceBuffer;
+
+		ctx.bufferAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfoMaterial);
+	}
+
+	// Copy data
+	VkBuffer stagingBuffer;
+	VmaAllocation stagingBufferAllocation;
+
+	CTX::AUX::createBuffer(ctx, modelDataSize, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | 
+		VMA_ALLOCATION_CREATE_MAPPED_BIT,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		stagingBuffer, stagingBufferAllocation);
+
+	void* data;
+	vmaMapMemory(ctx.allocator, stagingBufferAllocation, &data);
+	memcpy(data, ctx.modelMatrixList.data(), (size_t)modelDataSize);
+	vmaUnmapMemory(ctx.allocator, stagingBufferAllocation);
+
+
+	CTX::AUX::copyBuffer(ctx, stagingBuffer, ctx.deviceBuffer, regions);
+
+	ctx.bufferAllocations.erase(stagingBufferAllocation);
+	vmaDestroyBuffer(ctx.allocator, stagingBuffer, stagingBufferAllocation);
 }
 
 
 
 
-void RenderBatch::updateModelMatrixRecursive(Object *obj)
+void RenderBatch::updateModelMatrixRecursive(Object *obj, std::vector<VkBufferCopy>& regions)
 {
 	obj->localMatrix = glm::mat4(1.0f);
 
-	glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), obj->transformation.translation);
-	glm::mat4 rotationMatrix = glm::mat4_cast(obj->transformation.rotation);
-	glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), obj->transformation.scale);
+	if(obj->transformation != obj->oldTransformation){
+		obj->oldTransformation = obj->transformation;
+		glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), obj->transformation.translation);
+		glm::mat4 rotationMatrix = glm::mat4_cast(obj->transformation.rotation);
+		glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), obj->transformation.scale);
 
 
-	obj->localMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+		obj->localMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+		if(obj->parentObject != nullptr){
+			obj->modelMatrix = obj->parentObject->modelMatrix * obj->localMatrix;
+		}else{
+			obj->modelMatrix = obj->localMatrix;
+		}
 
-
-
-	if(obj->parentObject != nullptr){
-		obj->modelMatrix = obj->parentObject->modelMatrix * obj->localMatrix;
-	}else{
-		obj->modelMatrix = obj->localMatrix;
+		VkBufferCopy copyCmd{};
+		copyCmd.dstOffset = sizeof(glm::mat4)*obj->modelIndex;
+		copyCmd.srcOffset = sizeof(glm::mat4)*obj->modelIndex;
+		copyCmd.size = sizeof(glm::mat4);
+		regions.push_back(copyCmd);
 	}
 
 	if(obj->childObjects.size() > 0){
 		for(int i = 0; i < obj->childObjects.size(); i++){
-			updateModelMatrixRecursive(obj->childObjects[i]);
+			updateModelMatrixRecursive(obj->childObjects[i], regions);
 		}
 	}
 }

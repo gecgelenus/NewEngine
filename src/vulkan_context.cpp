@@ -547,6 +547,7 @@ void CTX::AUX::uploadData(vk_ctx &ctx, void *p_data, VkBuffer p_dstBuffer, size_
         vmaDestroyBuffer(ctx.allocator, stagingBuffer, stagingBufferAllocation);
 }
 
+
 void CTX::AUX::uploadDataDeviceBuffer(vk_ctx &ctx, void *p_data, VkDeviceAddress& deviceAddress, VmaAllocation& p_allocation, VkBuffer& p_dstBuffer, size_t p_size, uint64_t p_dstOffset)
 {
 
@@ -1098,6 +1099,56 @@ void CTX::AUX::copyBuffer(vk_ctx& ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, V
     vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer);
 }
 
+void CTX::AUX::copyBuffer(vk_ctx &ctx, VkBuffer srcBuffer, VkBuffer dstBuffer, std::vector<VkBufferCopy> &cmds)
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = ctx.commandPoolCopy;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer tmpCommandBuffer;
+	vkAllocateCommandBuffers(ctx.device, &allocInfo, &tmpCommandBuffer);
+
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(tmpCommandBuffer, &beginInfo);
+
+	vkCmdCopyBuffer(tmpCommandBuffer, srcBuffer, dstBuffer, cmds.size(), cmds.data());
+
+	vkEndCommandBuffer(tmpCommandBuffer);
+
+
+        // Create a fence for this specific submission
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = 0; // Create an unsignaled fence
+
+    VkFence copyFence;
+    if (vkCreateFence(ctx.device, &fenceInfo, nullptr, &copyFence) != VK_SUCCESS) {
+        vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer); // Clean up
+        throw std::runtime_error("Failed to create copy fence!");
+    }
+
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &tmpCommandBuffer;
+
+
+	if (vkQueueSubmit(ctx.transferQueue, 1, &submitInfo, copyFence) != VK_SUCCESS) {
+        vkDestroyFence(ctx.device, copyFence, nullptr);
+        vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer);
+        throw std::runtime_error("Failed to submit copy command buffer!");
+    }
+	vkWaitForFences(ctx.device, 1, &copyFence, VK_TRUE, UINT64_MAX); // Wait indefinitely
+
+    vkDestroyFence(ctx.device, copyFence, nullptr);
+    vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer);
+}
 
 void CTX::createGlobalDescriptorPool(vk_ctx& ctx){
 
