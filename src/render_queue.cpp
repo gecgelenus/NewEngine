@@ -452,6 +452,8 @@ void RenderQueue::renderUI()
     renderLeftPanel();
     renderRightPanel();
     renderConsole();
+
+    
     ImGui::Render();
 }
 

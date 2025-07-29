@@ -207,7 +207,7 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
     VkDeviceQueueCreateInfo queueCreateInfo{};
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCreateInfo.queueFamilyIndex = context.graphicsFamilyIndex;
-    queueCreateInfo.queueCount = 2;
+    queueCreateInfo.queueCount = 1;
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
     VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_feature {
@@ -277,7 +277,7 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
         SUCCESS(DEBUG_CTX, "Logical device created");
     }
     vkGetDeviceQueue(context.device, context.graphicsFamilyIndex, 0, &(context.graphicsQueue));
-    vkGetDeviceQueue(context.device, context.graphicsFamilyIndex, 1, &(context.transferQueue));
+    vkGetDeviceQueue(context.device, context.graphicsFamilyIndex, 0, &(context.transferQueue));
 
 
 }
