@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "../shaders/bin/simple.frag.spv"
-  "../shaders/bin/simple.vert.spv"
+  "C:/MyProjects/NewEngine-main/NewEngine/shaders/bin/simple.frag.spv"
+  "C:/MyProjects/NewEngine-main/NewEngine/shaders/bin/simple.vert.spv"
   "CMakeFiles/compile_shaders"
 )
 

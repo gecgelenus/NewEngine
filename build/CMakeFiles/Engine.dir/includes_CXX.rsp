@@ -1,0 +1,1 @@
+-IC:/VulkanSDK/1.4.313.2/include -I"C:/MyProjects/NewEngine-main/NewEngine/./include" -I"C:/MyProjects/NewEngine-main/NewEngine/./deps/colorLog" -I"C:/MyProjects/NewEngine-main/NewEngine/./deps/resourceLoaders" -I"C:/MyProjects/NewEngine-main/NewEngine/./include/imgui" -I"C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/include"

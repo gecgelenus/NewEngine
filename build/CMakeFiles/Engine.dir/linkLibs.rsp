@@ -1,0 +1,1 @@
+ "C:/VulkanSDK/1.4.313.2/Lib/vulkan-1.lib" "deps/glfw-3.4/src/libglfw3.a" -lpthread -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

@@ -463,45 +463,54 @@ void RenderQueue::renderLeftPanel()
 
     for (int i = 0; i < batchList.size(); i++)
     {
-        for (int j = 0; j < batchList[i]->objects.size(); j++)
-        {
-            if (batchList[i]->objects[j]->parentObject == nullptr)
+        std::stringstream tmpss;
+        tmpss << batchList[i]->name << " (" << batchList[i]->objects.size() << " objects)";
+        if(ImGui::TreeNode(tmpss.str().c_str())){
+             for (int j = 0; j < batchList[i]->objects.size(); j++)
             {
-                if (batchList[i]->objects[j]->childObjects.size() > 0)
+                if (batchList[i]->objects[j]->parentObject == nullptr)
                 {
-                    
-                    if (ImGui::TreeNode(batchList[i]->objects[j]->name.c_str()))
+                    if (batchList[i]->objects[j]->childObjects.size() > 0)
                     {
-
                         
-                        if (ImGui::IsItemClicked())
+                        if (ImGui::TreeNode(batchList[i]->objects[j]->name.c_str()))
                         {
-                            selectedItem = batchList[i]->objects[j]->objectID;
+
+                            
+                            if (ImGui::IsItemClicked())
+                            {
+                                selectedItem = batchList[i]->objects[j]->objectID;
+                            }
+
+                            addChildObjectsToList(batchList[i]->objects[j]);
+                            ImGui::TreePop();
+                        }
+                    }
+                    else
+                    {
+                        if (selectedItem == batchList[i]->objects[j]->objectID)
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
                         }
 
-                        addChildObjectsToList(batchList[i]->objects[j]);
-                        ImGui::TreePop();
+                        ImGui::Text(batchList[i]->objects[j]->name.c_str());
+                        if (selectedItem == batchList[i]->objects[j]->objectID)
+                        {
+                            ImGui::PopStyleColor();
+                        }
                     }
-                }
-                else
-                {
-                    if (selectedItem == batchList[i]->objects[j]->objectID)
+                    if (ImGui::IsItemClicked())
                     {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                        selectedItem = batchList[i]->objects[j]->objectID;
                     }
-
-                    ImGui::Text(batchList[i]->objects[j]->name.c_str());
-                    if (selectedItem == batchList[i]->objects[j]->objectID)
-                    {
-                        ImGui::PopStyleColor();
-                    }
-                }
-                if (ImGui::IsItemClicked())
-                {
-                    selectedItem = batchList[i]->objects[j]->objectID;
                 }
             }
+
+            ImGui::TreePop();
+        
         }
+
+       
     }
 
     ImGui::End();
@@ -631,7 +640,7 @@ void RenderQueue::renderConsole()
         
         if(ImGui::InputText("##position", textBuffer, 512, input_flags)){
             if(strlen(textBuffer) > 0){
-                ctx.console->output(textBuffer, IMGUI_COLOR_WHITE);
+                ctx.console->processCommand(textBuffer);
             }
             textBuffer[0] = '\0';
             ImGui::SetKeyboardFocusHere(-1);

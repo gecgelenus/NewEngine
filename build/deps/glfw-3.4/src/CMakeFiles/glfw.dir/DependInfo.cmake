@@ -8,36 +8,35 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/context.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/context.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/context.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/egl_context.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/egl_context.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/egl_context.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/glx_context.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/glx_context.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/glx_context.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/init.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/init.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/init.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/input.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/input.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/input.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/linux_joystick.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/linux_joystick.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/linux_joystick.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/monitor.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/monitor.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/monitor.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/null_init.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_init.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_init.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/null_joystick.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_joystick.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_joystick.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/null_monitor.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_monitor.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_monitor.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/null_window.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_window.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_window.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/osmesa_context.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/osmesa_context.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/osmesa_context.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/platform.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/platform.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/platform.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/posix_module.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_module.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_module.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/posix_poll.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_poll.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_poll.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/posix_thread.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_thread.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_thread.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/posix_time.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_time.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_time.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/vulkan.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/vulkan.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/vulkan.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/window.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/window.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/window.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/wl_init.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_init.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_init.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/wl_monitor.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_monitor.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_monitor.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/wl_window.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_window.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_window.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/x11_init.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/x11_init.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/x11_init.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/x11_monitor.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/x11_monitor.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/x11_monitor.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/x11_window.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/x11_window.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/x11_window.c.o.d"
-  "/home/talha/Documents/NewEngine/deps/glfw-3.4/src/xkb_unicode.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/xkb_unicode.c.o" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/xkb_unicode.c.o.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/context.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/context.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/context.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/egl_context.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/egl_context.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/egl_context.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/init.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/init.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/init.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/input.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/input.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/input.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/monitor.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/monitor.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/monitor.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/null_init.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_init.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_init.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/null_joystick.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_joystick.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_joystick.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/null_monitor.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_monitor.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_monitor.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/null_window.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_window.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/null_window.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/osmesa_context.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/osmesa_context.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/osmesa_context.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/platform.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/platform.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/platform.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/vulkan.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/vulkan.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/vulkan.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/wgl_context.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/wgl_context.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/wgl_context.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/win32_init.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_init.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_init.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/win32_joystick.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_joystick.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_joystick.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/win32_module.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_module.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_module.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/win32_monitor.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_monitor.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_monitor.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/win32_thread.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_thread.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_thread.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/win32_time.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_time.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_time.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/win32_window.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_window.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/win32_window.c.obj.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glfw-3.4/src/window.c" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/window.c.obj" "gcc" "deps/glfw-3.4/src/CMakeFiles/glfw.dir/window.c.obj.d"
   )
 
-# Targets to which this target links.
-set(CMAKE_TARGET_LINKED_INFO_FILES
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_FORWARD_LINKED_INFO_FILES
   )
 
 # Fortran module output directory.

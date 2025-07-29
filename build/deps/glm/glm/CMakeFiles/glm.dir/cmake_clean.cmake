@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/glm.dir/detail/glm.cpp.o"
-  "CMakeFiles/glm.dir/detail/glm.cpp.o.d"
+  "CMakeFiles/glm.dir/detail/glm.cpp.obj"
+  "CMakeFiles/glm.dir/detail/glm.cpp.obj.d"
   "libglm.a"
   "libglm.pdb"
 )

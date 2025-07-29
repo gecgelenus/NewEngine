@@ -8,11 +8,15 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/talha/Documents/NewEngine/deps/glm/glm/detail/glm.cpp" "deps/glm/glm/CMakeFiles/glm.dir/detail/glm.cpp.o" "gcc" "deps/glm/glm/CMakeFiles/glm.dir/detail/glm.cpp.o.d"
+  "C:/MyProjects/NewEngine-main/NewEngine/deps/glm/glm/detail/glm.cpp" "deps/glm/glm/CMakeFiles/glm.dir/detail/glm.cpp.obj" "gcc" "deps/glm/glm/CMakeFiles/glm.dir/detail/glm.cpp.obj.d"
   )
 
-# Targets to which this target links.
-set(CMAKE_TARGET_LINKED_INFO_FILES
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_FORWARD_LINKED_INFO_FILES
   )
 
 # Fortran module output directory.

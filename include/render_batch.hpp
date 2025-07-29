@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "tiny_gltf.h"
+#include <sstream>
+#include "console.hpp"
 
 class RenderBatch{
 
