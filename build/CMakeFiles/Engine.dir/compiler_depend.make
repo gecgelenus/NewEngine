@@ -510,6 +510,11 @@ CMakeFiles/Engine.dir/src/Interface.cpp.o: ../src/Interface.cpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
   /usr/include/KHR/khrplatform.h \
+  ../deps/resourceLoaders/tiny_gltf.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
   ../include/imgui/imgui_impl_glfw.h \
   ../include/imgui/imgui_impl_vulkan.h \
   ../include/imgui/imgui_internal.h \
@@ -1612,6 +1617,11 @@ CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o: ../src/graphic_pipeline.cpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
   /usr/include/KHR/khrplatform.h \
+  ../deps/resourceLoaders/tiny_gltf.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
   ../include/spirv_reflect.h \
   ../include/spirv/unified1/spirv.h \
   /usr/include/c++/11/iostream
@@ -3137,6 +3147,11 @@ CMakeFiles/Engine.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
   /usr/include/KHR/khrplatform.h \
+  ../deps/resourceLoaders/tiny_gltf.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
   ../include/Interface.hpp \
   ../include/imgui/imgui_impl_glfw.h \
   ../include/imgui/imgui_impl_vulkan.h \
@@ -3234,11 +3249,6 @@ CMakeFiles/Engine.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/c++/11/iostream \
   ../include/object.hpp \
   ../include/render_batch.hpp \
-  ../deps/resourceLoaders/tiny_gltf.h \
-  /usr/include/c++/11/map \
-  /usr/include/c++/11/bits/stl_tree.h \
-  /usr/include/c++/11/bits/stl_map.h \
-  /usr/include/c++/11/bits/stl_multimap.h \
   ../include/render_queue.hpp \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
@@ -3809,6 +3819,11 @@ CMakeFiles/Engine.dir/src/object.cpp.o: ../src/object.cpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
   /usr/include/KHR/khrplatform.h \
+  ../deps/resourceLoaders/tiny_gltf.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
   /usr/include/c++/11/iostream
 
 CMakeFiles/Engine.dir/src/render_batch.cpp.o: ../src/render_batch.cpp \
@@ -4320,17 +4335,17 @@ CMakeFiles/Engine.dir/src/render_batch.cpp.o: ../src/render_batch.cpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
   /usr/include/KHR/khrplatform.h \
+  ../deps/resourceLoaders/tiny_gltf.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
   ../include/vma.h \
   ../include/object.hpp \
   ../include/spirv_reflect.h \
   ../include/spirv/unified1/spirv.h \
   /usr/include/c++/11/iostream \
-  ../include/graphic_pipeline.hpp \
-  ../deps/resourceLoaders/tiny_gltf.h \
-  /usr/include/c++/11/map \
-  /usr/include/c++/11/bits/stl_tree.h \
-  /usr/include/c++/11/bits/stl_map.h \
-  /usr/include/c++/11/bits/stl_multimap.h
+  ../include/graphic_pipeline.hpp
 
 CMakeFiles/Engine.dir/src/render_queue.cpp.o: ../src/render_queue.cpp \
   /usr/include/stdc-predef.h \
@@ -4841,6 +4856,11 @@ CMakeFiles/Engine.dir/src/render_queue.cpp.o: ../src/render_queue.cpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
   /usr/include/KHR/khrplatform.h \
+  ../deps/resourceLoaders/tiny_gltf.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
   ../include/render_batch.hpp \
   ../include/vma.h \
   ../include/object.hpp \
@@ -4848,11 +4868,6 @@ CMakeFiles/Engine.dir/src/render_queue.cpp.o: ../src/render_queue.cpp \
   ../include/spirv/unified1/spirv.h \
   /usr/include/c++/11/iostream \
   ../include/graphic_pipeline.hpp \
-  ../deps/resourceLoaders/tiny_gltf.h \
-  /usr/include/c++/11/map \
-  /usr/include/c++/11/bits/stl_tree.h \
-  /usr/include/c++/11/bits/stl_map.h \
-  /usr/include/c++/11/bits/stl_multimap.h \
   ../include/Interface.hpp \
   ../include/imgui/imgui_impl_glfw.h \
   ../include/imgui/imgui_impl_vulkan.h \
@@ -6129,6 +6144,11 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
   /usr/include/KHR/khrplatform.h \
+  ../deps/resourceLoaders/tiny_gltf.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
   ../include/vma.h \
   /usr/include/c++/11/cinttypes \
   /usr/include/inttypes.h \
@@ -6140,7 +6160,10 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
   /usr/include/c++/11/bits/unique_lock.h \
   /usr/include/c++/11/shared_mutex \
   /usr/include/c++/11/atomic \
-  /usr/include/c++/11/iostream
+  /usr/include/c++/11/iostream \
+  ../include/object.hpp \
+  ../include/spirv_reflect.h \
+  ../include/spirv/unified1/spirv.h
 
 
 /usr/include/c++/11/shared_mutex:
@@ -6228,14 +6251,6 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 /usr/include/x86_64-linux-gnu/bits/statx.h:
 
 ../include/render_queue.hpp:
-
-/usr/include/c++/11/bits/stl_multimap.h:
-
-/usr/include/c++/11/bits/stl_map.h:
-
-/usr/include/c++/11/bits/stl_tree.h:
-
-/usr/include/c++/11/map:
 
 ../include/render_batch.hpp:
 
@@ -6374,6 +6389,14 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 /usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveoptintrin.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/xsavecintrin.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/wbnoinvdintrin.h:
+
+../deps/resourceLoaders/json.hpp:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/uintrintrin.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/tbmintrin.h:
 
 /usr/include/x86_64-linux-gnu/bits/uio_lim.h:
 
@@ -6759,6 +6782,10 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 /usr/include/c++/11/bits/allocator.h:
 
+/usr/lib/gcc/x86_64-linux-gnu/11/include/waitpkgintrin.h:
+
+/usr/include/x86_64-linux-gnu/sys/single_threaded.h:
+
 /usr/include/c++/11/type_traits:
 
 /usr/include/c++/11/pstl/pstl_config.h:
@@ -6953,10 +6980,6 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h:
 
-../deps/resourceLoaders/json.hpp:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/uintrintrin.h:
-
 /usr/include/glm/detail/type_mat4x3.inl:
 
 /usr/include/c++/11/bits/node_handle.h:
@@ -7035,6 +7058,8 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 /usr/include/syscall.h:
 
+/usr/include/c++/11/bits/stl_tree.h:
+
 ../src/render_queue.cpp:
 
 /usr/include/x86_64-linux-gnu/bits/ss_flags.h:
@@ -7082,6 +7107,8 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 /usr/include/vulkan/vulkan_structs.hpp:
 
 /usr/include/vulkan/vulkan_funcs.hpp:
+
+/usr/include/c++/11/map:
 
 /usr/include/c++/11/fstream:
 
@@ -7193,10 +7220,6 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 /usr/include/glm/detail/type_mat2x3.inl:
 
-/usr/include/x86_64-linux-gnu/sys/single_threaded.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/waitpkgintrin.h:
-
 /usr/include/glm/ext/vector_bool2_precision.hpp:
 
 /usr/include/c++/11/stdlib.h:
@@ -7258,6 +7281,12 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 /usr/include/x86_64-linux-gnu/bits/sigstksz.h:
 
 /usr/include/glm/ext/quaternion_common.hpp:
+
+../include/object.hpp:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/tsxldtrkintrin.h:
+
+/usr/include/glm/ext/vector_int3.hpp:
 
 /usr/include/c++/11/bits/basic_string.tcc:
 
@@ -7471,6 +7500,8 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 /usr/include/glm/ext/matrix_transform.hpp:
 
+/usr/include/c++/11/bits/stl_multimap.h:
+
 /usr/include/glm/ext/quaternion_relational.inl:
 
 /usr/include/glm/ext/quaternion_double.hpp:
@@ -7517,6 +7548,8 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 ../deps/glfw-3.4/include/GLFW/glfw3.h:
 
+/usr/include/c++/11/bits/stl_map.h:
+
 /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vp2intersectvlintrin.h:
 
 /usr/include/c++/11/bits/streambuf_iterator.h:
@@ -7558,13 +7591,3 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 /usr/lib/gcc/x86_64-linux-gnu/11/include/serializeintrin.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/sgxintrin.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/tbmintrin.h:
-
-../include/object.hpp:
-
-/usr/include/glm/ext/vector_int3.hpp:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/tsxldtrkintrin.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/wbnoinvdintrin.h:

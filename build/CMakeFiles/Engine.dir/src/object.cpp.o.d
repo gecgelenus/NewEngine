@@ -427,4 +427,8 @@ CMakeFiles/Engine.dir/src/object.cpp.o: \
  /home/talha/Documents/NewEngine/./include/vma.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/include/GLFW/glfw3.h \
  /usr/include/GL/gl.h /usr/include/GL/glext.h \
- /usr/include/KHR/khrplatform.h /usr/include/c++/11/iostream
+ /usr/include/KHR/khrplatform.h \
+ /home/talha/Documents/NewEngine/./deps/resourceLoaders/tiny_gltf.h \
+ /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
+ /usr/include/c++/11/bits/stl_map.h \
+ /usr/include/c++/11/bits/stl_multimap.h /usr/include/c++/11/iostream

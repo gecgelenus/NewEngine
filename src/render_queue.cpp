@@ -338,17 +338,17 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
         );
 
         // Assuming these buffers are created and valid for the GraphicPipeline
-        VkBuffer vertexBuffers[] = {batchList[i]->vertexBuffer, batchList[i]->instanceBuffer};
+        VkBuffer vertexBuffers[] = {ctx.globalVertexBuffer, ctx.globalInstanceBuffer};
         VkDeviceSize offsets[] = {0, 0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
 
-        VkBuffer indexBuffer = batchList[i]->indexBuffer; // Get index buffer from pipeline
+        VkBuffer indexBuffer = ctx.globalIndexBuffer; // Get index buffer from pipeline
         vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
         VkDescriptorSet descriptorSets[] = {ctx.cameraDescriptorSets[index], ctx.addressDescriptorSet, ctx.textureDescriptorSet};
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.globalPipelineLayout, 0, 3, descriptorSets, 0, nullptr);
         // Make sure graphicPipeline->drawBuffer and graphicPipeline->drawCommands are valid
-        vkCmdDrawIndexedIndirect(commandBuffer, batchList[i]->drawBuffer, 0, batchList[i]->drawCommands.size(), sizeof(VkDrawIndexedIndirectCommand));
+        vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer, 0, ctx.drawCommands.size(), sizeof(VkDrawIndexedIndirectCommand));
     }
 
     ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);

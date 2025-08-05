@@ -511,6 +511,11 @@ CMakeFiles/Engine.dir/src/Interface.cpp.o
  /usr/include/GL/gl.h
  /usr/include/GL/glext.h
  /usr/include/KHR/khrplatform.h
+ /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
+ /usr/include/c++/11/map
+ /usr/include/c++/11/bits/stl_tree.h
+ /usr/include/c++/11/bits/stl_map.h
+ /usr/include/c++/11/bits/stl_multimap.h
  /home/talha/Documents/NewEngine/include/imgui/imgui_impl_glfw.h
  /home/talha/Documents/NewEngine/include/imgui/imgui_impl_vulkan.h
  /home/talha/Documents/NewEngine/include/imgui/imgui_internal.h
@@ -1615,6 +1620,11 @@ CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o
  /usr/include/GL/gl.h
  /usr/include/GL/glext.h
  /usr/include/KHR/khrplatform.h
+ /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
+ /usr/include/c++/11/map
+ /usr/include/c++/11/bits/stl_tree.h
+ /usr/include/c++/11/bits/stl_map.h
+ /usr/include/c++/11/bits/stl_multimap.h
  /home/talha/Documents/NewEngine/include/spirv_reflect.h
  /home/talha/Documents/NewEngine/include/spirv/unified1/spirv.h
  /usr/include/c++/11/iostream
@@ -3147,6 +3157,11 @@ CMakeFiles/Engine.dir/src/main.cpp.o
  /usr/include/GL/gl.h
  /usr/include/GL/glext.h
  /usr/include/KHR/khrplatform.h
+ /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
+ /usr/include/c++/11/map
+ /usr/include/c++/11/bits/stl_tree.h
+ /usr/include/c++/11/bits/stl_map.h
+ /usr/include/c++/11/bits/stl_multimap.h
  /home/talha/Documents/NewEngine/include/Interface.hpp
  /home/talha/Documents/NewEngine/include/imgui/imgui_impl_glfw.h
  /home/talha/Documents/NewEngine/include/imgui/imgui_impl_vulkan.h
@@ -3244,11 +3259,6 @@ CMakeFiles/Engine.dir/src/main.cpp.o
  /usr/include/c++/11/iostream
  /home/talha/Documents/NewEngine/include/object.hpp
  /home/talha/Documents/NewEngine/include/render_batch.hpp
- /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
- /usr/include/c++/11/map
- /usr/include/c++/11/bits/stl_tree.h
- /usr/include/c++/11/bits/stl_map.h
- /usr/include/c++/11/bits/stl_multimap.h
  /home/talha/Documents/NewEngine/include/render_queue.hpp
  /usr/include/x86_64-linux-gnu/sys/stat.h
  /usr/include/x86_64-linux-gnu/bits/stat.h
@@ -3820,6 +3830,11 @@ CMakeFiles/Engine.dir/src/object.cpp.o
  /usr/include/GL/gl.h
  /usr/include/GL/glext.h
  /usr/include/KHR/khrplatform.h
+ /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
+ /usr/include/c++/11/map
+ /usr/include/c++/11/bits/stl_tree.h
+ /usr/include/c++/11/bits/stl_map.h
+ /usr/include/c++/11/bits/stl_multimap.h
  /usr/include/c++/11/iostream
 
 CMakeFiles/Engine.dir/src/render_batch.cpp.o
@@ -4332,17 +4347,17 @@ CMakeFiles/Engine.dir/src/render_batch.cpp.o
  /usr/include/GL/gl.h
  /usr/include/GL/glext.h
  /usr/include/KHR/khrplatform.h
+ /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
+ /usr/include/c++/11/map
+ /usr/include/c++/11/bits/stl_tree.h
+ /usr/include/c++/11/bits/stl_map.h
+ /usr/include/c++/11/bits/stl_multimap.h
  /home/talha/Documents/NewEngine/include/vma.h
  /home/talha/Documents/NewEngine/include/object.hpp
  /home/talha/Documents/NewEngine/include/spirv_reflect.h
  /home/talha/Documents/NewEngine/include/spirv/unified1/spirv.h
  /usr/include/c++/11/iostream
  /home/talha/Documents/NewEngine/include/graphic_pipeline.hpp
- /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
- /usr/include/c++/11/map
- /usr/include/c++/11/bits/stl_tree.h
- /usr/include/c++/11/bits/stl_map.h
- /usr/include/c++/11/bits/stl_multimap.h
 
 CMakeFiles/Engine.dir/src/render_queue.cpp.o
  /home/talha/Documents/NewEngine/src/render_queue.cpp
@@ -4854,6 +4869,11 @@ CMakeFiles/Engine.dir/src/render_queue.cpp.o
  /usr/include/GL/gl.h
  /usr/include/GL/glext.h
  /usr/include/KHR/khrplatform.h
+ /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
+ /usr/include/c++/11/map
+ /usr/include/c++/11/bits/stl_tree.h
+ /usr/include/c++/11/bits/stl_map.h
+ /usr/include/c++/11/bits/stl_multimap.h
  /home/talha/Documents/NewEngine/include/render_batch.hpp
  /home/talha/Documents/NewEngine/include/vma.h
  /home/talha/Documents/NewEngine/include/object.hpp
@@ -4861,11 +4881,6 @@ CMakeFiles/Engine.dir/src/render_queue.cpp.o
  /home/talha/Documents/NewEngine/include/spirv/unified1/spirv.h
  /usr/include/c++/11/iostream
  /home/talha/Documents/NewEngine/include/graphic_pipeline.hpp
- /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
- /usr/include/c++/11/map
- /usr/include/c++/11/bits/stl_tree.h
- /usr/include/c++/11/bits/stl_map.h
- /usr/include/c++/11/bits/stl_multimap.h
  /home/talha/Documents/NewEngine/include/Interface.hpp
  /home/talha/Documents/NewEngine/include/imgui/imgui_impl_glfw.h
  /home/talha/Documents/NewEngine/include/imgui/imgui_impl_vulkan.h
@@ -6145,6 +6160,11 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o
  /usr/include/GL/gl.h
  /usr/include/GL/glext.h
  /usr/include/KHR/khrplatform.h
+ /home/talha/Documents/NewEngine/deps/resourceLoaders/tiny_gltf.h
+ /usr/include/c++/11/map
+ /usr/include/c++/11/bits/stl_tree.h
+ /usr/include/c++/11/bits/stl_map.h
+ /usr/include/c++/11/bits/stl_multimap.h
  /home/talha/Documents/NewEngine/include/vma.h
  /usr/include/c++/11/cinttypes
  /usr/include/inttypes.h
@@ -6157,4 +6177,7 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o
  /usr/include/c++/11/shared_mutex
  /usr/include/c++/11/atomic
  /usr/include/c++/11/iostream
+ /home/talha/Documents/NewEngine/include/object.hpp
+ /home/talha/Documents/NewEngine/include/spirv_reflect.h
+ /home/talha/Documents/NewEngine/include/spirv/unified1/spirv.h
 

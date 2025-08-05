@@ -422,6 +422,10 @@ CMakeFiles/Engine.dir/src/main.cpp.o: \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/include/GLFW/glfw3.h \
  /usr/include/GL/gl.h /usr/include/GL/glext.h \
  /usr/include/KHR/khrplatform.h \
+ /home/talha/Documents/NewEngine/./deps/resourceLoaders/tiny_gltf.h \
+ /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
+ /usr/include/c++/11/bits/stl_map.h \
+ /usr/include/c++/11/bits/stl_multimap.h \
  /home/talha/Documents/NewEngine/./include/Interface.hpp \
  /home/talha/Documents/NewEngine/./include/imgui/imgui_impl_glfw.h \
  /home/talha/Documents/NewEngine/./include/imgui/imgui_impl_vulkan.h \
@@ -518,10 +522,6 @@ CMakeFiles/Engine.dir/src/main.cpp.o: \
  /usr/include/c++/11/iostream \
  /home/talha/Documents/NewEngine/./include/object.hpp \
  /home/talha/Documents/NewEngine/./include/render_batch.hpp \
- /home/talha/Documents/NewEngine/./deps/resourceLoaders/tiny_gltf.h \
- /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
- /usr/include/c++/11/bits/stl_map.h \
- /usr/include/c++/11/bits/stl_multimap.h \
  /home/talha/Documents/NewEngine/./include/render_queue.hpp \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \

@@ -60,27 +60,40 @@ int main(){
 
     INFO("Swapchain images", "Swapchain image size: %u", ctx.swapchainImageViews.size());
     GraphicPipeline* pipeline = new GraphicPipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
-    // TODO: MAKE THIS SHIT A POINTER SO ITS NOT FREED TWICE!!
   
 
     RenderBatch rBatch(ctx, "Test");
     rBatch.graphicPipeline = pipeline;
     std::string pathFile = "/home/talha/Desktop/dice.glb";
     std::string pathFile2 = "/home/talha/Desktop/space.glb";
-    std::string pathFile3 = "/home/talha/Desktop/vulkan.glb";
+    std::string pathFile3 = "/home/talha/Desktop/room.glb";
 
 
-    rBatch.processGltfFile(pathFile2);
-    rBatch.processGltfFile(pathFile);
-    rBatch.processGltfFile(pathFile3);
+    CTX::AUX::processGltfFile(ctx, pathFile2);
+
+    CTX::AUX::processGltfFile(ctx, pathFile3);
+
+    CTX::AUX::processGltfFile(ctx, pathFile);
 
 
-    rBatch.reloadObjectData();
-    rBatch.updateDrawCommands();
-    rBatch.updateTextureSets();
 
-    rBatch.objects[0]->transformation.translation = glm::vec3(1.0f, 0.0f, 0.0f);
-    rBatch.objects[1]->transformation.translation = glm::vec3(-1.0f, 0.0f, 0.0f);
+
+    for(int i = 0; i < ctx.objects.size(); i++){
+		ctx.objects[i]->formatData(pipeline->interfaceVariables, pipeline->strideSize);
+	}
+
+    CTX::reloadObjectData(ctx);
+    
+    
+    // Add debugging output
+    std::cout << "Total objects loaded: " << ctx.objects.size() << std::endl;
+    for(int i = 0; i < ctx.objects.size(); i++) {
+        std::cout << "Object " << i << ": " << ctx.objects[i]->name 
+                  << " (ID: " << ctx.objects[i]->objectID << ")" 
+                  << " Primitives: " << ctx.objects[i]->primitives.size() << std::endl;
+    }
+    
+    // Only set transformations if objects exist
     
 
    
@@ -100,19 +113,22 @@ int main(){
 
     for(int i = 0; i < renderQueue.batchList.size();i++){
         renderQueue.batchList[i]->graphicPipeline->pushConstant.modelBufferAddress = ctx.bufferAddress;
+        renderQueue.batchList[i]->graphicPipeline->pushConstant.materialBufferAddress = ctx.materialBufferAddress;
+
     }
+
+
 
     while(!glfwWindowShouldClose(ctx.window)){
             glfwPollEvents(); 
             CTX::checkExpiredAllocations(ctx);
-            for(int i = 0; i < renderQueue.batchList.size();i++){
-                renderQueue.batchList[i]->updateModelMatrices();
-            }
+            CTX::updateModelMatrices(ctx);
 
             
             renderQueue.drawQueue();
             
     }
+    
     
     // Wait for the device to finish all pending operations before destroying
     vkDeviceWaitIdle(ctx.device);

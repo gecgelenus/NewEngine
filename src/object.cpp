@@ -23,16 +23,46 @@ Object::Object(vk_ctx& p_ctx):
 void Object::formatData(std::vector<SpvReflectInterfaceVariable *> inputVars, uint32_t strideSize)
 {
     for(int i = 0; i < primitives.size(); i++){
+        primitives[i].stride = strideSize;
         if(primitives[i].dataBuffer != nullptr){
             free(primitives[i].dataBuffer);
             primitives[i].dataBuffer = nullptr;
         }
-        
-        primitives[i].dataBuffer = malloc(strideSize * primitives[i].vertices.size());
+        primitives[i].vc.resize(primitives[i].vertices.size() * (strideSize/sizeof(float)));
+        primitives[i].dataBuffer = primitives[i].vc.data();
+        //primitives[i].dataBuffer = malloc(strideSize * primitives[i].vertices.size());
         primitives[i].dataSize = strideSize * primitives[i].vertices.size();
 
         //std::cout << "Primitive vertex count: " << primitives[i].vertices.size() << std::endl;
         serializePrimitive(inputVars, i, strideSize);
+
+        VmaVirtualAllocationCreateInfo allocCreateInfo = {};
+        allocCreateInfo.size = primitives[i].dataSize;
+        allocCreateInfo.alignment = strideSize;
+
+        VkResult result = vmaVirtualAllocate(ctx.globalVertexVirtualBlock, &allocCreateInfo, 
+            &primitives[i].virtualVertexAllocation, &primitives[i].virtualVertexOffset);
+
+        if (result == VK_SUCCESS) {
+            std::cout << "Primitive: " << i << " vertex size: " << primitives[i].dataSize <<
+             " vertex offset: " << primitives[i].virtualVertexOffset << " stride: " << strideSize << std::endl;
+        } else {
+            std::cout << "Failed to allocate memory" << std::endl;
+        }
+
+
+        allocCreateInfo.size = primitives[i].indices.size() * sizeof(uint32_t);
+        allocCreateInfo.alignment = sizeof(uint32_t);
+
+        result = vmaVirtualAllocate(ctx.globalIndexVirtualBlock, &allocCreateInfo, 
+            &primitives[i].virtualIndexAllocation, &primitives[i].virtualIndexOffset);
+
+        if (result == VK_SUCCESS) {
+            std::cout << "Primitive: " << i << " index size: " << primitives[i].indices.size() <<
+             " index offset: " << primitives[i].virtualIndexOffset << " stride: " << strideSize << std::endl;
+        } else {
+            std::cout << "Failed to allocate memory" << std::endl;
+        }
     }
 
     

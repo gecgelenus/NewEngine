@@ -86,6 +86,7 @@ void RenderBatch::processGltfFile(std::string& path) {
     std::string err;
     std::string warn;
 
+    std::cout << "Loading GLTF file: " << path << std::endl;
 
     bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, path);
 
@@ -99,8 +100,8 @@ void RenderBatch::processGltfFile(std::string& path) {
 
     if (!ret) {
     printf("Failed to parse glTF\n");
+    return;
     }
-
 
     const tinygltf::Scene& scene = model.scenes[model.defaultScene > -1 ? model.defaultScene : 0];
 
@@ -122,6 +123,8 @@ void RenderBatch::processGltfFile(std::string& path) {
 
     }
 
+    int objectsAfter = ctx.objects.size();
+
 	VmaAllocationInfo allocationInfo;
 	vmaGetAllocationInfo(ctx.allocator, ctx.materialBufferAllocation, &allocationInfo);
 	VkDeviceSize materialDataSize = ctx.materialList.size()*sizeof(Material);
@@ -141,6 +144,7 @@ void RenderBatch::processGltfFile(std::string& path) {
 	
 	
 
+
 	CTX::AUX::uploadData(ctx, ctx.materialList.data(), ctx.materialBuffer, ctx.materialList.size()*sizeof(Material), 0);
 	graphicPipeline->pushConstant.materialBufferAddress = ctx.materialBufferAddress;
 }
@@ -158,7 +162,7 @@ void RenderBatch::processNode(tinygltf::Model& model, std::string& path, const t
 
 	obj->name = node.name;
 
-
+    std::cout << "Creating object: " << obj->name << " (ID: " << obj->objectID << ")" << std::endl;
 
 	if(parentObject != nullptr){
 		std::cout << "Loading object: " << obj->name  << "(" << obj->objectID << ") child of" << parentObject->name << std::endl;
@@ -400,15 +404,16 @@ void RenderBatch::processNode(tinygltf::Model& model, std::string& path, const t
                 }
 
             }
-
+			tmpPrimitive.stride = graphicPipeline->strideSize;
 			tmpPrimitive.modelIndex = obj->modelIndex;
 			obj->primitives.push_back(tmpPrimitive);
 
 		}
     }
 	
+	ctx.objects.push_back(obj);
+	std::cout << "Added object to context. Total objects: " << ctx.objects.size() << std::endl;
 	
-	objects.push_back(obj);
 
     // Recursively process children nodes
 	if(node.children.size() > 0){
@@ -500,98 +505,15 @@ void RenderBatch::updateTextureSets()
 
 void RenderBatch::reloadObjectData()
 {
-	void* dataBuffer = nullptr;
-	std::vector<uint32_t> tmpIndexBuffer;
 
-	std::vector<InstanceInfo> tmpInstanceBuffer;
-	
-	uint32_t dataSize = 0;
-	uint32_t indexEntryCount = 0;
-	uint32_t instanceCount = 0;
+	for(int i = 0; i < ctx.objects.size(); i++){
+		ctx.objects[i]->formatData(graphicPipeline->interfaceVariables, graphicPipeline->strideSize);
 
-	for(int i = 0; i < objects.size(); i++){
-		objects[i]->formatData(graphicPipeline->interfaceVariables, graphicPipeline->strideSize);
 
-		for(int j = 0; j < objects[i]->primitives.size(); j++){
-			dataSize += objects[i]->primitives[j].dataSize;
-			objects[i]->primitives[j].modelIndex = objects[i]->modelIndex;
-
-			indexEntryCount += objects[i]->primitives[j].indices.size();
-			instanceCount++;
-		}
 	}
 
 	
-	dataBuffer = malloc(dataSize);
-	tmpIndexBuffer.resize(indexEntryCount);
-	tmpInstanceBuffer.resize(instanceCount);
-
-	uint32_t tmpDataOffset = 0;
-	uint32_t tmpVertexOffset = 0;
-	uint32_t tmpIndexOffset = 0;
-	uint32_t tmpDrawIndex = 0;
-
-
-	for(int i = 0; i < objects.size(); i++){
-		for(int j = 0; j < objects[i]->primitives.size(); j++){
-			memcpy(dataBuffer + tmpDataOffset, objects[i]->primitives[j].dataBuffer,  objects[i]->primitives[j].dataSize);
-			objects[i]->primitives[j].dataOffset = tmpDataOffset;
-			tmpDataOffset +=  objects[i]->primitives[j].dataSize;
-			
-			objects[i]->primitives[j].vertexOffset = tmpVertexOffset;
-			tmpVertexOffset += objects[i]->primitives[j].vertices.size();
-
-
-			memcpy(tmpIndexBuffer.data() + tmpIndexOffset, objects[i]->primitives[j].indices.data(),  objects[i]->primitives[j].indices.size() * sizeof(uint32_t));
-			objects[i]->primitives[j].indexOffset = tmpIndexOffset;
-			tmpIndexOffset += objects[i]->primitives[j].indices.size();
-
-
-			objects[i]->primitives[j].drawIndex = tmpDrawIndex;
-
-			tmpInstanceBuffer[tmpDrawIndex].materialIndex = objects[i]->primitives[j].materialIndex;
-			tmpInstanceBuffer[tmpDrawIndex].modelIndex = objects[i]->primitives[j].modelIndex;
-
-			tmpDrawIndex++;
-
-
-		}
-	}
-	VmaAllocationInfo allocationInfo;
-	vmaGetAllocationInfo(ctx.allocator, vertexBufferAllocation, &allocationInfo);
 	
-	if(allocationInfo.size < dataSize){
-		CTX::AUX::enlargeBuffer(ctx, (VkDeviceSize)dataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    	VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-	    vertexBuffer, vertexBufferAllocation);
-	}
-	CTX::AUX::uploadData(ctx, dataBuffer, vertexBuffer, dataSize, 0);
-	
-
-	VkDeviceSize indexDataSize = indexEntryCount * sizeof(uint32_t);
-	vmaGetAllocationInfo(ctx.allocator, indexBufferAllocation, &allocationInfo);
-	if(allocationInfo.size < indexDataSize){
-		CTX::AUX::enlargeBuffer(ctx, (VkDeviceSize)indexDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    	VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-	    indexBuffer, indexBufferAllocation);
-	}
-	CTX::AUX::uploadData(ctx, tmpIndexBuffer.data(), indexBuffer, indexDataSize, 0);
-	
-	
-	VkDeviceSize instanceDataSize = instanceCount * sizeof(InstanceInfo);
-	vmaGetAllocationInfo(ctx.allocator, instanceBufferAllocation, &allocationInfo);
-	if(allocationInfo.size < instanceDataSize){
-		CTX::AUX::enlargeBuffer(ctx, (VkDeviceSize)instanceDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    	VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-	    instanceBuffer, instanceBufferAllocation);
-	}
-	CTX::AUX::uploadData(ctx, tmpInstanceBuffer.data(), instanceBuffer, instanceDataSize, 0);
-
-	updateDrawCommands();
-
-
-
-	free(dataBuffer);
 }
 
 

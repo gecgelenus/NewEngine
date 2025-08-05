@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include <stdexcept>
+#include "tiny_gltf.h"
 
 #define DEBUG_CTX "Vulkan Context"
 
@@ -68,8 +69,15 @@ struct ObjectPrimitive{
     std::vector<uint32_t> indices;
 
     std::string materialName;
-    
+    std::vector<float> vc;
     void* dataBuffer = nullptr;
+
+    VmaVirtualAllocation virtualVertexAllocation;
+    VkDeviceSize virtualVertexOffset;
+    VmaVirtualAllocation virtualIndexAllocation;
+    VkDeviceSize virtualIndexOffset;
+
+
     
     uint32_t dataSize;
     uint32_t dataOffset;
@@ -171,8 +179,20 @@ struct vk_ctx
     std::unordered_map<VmaAllocation, VkBuffer> bufferAllocations; 
     std::vector<AllocationBundle> expiredAllocations;
 
-    VkBuffer instanceBuffer;
-    VmaAllocation instanceBufferAllocation;
+    std::vector<Object*> objects;
+
+    VkBuffer globalVertexBuffer = VK_NULL_HANDLE;
+    VmaAllocation globalVertexBufferAllocation = VK_NULL_HANDLE;
+    VmaVirtualBlock globalVertexVirtualBlock;
+
+
+    VkBuffer globalIndexBuffer = VK_NULL_HANDLE;
+    VmaAllocation globalIndexBufferAllocation = VK_NULL_HANDLE;
+    VmaVirtualBlock globalIndexVirtualBlock;
+
+    VkBuffer globalInstanceBuffer;
+    VmaAllocation globalInstanceBufferAllocation;
+    VmaVirtualBlock globalInstanceVirtualAllocation;
 
     VkBuffer drawBuffer;
     VmaAllocation drawBufferAllocation;
@@ -287,6 +307,8 @@ namespace CTX{
 
     float getDeltaTime();
 
+    void reloadObjectData(vk_ctx&);
+    void updateModelMatrices(vk_ctx& );
 
     void destroyBuffer(vk_ctx& ctx, VkBuffer buffer, VmaAllocation allocation);
     void checkExpiredAllocations(vk_ctx& ctx);
@@ -308,7 +330,7 @@ namespace CTX{
         
         void transitionImageLayout(vk_ctx& ctx ,VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
 
-
+        void updateModelMatrixRecursive(Object *obj, std::vector<VkBufferCopy>& regions);
 
         uint32_t getGraphicsQueueIndex(VkPhysicalDevice physicalDevice);
         SwapChainSupportDetails querySwapChainSupport(const vk_ctx& context);
@@ -316,8 +338,18 @@ namespace CTX{
 
 	    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
 	    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, const vk_ctx& context);
-
         
+        void processGltfFile(vk_ctx&,std::string& path);
+        void processNode(vk_ctx&, tinygltf::Model& model, std::string& path, const tinygltf::Node& node, Object* parentObject);
+
+
+        bool LoadModelTextures(vk_ctx&, tinygltf::Model& model, std::string& path);
+        void updateTextureSets(vk_ctx&);
+
+        int findTextureIndex(vk_ctx& ctx, std::string& p_name);
+        int findMaterialIndex(vk_ctx& ctx, std::string & p_name);
+        
+        int createMaterial(vk_ctx&, std::string& path, tinygltf::Model& model, tinygltf::Material& material);
     }
 }
 

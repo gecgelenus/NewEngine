@@ -36,9 +36,11 @@ layout(push_constant) uniform PushConstants {
 
 
 layout(location = 0) in vec3 pos;
-layout(location = 1) in vec4 color;
-layout(location = 2) in vec2 UV;
-layout(location = 4) in vec3 normal;
+layout(location = 1) in vec2 UV;
+layout(location = 2) in vec3 normal;
+
+//layout(location = 3) in vec4 color;
+
 
 layout(location = 5) in int modelIndex;
 layout(location = 6) in int materialIndex;
@@ -64,7 +66,7 @@ void main() {
     MaterialBuffer materialBuffer = MaterialBuffer(pc.MaterialBufferAddress);
 
     gl_Position = camera.VPmatrix * modelBuffer.modelList[modelIndex] * vec4(pos, 1.0);
-    fragColor = color;
+    //fragColor = color;
     inTexCoord = UV;
     outMaterialIndex = materialIndex;
 
