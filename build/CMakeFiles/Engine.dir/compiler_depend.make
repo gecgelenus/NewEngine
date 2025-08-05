@@ -502,10 +502,9 @@ CMakeFiles/Engine.dir/src/Interface.cpp.o: ../src/Interface.cpp \
   /usr/include/glm/ext/vector_uint1_sized.hpp \
   /usr/include/glm/gtc/type_ptr.inl \
   ../include/vulkan_context.hpp \
-  ../include/console.hpp \
+  ../include/vma.h \
   ../include/imgui/imgui.h \
   ../include/imgui/imconfig.h \
-  ../include/vma.h \
   ../deps/glfw-3.4/include/GLFW/glfw3.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
@@ -607,11 +606,9 @@ CMakeFiles/Engine.dir/src/Interface.cpp.o: ../src/Interface.cpp \
 
 CMakeFiles/Engine.dir/src/console.cpp.o: ../src/console.cpp \
   /usr/include/stdc-predef.h \
-  ../include/console.hpp \
-  ../include/util.hpp \
-  /usr/include/vulkan/vulkan.hpp \
-  /usr/include/c++/11/algorithm \
-  /usr/include/c++/11/utility \
+  ../include/vulkan_context.hpp \
+  /usr/include/c++/11/unordered_map \
+  /usr/include/c++/11/type_traits \
   /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
   /usr/include/features.h \
@@ -624,32 +621,57 @@ CMakeFiles/Engine.dir/src/console.cpp.o: ../src/console.cpp \
   /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
   /usr/include/x86_64-linux-gnu/c++/11/bits/cpu_defines.h \
   /usr/include/c++/11/pstl/pstl_config.h \
-  /usr/include/c++/11/bits/stl_relops.h \
-  /usr/include/c++/11/bits/stl_pair.h \
-  /usr/include/c++/11/bits/move.h \
-  /usr/include/c++/11/type_traits \
-  /usr/include/c++/11/compare \
-  /usr/include/c++/11/concepts \
   /usr/include/c++/11/initializer_list \
-  /usr/include/c++/11/ext/numeric_traits.h \
-  /usr/include/c++/11/bits/cpp_type_traits.h \
-  /usr/include/c++/11/ext/type_traits.h \
-  /usr/include/c++/11/bits/stl_algobase.h \
+  /usr/include/c++/11/bits/allocator.h \
+  /usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h \
+  /usr/include/c++/11/ext/new_allocator.h \
+  /usr/include/c++/11/new \
+  /usr/include/c++/11/bits/exception.h \
   /usr/include/c++/11/bits/functexcept.h \
   /usr/include/c++/11/bits/exception_defines.h \
+  /usr/include/c++/11/bits/move.h \
+  /usr/include/c++/11/bits/memoryfwd.h \
+  /usr/include/c++/11/ext/alloc_traits.h \
+  /usr/include/c++/11/bits/alloc_traits.h \
+  /usr/include/c++/11/bits/stl_construct.h \
   /usr/include/c++/11/bits/stl_iterator_base_types.h \
   /usr/include/c++/11/bits/iterator_concepts.h \
+  /usr/include/c++/11/concepts \
   /usr/include/c++/11/bits/ptr_traits.h \
   /usr/include/c++/11/bits/ranges_cmp.h \
   /usr/include/c++/11/bits/stl_iterator_base_funcs.h \
   /usr/include/c++/11/bits/concept_check.h \
   /usr/include/c++/11/debug/assertions.h \
+  /usr/include/c++/11/ext/numeric_traits.h \
+  /usr/include/c++/11/bits/cpp_type_traits.h \
+  /usr/include/c++/11/ext/type_traits.h \
+  /usr/include/c++/11/ext/aligned_buffer.h \
+  /usr/include/c++/11/bits/stl_pair.h \
+  /usr/include/c++/11/compare \
+  /usr/include/c++/11/bits/stl_function.h \
+  /usr/include/c++/11/backward/binders.h \
+  /usr/include/c++/11/bits/functional_hash.h \
+  /usr/include/c++/11/bits/hash_bytes.h \
+  /usr/include/c++/11/bits/hashtable.h \
+  /usr/include/c++/11/bits/hashtable_policy.h \
+  /usr/include/c++/11/tuple \
+  /usr/include/c++/11/utility \
+  /usr/include/c++/11/bits/stl_relops.h \
+  /usr/include/c++/11/array \
+  /usr/include/c++/11/bits/stl_algobase.h \
   /usr/include/c++/11/bits/stl_iterator.h \
-  /usr/include/c++/11/new \
-  /usr/include/c++/11/bits/exception.h \
-  /usr/include/c++/11/bits/stl_construct.h \
   /usr/include/c++/11/debug/debug.h \
   /usr/include/c++/11/bits/predefined_ops.h \
+  /usr/include/c++/11/bits/range_access.h \
+  /usr/include/c++/11/bits/uses_allocator.h \
+  /usr/include/c++/11/bits/invoke.h \
+  /usr/include/c++/11/bits/enable_special_members.h \
+  /usr/include/c++/11/bits/node_handle.h \
+  /usr/include/c++/11/bits/unordered_map.h \
+  /usr/include/c++/11/bits/erase_if.h \
+  ../include/util.hpp \
+  /usr/include/vulkan/vulkan.hpp \
+  /usr/include/c++/11/algorithm \
   /usr/include/c++/11/bits/stl_algo.h \
   /usr/include/c++/11/cstdlib \
   /usr/include/stdlib.h \
@@ -699,7 +721,6 @@ CMakeFiles/Engine.dir/src/console.cpp.o: ../src/console.cpp \
   /usr/include/c++/11/iterator \
   /usr/include/c++/11/iosfwd \
   /usr/include/c++/11/bits/stringfwd.h \
-  /usr/include/c++/11/bits/memoryfwd.h \
   /usr/include/c++/11/bits/postypes.h \
   /usr/include/c++/11/cwchar \
   /usr/include/wchar.h \
@@ -746,20 +767,10 @@ CMakeFiles/Engine.dir/src/console.cpp.o: ../src/console.cpp \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
   /usr/include/stdint.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
-  /usr/include/c++/11/bits/allocator.h \
-  /usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h \
-  /usr/include/c++/11/ext/new_allocator.h \
   /usr/include/c++/11/bits/ostream_insert.h \
   /usr/include/c++/11/bits/cxxabi_forced.h \
-  /usr/include/c++/11/bits/stl_function.h \
-  /usr/include/c++/11/backward/binders.h \
-  /usr/include/c++/11/bits/range_access.h \
   /usr/include/c++/11/bits/basic_string.h \
-  /usr/include/c++/11/ext/alloc_traits.h \
-  /usr/include/c++/11/bits/alloc_traits.h \
   /usr/include/c++/11/string_view \
-  /usr/include/c++/11/bits/functional_hash.h \
-  /usr/include/c++/11/bits/hash_bytes.h \
   /usr/include/c++/11/bits/ranges_base.h \
   /usr/include/c++/11/bits/max_size_type.h \
   /usr/include/c++/11/numbers \
@@ -792,23 +803,11 @@ CMakeFiles/Engine.dir/src/console.cpp.o: ../src/console.cpp \
   /usr/include/c++/11/typeinfo \
   /usr/include/c++/11/bits/nested_exception.h \
   /usr/include/c++/11/bits/streambuf.tcc \
-  /usr/include/c++/11/bits/invoke.h \
   /usr/include/c++/11/bits/ranges_util.h \
   /usr/include/c++/11/pstl/glue_algorithm_defs.h \
   /usr/include/c++/11/functional \
-  /usr/include/c++/11/tuple \
-  /usr/include/c++/11/array \
-  /usr/include/c++/11/bits/uses_allocator.h \
   /usr/include/c++/11/bits/refwrap.h \
   /usr/include/c++/11/bits/std_function.h \
-  /usr/include/c++/11/unordered_map \
-  /usr/include/c++/11/ext/aligned_buffer.h \
-  /usr/include/c++/11/bits/hashtable.h \
-  /usr/include/c++/11/bits/hashtable_policy.h \
-  /usr/include/c++/11/bits/enable_special_members.h \
-  /usr/include/c++/11/bits/node_handle.h \
-  /usr/include/c++/11/bits/unordered_map.h \
-  /usr/include/c++/11/bits/erase_if.h \
   /usr/include/c++/11/vector \
   /usr/include/c++/11/bits/stl_uninitialized.h \
   /usr/include/c++/11/bits/stl_vector.h \
@@ -1105,8 +1104,117 @@ CMakeFiles/Engine.dir/src/console.cpp.o: ../src/console.cpp \
   /usr/include/glm/ext/vector_uint1.hpp \
   /usr/include/glm/ext/vector_uint1_sized.hpp \
   /usr/include/glm/gtc/type_ptr.inl \
+  ../include/vma.h \
   ../include/imgui/imgui.h \
-  ../include/imgui/imconfig.h
+  ../include/imgui/imconfig.h \
+  ../deps/glfw-3.4/include/GLFW/glfw3.h \
+  /usr/include/GL/gl.h \
+  /usr/include/GL/glext.h \
+  /usr/include/KHR/khrplatform.h \
+  ../deps/resourceLoaders/tiny_gltf.h \
+  /usr/include/c++/11/map \
+  /usr/include/c++/11/bits/stl_tree.h \
+  /usr/include/c++/11/bits/stl_map.h \
+  /usr/include/c++/11/bits/stl_multimap.h \
+  ../include/console.hpp \
+  ../include/render_batch.hpp \
+  ../include/vma.h \
+  ../include/object.hpp \
+  ../include/spirv_reflect.h \
+  ../include/spirv/unified1/spirv.h \
+  /usr/include/c++/11/iostream \
+  ../include/graphic_pipeline.hpp \
+  ../include/render_queue.hpp \
+  ../include/Interface.hpp \
+  ../include/imgui/imgui_impl_glfw.h \
+  ../include/imgui/imgui_impl_vulkan.h \
+  ../include/imgui/imgui_internal.h \
+  /usr/include/c++/11/stdlib.h \
+  /usr/include/c++/11/math.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/immintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/x86gprintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/ia32intrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/adxintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/bmiintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/bmi2intrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/cetintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/cldemoteintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/clflushoptintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/clwbintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/clzerointrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/enqcmdintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/fxsrintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/lzcntintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/lwpintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/movdirintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/mwaitintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/mwaitxintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/pconfigintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/popcntintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/pkuintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/rdseedintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/rtmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/serializeintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/sgxintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/tbmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/tsxldtrkintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/uintrintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/waitpkgintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/wbnoinvdintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/xsavecintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/xsaveoptintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/xsavesintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/xtestintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/hresetintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/mmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/xmmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/mm_malloc.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/emmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/pmmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/tmmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/smmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/wmmintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avxintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avxvnniintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx2intrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512fintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512erintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512pfintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512cdintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vlintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bwintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512dqintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vlbwintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vldqintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512ifmaintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512ifmavlintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vbmiintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vbmivlintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx5124fmapsintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx5124vnniwintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vpopcntdqintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vbmi2intrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vbmi2vlintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vnniintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vnnivlintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vpopcntdqvlintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bitalgintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vp2intersectintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512vp2intersectvlintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/shaintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/fmaintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/f16cintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/gfniintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/vaesintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/vpclmulqdqintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bf16vlintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/avx512bf16intrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/amxtileintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/amxint8intrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/amxbf16intrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/prfchwintrin.h \
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/keylockerintrin.h
 
 CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o: ../src/graphic_pipeline.cpp \
   /usr/include/stdc-predef.h \
@@ -1609,10 +1717,9 @@ CMakeFiles/Engine.dir/src/graphic_pipeline.cpp.o: ../src/graphic_pipeline.cpp \
   /usr/include/glm/ext/vector_uint1_sized.hpp \
   /usr/include/glm/gtc/type_ptr.inl \
   ../include/vulkan_context.hpp \
-  ../include/console.hpp \
+  ../include/vma.h \
   ../include/imgui/imgui.h \
   ../include/imgui/imconfig.h \
-  ../include/vma.h \
   ../deps/glfw-3.4/include/GLFW/glfw3.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
@@ -3139,10 +3246,9 @@ CMakeFiles/Engine.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/include/glm/ext/vector_uint1.hpp \
   /usr/include/glm/ext/vector_uint1_sized.hpp \
   /usr/include/glm/gtc/type_ptr.inl \
-  ../include/console.hpp \
+  ../include/vma.h \
   ../include/imgui/imgui.h \
   ../include/imgui/imconfig.h \
-  ../include/vma.h \
   ../deps/glfw-3.4/include/GLFW/glfw3.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
@@ -3250,6 +3356,7 @@ CMakeFiles/Engine.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/object.hpp \
   ../include/render_batch.hpp \
   ../include/render_queue.hpp \
+  ../include/console.hpp \
   /usr/include/x86_64-linux-gnu/sys/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stat.h \
   /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
@@ -3811,10 +3918,9 @@ CMakeFiles/Engine.dir/src/object.cpp.o: ../src/object.cpp \
   ../include/spirv_reflect.h \
   ../include/spirv/unified1/spirv.h \
   ../include/vulkan_context.hpp \
-  ../include/console.hpp \
+  ../include/vma.h \
   ../include/imgui/imgui.h \
   ../include/imgui/imconfig.h \
-  ../include/vma.h \
   ../deps/glfw-3.4/include/GLFW/glfw3.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
@@ -4327,10 +4433,9 @@ CMakeFiles/Engine.dir/src/render_batch.cpp.o: ../src/render_batch.cpp \
   /usr/include/glm/ext/vector_uint1_sized.hpp \
   /usr/include/glm/gtc/type_ptr.inl \
   ../include/vulkan_context.hpp \
-  ../include/console.hpp \
+  ../include/vma.h \
   ../include/imgui/imgui.h \
   ../include/imgui/imconfig.h \
-  ../include/vma.h \
   ../deps/glfw-3.4/include/GLFW/glfw3.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
@@ -4345,7 +4450,8 @@ CMakeFiles/Engine.dir/src/render_batch.cpp.o: ../src/render_batch.cpp \
   ../include/spirv_reflect.h \
   ../include/spirv/unified1/spirv.h \
   /usr/include/c++/11/iostream \
-  ../include/graphic_pipeline.hpp
+  ../include/graphic_pipeline.hpp \
+  ../include/console.hpp
 
 CMakeFiles/Engine.dir/src/render_queue.cpp.o: ../src/render_queue.cpp \
   /usr/include/stdc-predef.h \
@@ -4848,10 +4954,9 @@ CMakeFiles/Engine.dir/src/render_queue.cpp.o: ../src/render_queue.cpp \
   /usr/include/glm/ext/vector_uint1_sized.hpp \
   /usr/include/glm/gtc/type_ptr.inl \
   ../include/vulkan_context.hpp \
-  ../include/console.hpp \
+  ../include/vma.h \
   ../include/imgui/imgui.h \
   ../include/imgui/imconfig.h \
-  ../include/vma.h \
   ../deps/glfw-3.4/include/GLFW/glfw3.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
@@ -4957,7 +5062,8 @@ CMakeFiles/Engine.dir/src/render_queue.cpp.o: ../src/render_queue.cpp \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/amxint8intrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/amxbf16intrin.h \
   /usr/lib/gcc/x86_64-linux-gnu/11/include/prfchwintrin.h \
-  /usr/lib/gcc/x86_64-linux-gnu/11/include/keylockerintrin.h
+  /usr/lib/gcc/x86_64-linux-gnu/11/include/keylockerintrin.h \
+  ../include/console.hpp
 
 CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o: ../src/spirv_reflect.cpp \
   /usr/include/stdc-predef.h \
@@ -6136,10 +6242,9 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
   /usr/include/glm/ext/vector_uint1.hpp \
   /usr/include/glm/ext/vector_uint1_sized.hpp \
   /usr/include/glm/gtc/type_ptr.inl \
-  ../include/console.hpp \
+  ../include/vma.h \
   ../include/imgui/imgui.h \
   ../include/imgui/imconfig.h \
-  ../include/vma.h \
   ../deps/glfw-3.4/include/GLFW/glfw3.h \
   /usr/include/GL/gl.h \
   /usr/include/GL/glext.h \
@@ -6250,10 +6355,6 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/statx.h:
 
-../include/render_queue.hpp:
-
-../include/render_batch.hpp:
-
 ../src/main.cpp:
 
 ../include/imgui/imstb_textedit.h:
@@ -6310,11 +6411,17 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 ../src/imgui/imgui.cpp:
 
+../src/graphic_pipeline.cpp:
+
+../include/render_queue.hpp:
+
 ../include/spirv/unified1/spirv.h:
 
 ../include/spirv_reflect.h:
 
-../src/graphic_pipeline.cpp:
+../include/render_batch.hpp:
+
+../include/console.hpp:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/keylockerintrin.h:
 
@@ -6395,8 +6502,6 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 ../deps/resourceLoaders/json.hpp:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/uintrintrin.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/11/include/tbmintrin.h:
 
 /usr/include/x86_64-linux-gnu/bits/uio_lim.h:
 
@@ -7536,13 +7641,11 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 
 /usr/include/glm/ext/vector_uint1.hpp:
 
-../include/console.hpp:
-
-../include/imgui/imgui.h:
-
 /usr/include/x86_64-linux-gnu/bits/types/clock_t.h:
 
 ../include/vma.h:
+
+../include/imgui/imgui.h:
 
 /usr/include/glm/detail/func_matrix.inl:
 
@@ -7591,3 +7694,5 @@ CMakeFiles/Engine.dir/src/vulkan_context.cpp.o: ../src/vulkan_context.cpp \
 /usr/lib/gcc/x86_64-linux-gnu/11/include/serializeintrin.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/11/include/sgxintrin.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/11/include/tbmintrin.h:

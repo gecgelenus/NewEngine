@@ -7,6 +7,7 @@
 #include "object.hpp"
 #include "render_batch.hpp"
 #include "render_queue.hpp"
+#include "console.hpp"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -42,7 +43,7 @@ int main(){
     
     vk_ctx ctx{};
     pCtx = &ctx;
-    ctx.console = new ConsoleInstance();
+    ctx.console = new ConsoleInstance(ctx);
     
     vk_instance_params instance_params{};
     
@@ -51,8 +52,9 @@ int main(){
     instance_params.windowHeight = 1000;
     instance_params.windowWidth = 1600;
     instance_params.windowResizable = false;
-    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
 
+    ctx.params = instance_params;
     CTX::initContext(ctx, instance_params);
     
     pCtx = &ctx;
@@ -105,6 +107,7 @@ int main(){
 
     
     RenderQueue renderQueue(ctx, instance_params);
+    ctx.rQueue = &renderQueue;
     renderQueue.addBatch(&rBatch);
 
 

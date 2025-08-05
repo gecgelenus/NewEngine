@@ -6,5 +6,5 @@ CXX_DEFINES = -D_LOG_ALL
 
 CXX_INCLUDES = -I/home/talha/Documents/NewEngine/./include -I/home/talha/Documents/NewEngine/./deps/colorLog -I/home/talha/Documents/NewEngine/./deps/resourceLoaders -I/home/talha/Documents/NewEngine/./include/imgui -I/home/talha/Documents/NewEngine/deps/glfw-3.4/include
 
-CXX_FLAGS = -g -std=c++20
+CXX_FLAGS = -std=c++20
 

@@ -1,8 +1,8 @@
 #pragma once
 #include <unordered_map>
 #include "util.hpp"
-#include "console.hpp"
 #include "vma.h"
+#include "imgui.h"
 
 
 #include <GLFW/glfw3.h>
@@ -16,13 +16,18 @@
 
 
 
+class ConsoleInstance;
+class Object;
+class RenderQueue;
+
+
+
 struct PushConstant{
     uint64_t modelBufferAddress;
     uint64_t materialBufferAddress;
 
 };
 
-class Object;
 
 struct InstanceInfo{
     int32_t modelIndex;
@@ -141,11 +146,43 @@ struct TextureSlot{
     VkSampler textureSampler;
 };
 
+
+struct vk_instance_params{
+    // INSTANCE PARAMETERS
+    bool enableValidationLayers = false;
+    
+    // PHYSICAL DEVICE PARAMETERS
+    uint32_t physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+
+    // LOGICAL DEVICE PARAMETERS
+    bool samplerAnisotropy = false;
+    bool sampleRateShading = false;
+    bool multiDrawIndirect = false;
+    bool dynamicRendering = false;
+    
+    // GLFW PARAMETERS
+    std::string windowTitle = "";
+    uint32_t windowWidth = 0;
+    uint32_t windowHeight = 0;
+    bool windowResizable = true;
+    bool windowStickKeys = false;
+    bool windowStartCursorDisabled = false;
+
+    // GRAPHIC PIPELINE PARAMETERS
+    VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+    uint32_t framesOnFlight = 3;
+
+
+
+};
+
 struct vk_ctx
 {
     VkInstance instance;
     VkPhysicalDevice physicalDevice;
     VkDevice device;
+
+    vk_instance_params params;
 
     VkQueue graphicsQueue;
     VkQueue transferQueue;
@@ -247,38 +284,13 @@ struct vk_ctx
     std::vector<TextureSlot> textureSet;
     
     ConsoleInstance* console;
+    RenderQueue* rQueue;
     
 
 };
 
-struct vk_instance_params{
-    // INSTANCE PARAMETERS
-    bool enableValidationLayers = false;
-    
-    // PHYSICAL DEVICE PARAMETERS
-    uint32_t physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
-
-    // LOGICAL DEVICE PARAMETERS
-    bool samplerAnisotropy = false;
-    bool sampleRateShading = false;
-    bool multiDrawIndirect = false;
-    bool dynamicRendering = false;
-    
-    // GLFW PARAMETERS
-    std::string windowTitle = "";
-    uint32_t windowWidth = 0;
-    uint32_t windowHeight = 0;
-    bool windowResizable = true;
-    bool windowStickKeys = false;
-    bool windowStartCursorDisabled = false;
-
-    // GRAPHIC PIPELINE PARAMETERS
-    VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-    uint32_t framesOnFlight = 3;
 
 
-
-};
 
 namespace CTX{
     

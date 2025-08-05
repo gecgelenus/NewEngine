@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/talha/Documents/NewEngine/deps/glm
 
-CXX_FLAGS = -g -std=c++20
+CXX_FLAGS = -std=c++20
 
