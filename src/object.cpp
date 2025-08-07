@@ -1,5 +1,5 @@
 #include "object.hpp"
-
+#include "graphic_pipeline.hpp"
 
 Object::~Object()
 {
@@ -20,32 +20,31 @@ Object::Object(vk_ctx& p_ctx):
     ctx.objectIDMap.insert({objectID, this});
  };
 
-void Object::formatData(std::vector<SpvReflectInterfaceVariable *> inputVars, uint32_t strideSize)
+void Object::formatData(GraphicPipeline* pipeline)
 {
     for(int i = 0; i < primitives.size(); i++){
-        primitives[i].stride = strideSize;
+        primitives[i].stride = pipeline->strideSize;
         if(primitives[i].dataBuffer != nullptr){
             free(primitives[i].dataBuffer);
             primitives[i].dataBuffer = nullptr;
         }
-        primitives[i].vc.resize(primitives[i].vertices.size() * (strideSize/sizeof(float)));
+        primitives[i].vc.resize(primitives[i].vertices.size() * (pipeline->strideSize/sizeof(float)));
         primitives[i].dataBuffer = primitives[i].vc.data();
         //primitives[i].dataBuffer = malloc(strideSize * primitives[i].vertices.size());
-        primitives[i].dataSize = strideSize * primitives[i].vertices.size();
+        primitives[i].dataSize = pipeline->strideSize * primitives[i].vertices.size();
+        primitives[i].pipelineIndex = pipeline->id;
 
         //std::cout << "Primitive vertex count: " << primitives[i].vertices.size() << std::endl;
-        serializePrimitive(inputVars, i, strideSize);
+        serializePrimitive(pipeline->interfaceVariables, i, pipeline->strideSize);
 
         VmaVirtualAllocationCreateInfo allocCreateInfo = {};
         allocCreateInfo.size = primitives[i].dataSize;
-        allocCreateInfo.alignment = strideSize;
+        allocCreateInfo.alignment = pipeline->strideSize;
 
         VkResult result = vmaVirtualAllocate(ctx.globalVertexVirtualBlock, &allocCreateInfo, 
             &primitives[i].virtualVertexAllocation, &primitives[i].virtualVertexOffset);
 
         if (result == VK_SUCCESS) {
-            std::cout << "Primitive: " << i << " vertex size: " << primitives[i].dataSize <<
-             " vertex offset: " << primitives[i].virtualVertexOffset << " stride: " << strideSize << std::endl;
         } else {
             std::cout << "Failed to allocate memory" << std::endl;
         }
@@ -58,8 +57,6 @@ void Object::formatData(std::vector<SpvReflectInterfaceVariable *> inputVars, ui
             &primitives[i].virtualIndexAllocation, &primitives[i].virtualIndexOffset);
 
         if (result == VK_SUCCESS) {
-            std::cout << "Primitive: " << i << " index size: " << primitives[i].indices.size() <<
-             " index offset: " << primitives[i].virtualIndexOffset << " stride: " << strideSize << std::endl;
         } else {
             std::cout << "Failed to allocate memory" << std::endl;
         }

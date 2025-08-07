@@ -1,7 +1,6 @@
 #pragma once
 #include "util.hpp"
 #include "vulkan_context.hpp"
-#include "render_batch.hpp"
 #include "Interface.hpp"
 #include <sstream>
 #include "console.hpp"
@@ -13,13 +12,11 @@ class RenderQueue{
         RenderQueue(vk_ctx&, vk_instance_params&);
         ~RenderQueue();
 
-        void addBatch(RenderBatch*);
         void drawQueue();
 
 
         vk_ctx& ctx;
         vk_instance_params instance_params;
-        std::vector<RenderBatch*> batchList;
         Interface* interface;
         ImDrawData* drawData = nullptr;
         uint32_t currentFrame = 0;

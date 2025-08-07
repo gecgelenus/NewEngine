@@ -19,13 +19,19 @@
 class ConsoleInstance;
 class Object;
 class RenderQueue;
-
+class GraphicPipeline;
 
 
 struct PushConstant{
     uint64_t modelBufferAddress;
     uint64_t materialBufferAddress;
 
+};
+
+struct PipelineBatch{
+    uint32_t pipelineIndex;
+    uint32_t start;
+    uint32_t end;
 };
 
 
@@ -202,7 +208,7 @@ struct vk_ctx
 
     VkPipelineLayout globalPipelineLayout;
 
-
+    std::vector<PipelineBatch> pipelineBatches;
 
 
 
@@ -227,9 +233,8 @@ struct vk_ctx
     VmaAllocation globalIndexBufferAllocation = VK_NULL_HANDLE;
     VmaVirtualBlock globalIndexVirtualBlock;
 
-    VkBuffer globalInstanceBuffer;
-    VmaAllocation globalInstanceBufferAllocation;
-    VmaVirtualBlock globalInstanceVirtualAllocation;
+    VkBuffer instanceBuffer;
+    VmaAllocation instanceBufferAllocation;
 
     VkBuffer drawBuffer;
     VmaAllocation drawBufferAllocation;
@@ -238,7 +243,7 @@ struct vk_ctx
     VmaAllocation addressBufferAllocation;
 
     
-    std::vector<ObjectPrimitive> primitiveData;
+    std::vector<ObjectPrimitive*> primitiveData;
     std::vector<VkDrawIndexedIndirectCommand> drawCommands;
     std::vector<InstanceInfo> instanceInfos;
 
@@ -248,8 +253,11 @@ struct vk_ctx
 
     std::vector<std::string> materialNames;
     std::vector<Material> materialList;
-
+    std::vector<GraphicPipeline*> pipelines;
+    
+    uint32_t pipelineIDNext = 0;
     uint32_t objectIDNext = 0;
+    
     std::unordered_map<uint32_t, Object*> objectIDMap;
 
 
@@ -261,7 +269,11 @@ struct vk_ctx
     VmaAllocation materialBufferAllocation;
     VkDeviceAddress materialBufferAddress;
     
-    
+            
+    std::vector<VkSampler> samplers; // For resource lifetime tracking
+    std::unordered_map<VmaAllocation, VkImage> images; // For resource lifetime tracking
+    std::vector<VkImageView> imageViews; // For resource lifetime tracking
+
     GLFWwindow* window;
 
     uint32_t minImage = 0;
@@ -320,6 +332,8 @@ namespace CTX{
     float getDeltaTime();
 
     void reloadObjectData(vk_ctx&);
+    void sortObjectPrimitives(vk_ctx& ctx);
+
     void updateModelMatrices(vk_ctx& );
 
     void destroyBuffer(vk_ctx& ctx, VkBuffer buffer, VmaAllocation allocation);
@@ -362,6 +376,9 @@ namespace CTX{
         int findMaterialIndex(vk_ctx& ctx, std::string & p_name);
         
         int createMaterial(vk_ctx&, std::string& path, tinygltf::Model& model, tinygltf::Material& material);
+
+        void destroyBuffer(vk_ctx&, VkBuffer, VmaAllocation);
+
     }
 }
 

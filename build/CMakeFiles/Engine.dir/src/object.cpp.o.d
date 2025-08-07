@@ -430,4 +430,5 @@ CMakeFiles/Engine.dir/src/object.cpp.o: \
  /home/talha/Documents/NewEngine/./deps/resourceLoaders/tiny_gltf.h \
  /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
  /usr/include/c++/11/bits/stl_map.h \
- /usr/include/c++/11/bits/stl_multimap.h /usr/include/c++/11/iostream
+ /usr/include/c++/11/bits/stl_multimap.h /usr/include/c++/11/iostream \
+ /home/talha/Documents/NewEngine/./include/graphic_pipeline.hpp

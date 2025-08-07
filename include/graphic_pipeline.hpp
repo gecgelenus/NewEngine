@@ -14,8 +14,7 @@
 class GraphicPipeline{
 
 public:
-    GraphicPipeline();
-    GraphicPipeline(const vk_ctx& context, const std::string& p_vertexShader, const std::string& p_fragmentShader, const vk_instance_params& p_instance_params);
+    GraphicPipeline(vk_ctx& context, const std::string& p_vertexShader, const std::string& p_fragmentShader, const vk_instance_params& p_instance_params);
     ~GraphicPipeline();
 
 
@@ -34,7 +33,8 @@ public:
     uint32_t strideSizeInstance = 0;
 
 
-    vk_ctx ctx;
+    vk_ctx& ctx;
+    uint32_t id;
 
 
 

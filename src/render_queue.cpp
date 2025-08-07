@@ -1,6 +1,9 @@
 #include "render_queue.hpp"
 #include <iostream>
 #include <sstream>
+#include "object.hpp"
+#include "graphic_pipeline.hpp"
+
 
 RenderQueue::RenderQueue(vk_ctx &p_ctx, vk_instance_params &p_instance_params) : ctx(p_ctx)
 {
@@ -24,10 +27,6 @@ RenderQueue::~RenderQueue()
     delete interface;
 }
 
-void RenderQueue::addBatch(RenderBatch *p_batch)
-{
-    batchList.push_back(p_batch);
-}
 
 void RenderQueue::drawQueue()
 {
@@ -230,6 +229,11 @@ void RenderQueue::updateCamera(uint32_t index)
 void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t index)
 {
 
+    PushConstant cnst{};
+    cnst.modelBufferAddress = ctx.bufferAddress;
+    cnst.materialBufferAddress = ctx.materialBufferAddress;
+
+
     VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
     VkClearValue depthColor{}; // Not used for color_attachment_info directly, but good to have for depth
     depthColor.depthStencil = {1.0f, 0};
@@ -320,10 +324,19 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
 
     // Use the function pointers loaded by vk_ctx
     vkCmdBeginRendering(commandBuffer, &render_info);
-    for (int i = 0; i < batchList.size(); i++)
+    for (int i = 0; i < ctx.pipelineBatches.size(); i++)
     {
 
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, batchList[i]->graphicPipeline->pipeline);
+        VkPipeline currentPipeline;
+
+        for(int j = 0; j < ctx.pipelines.size();j++){
+            if(ctx.pipelines[j]->id == ctx.pipelineBatches[i].pipelineIndex){
+                currentPipeline = ctx.pipelines[j]->pipeline;
+                break;
+            }
+        }
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline);
 
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
@@ -334,11 +347,11 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
             VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, // Must match stageFlags used in VkPushConstantRange
             0,                                                         // Offset into the push constant block (usually 0)
             sizeof(PushConstant),                                      // Size of the data being pushed
-            &(batchList[i]->graphicPipeline->pushConstant)              // Pointer to your C++ data
+            &cnst              // Pointer to your C++ data
         );
 
         // Assuming these buffers are created and valid for the GraphicPipeline
-        VkBuffer vertexBuffers[] = {ctx.globalVertexBuffer, ctx.globalInstanceBuffer};
+        VkBuffer vertexBuffers[] = {ctx.globalVertexBuffer, ctx.instanceBuffer};
         VkDeviceSize offsets[] = {0, 0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
 
@@ -348,7 +361,7 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
         VkDescriptorSet descriptorSets[] = {ctx.cameraDescriptorSets[index], ctx.addressDescriptorSet, ctx.textureDescriptorSet};
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.globalPipelineLayout, 0, 3, descriptorSets, 0, nullptr);
         // Make sure graphicPipeline->drawBuffer and graphicPipeline->drawCommands are valid
-        vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer, 0, ctx.drawCommands.size(), sizeof(VkDrawIndexedIndirectCommand));
+        vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer, ctx.pipelineBatches[i].start*sizeof(VkDrawIndexedIndirectCommand), ctx.pipelineBatches[i].end - ctx.pipelineBatches[i].start, sizeof(VkDrawIndexedIndirectCommand));
     }
 
     ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
@@ -460,58 +473,53 @@ void RenderQueue::renderUI()
 void RenderQueue::renderLeftPanel()
 {
     ImGui::Begin("LeftPanel");
-
-    for (int i = 0; i < batchList.size(); i++)
+  
+    for (int j = 0; j < ctx.objects.size(); j++)
     {
-        std::stringstream tmpss;
-        tmpss << batchList[i]->name << " (" << batchList[i]->objects.size() << " objects)";
-        if(ImGui::TreeNode(tmpss.str().c_str())){
-             for (int j = 0; j < batchList[i]->objects.size(); j++)
+        if (ctx.objects[j]->parentObject == nullptr)
+        {
+            std::stringstream ss;
+            ss << "[" << ctx.objects[j]->objectID << "] "<< ctx.objects[j]->name.c_str();
+            if (ctx.objects[j]->childObjects.size() > 0)
             {
-                if (batchList[i]->objects[j]->parentObject == nullptr)
+                
+                if (ImGui::TreeNode(ss.str().c_str()))
                 {
-                    if (batchList[i]->objects[j]->childObjects.size() > 0)
-                    {
-                        
-                        if (ImGui::TreeNode(batchList[i]->objects[j]->name.c_str()))
-                        {
 
-                            
-                            if (ImGui::IsItemClicked())
-                            {
-                                selectedItem = batchList[i]->objects[j]->objectID;
-                            }
-
-                            addChildObjectsToList(batchList[i]->objects[j]);
-                            ImGui::TreePop();
-                        }
-                    }
-                    else
-                    {
-                        if (selectedItem == batchList[i]->objects[j]->objectID)
-                        {
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-                        }
-
-                        ImGui::Text(batchList[i]->objects[j]->name.c_str());
-                        if (selectedItem == batchList[i]->objects[j]->objectID)
-                        {
-                            ImGui::PopStyleColor();
-                        }
-                    }
+                    
                     if (ImGui::IsItemClicked())
                     {
-                        selectedItem = batchList[i]->objects[j]->objectID;
+                        selectedItem = ctx.objects[j]->objectID;
                     }
+
+                    addChildObjectsToList(ctx.objects[j]);
+                    ImGui::TreePop();
                 }
             }
+            else
+            {
+                if (selectedItem == ctx.objects[j]->objectID)
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+                }
 
-            ImGui::TreePop();
-        
+                ImGui::Text(ss.str().c_str());
+                if (selectedItem == ctx.objects[j]->objectID)
+                {
+                    ImGui::PopStyleColor();
+                }
+            }
+            if (ImGui::IsItemClicked())
+            {
+                selectedItem = ctx.objects[j]->objectID;
+            }
         }
+    }
+
+        
 
        
-    }
+    
 
     ImGui::End();
 }
@@ -653,12 +661,11 @@ void RenderQueue::addChildObjectsToList(Object *obj)
 {
     for (int i = 0; i < obj->childObjects.size(); i++)
     {
+        std::stringstream ss;
+        ss << "[" << obj->childObjects[i]->objectID << "] "<< obj->childObjects[i]->name.c_str();
         if (obj->childObjects[i]->childObjects.size() > 0)
         {
-            
-            
-
-            if (ImGui::TreeNode(obj->childObjects[i]->name.c_str()))
+            if (ImGui::TreeNode(ss.str().c_str()))
             {
                 
                 if (ImGui::IsItemClicked())
@@ -675,7 +682,7 @@ void RenderQueue::addChildObjectsToList(Object *obj)
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             }
-            ImGui::Text(obj->childObjects[i]->name.c_str());
+            ImGui::Text(ss.str().c_str());
             if (selectedItem == obj->childObjects[i]->objectID)
             {
                 ImGui::PopStyleColor();

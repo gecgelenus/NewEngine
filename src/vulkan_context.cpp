@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <object.hpp>
+#include "console.hpp"
 
 /*
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -920,14 +921,27 @@ void CTX::destroyContext(vk_ctx& context, const vk_instance_params& p_instance_p
     vkDestroyCommandPool(context.device, context.commandPool, nullptr);
     vkDestroyCommandPool(context.device, context.commandPoolCopy, nullptr);
     
-    context.bufferAllocations.erase(context.deviceBufferAllocation);
-    vmaDestroyBuffer(context.allocator, context.deviceBuffer, context.deviceBufferAllocation);
+    for(int i = 0; i < context.objects.size();i++){
+        for(int j = 0; j < context.objects[i]->primitives.size(); j++){
+            vmaVirtualFree(context.globalVertexVirtualBlock, context.objects[i]->primitives[j].virtualVertexAllocation);
+            vmaVirtualFree(context.globalIndexVirtualBlock, context.objects[i]->primitives[j].virtualIndexAllocation);
+        }
+    }
 
-    context.bufferAllocations.erase(context.addressBufferAllocation);
-    vmaDestroyBuffer(context.allocator, context.addressBuffer, context.addressBufferAllocation);
 
-    context.bufferAllocations.erase(context.materialBufferAllocation);
-    vmaDestroyBuffer(context.allocator, context.materialBuffer, context.materialBufferAllocation);
+    CTX::AUX::destroyBuffer(context, context.deviceBuffer, context.deviceBufferAllocation);
+    CTX::AUX::destroyBuffer(context, context.addressBuffer, context.addressBufferAllocation);
+    CTX::AUX::destroyBuffer(context, context.materialBuffer, context.materialBufferAllocation);
+
+
+    CTX::AUX::destroyBuffer(context, context.globalVertexBuffer, context.globalVertexBufferAllocation);
+    CTX::AUX::destroyBuffer(context, context.globalIndexBuffer, context.globalIndexBufferAllocation);
+    CTX::AUX::destroyBuffer(context, context.instanceBuffer, context.instanceBufferAllocation);
+    CTX::AUX::destroyBuffer(context, context.drawBuffer, context.drawBufferAllocation);
+
+    vmaDestroyVirtualBlock(context.globalVertexVirtualBlock);
+    vmaDestroyVirtualBlock(context.globalIndexVirtualBlock);
+
 
     vkDestroyDescriptorSetLayout(context.device, context.setCameraLayout, nullptr);
     vkDestroyDescriptorSetLayout(context.device, context.setAddressLayout, nullptr);
@@ -939,9 +953,25 @@ void CTX::destroyContext(vk_ctx& context, const vk_instance_params& p_instance_p
 
 
     for(int i = 0; i < context.camera.bufferAllocations.size();i++){
-        context.bufferAllocations.erase(context.camera.bufferAllocations[i]);
-        vmaDestroyBuffer(context.allocator, context.camera.buffers[i], context.camera.bufferAllocations[i]);
+
+        CTX::AUX::destroyBuffer(context, context.camera.buffers[i], context.camera.bufferAllocations[i]);
+
+       
     }
+
+    for(VkSampler s: context.samplers){
+		vkDestroySampler(context.device, s, nullptr);
+	}
+
+	for(auto i: context.images){
+		vmaDestroyImage(context.allocator, i.second, i.first);
+	}
+	
+	for(VkImageView iw: context.imageViews){
+		vkDestroyImageView(context.device, iw, nullptr);
+	}
+
+
 
     VERBOSE(DEBUG_CTX, "Destroying depth image view...");
     vkDestroyImageView(context.device, context.depthImageView, nullptr);
@@ -1018,7 +1048,7 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
 
     CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*50, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-    ctx.globalInstanceBuffer, ctx.globalInstanceBufferAllocation);
+    ctx.instanceBuffer, ctx.instanceBufferAllocation);
 
     CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*50, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
@@ -1445,6 +1475,7 @@ void CTX::reloadObjectData(vk_ctx& ctx){
     uint32_t drawIndexCounter = 0;
     ctx.instanceInfos.clear();
     ctx.drawCommands.clear();
+    ctx.primitiveData.clear();
 
     for(int i = 0; i < ctx.objects.size(); i++){
         for(int j = 0; j < ctx.objects[i]->primitives.size(); j++){
@@ -1454,36 +1485,16 @@ void CTX::reloadObjectData(vk_ctx& ctx){
             CTX::AUX::uploadData(ctx, ctx.objects[i]->primitives[j].indices.data(), ctx.globalIndexBuffer,
                 ctx.objects[i]->primitives[j].indices.size()*sizeof(uint32_t), ctx.objects[i]->primitives[j].virtualIndexOffset);
             
-            ctx.objects[i]->primitives[j].drawIndex = drawIndexCounter;
-
-            InstanceInfo tmpInfo{};
-            tmpInfo.modelIndex = ctx.objects[i]->modelIndex;
-            tmpInfo.materialIndex = ctx.objects[i]->primitives[j].materialIndex;
+            ctx.objects[i]->primitives[j].modelIndex = ctx.objects[i]->modelIndex;
             
-            ctx.instanceInfos.push_back(tmpInfo);
             
-            VkDrawIndexedIndirectCommand tmpCmd{};
-            tmpCmd.firstIndex = ctx.objects[i]->primitives[j].virtualIndexOffset / sizeof(uint32_t);
-            tmpCmd.indexCount = ctx.objects[i]->primitives[j].indices.size();
-            tmpCmd.firstInstance = drawIndexCounter;
-            tmpCmd.instanceCount = 1;
-            tmpCmd.vertexOffset = ctx.objects[i]->primitives[j].virtualVertexOffset / ctx.objects[i]->primitives[j].stride;
+            ctx.primitiveData.push_back(&ctx.objects[i]->primitives[j]);
             
-            ctx.drawCommands.push_back(tmpCmd);
 
-
-            drawIndexCounter++;
 
         }
     }
 
-    
-
-    CTX::AUX::uploadData(ctx, ctx.instanceInfos.data(), ctx.globalInstanceBuffer,
-                ctx.instanceInfos.size()*sizeof(InstanceInfo), 0);
-
-    CTX::AUX::uploadData(ctx, ctx.drawCommands.data(), ctx.drawBuffer,
-                ctx.drawCommands.size()*sizeof(VkDrawIndexedIndirectCommand), 0);
 };
 
 
@@ -1698,7 +1709,7 @@ bool CTX::AUX::LoadModelTextures(vk_ctx& ctx, tinygltf::Model& model, std::strin
 				throw std::runtime_error("failed to create texture sampler!");
 			}
 
-			//samplers.push_back(textureSampler);
+			ctx.samplers.push_back(textureSampler);
 
 
 			VkBuffer stagingBufferTexture;
@@ -1745,7 +1756,7 @@ bool CTX::AUX::LoadModelTextures(vk_ctx& ctx, tinygltf::Model& model, std::strin
 
 			VmaAllocation alloc;
 			vmaCreateImage(ctx.allocator, &imageInfo, &allocInfo, &textureImage, &alloc, nullptr);
-			//images.insert({alloc, textureImage});
+			ctx.images.insert({alloc, textureImage});
 
 			CTX::AUX::transitionImageLayout(ctx, textureImage, VK_FORMAT_R8G8B8A8_SRGB,
 				VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
@@ -1769,7 +1780,7 @@ bool CTX::AUX::LoadModelTextures(vk_ctx& ctx, tinygltf::Model& model, std::strin
 			if (vkCreateImageView(ctx.device, &viewInfo, nullptr, &textureImageView) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create texture image view!");
 			}
-			//imageViews.push_back(textureImageView);
+			ctx.imageViews.push_back(textureImageView);
 
 			vmaDestroyBuffer(ctx.allocator, buffer, allocation);
 
@@ -2247,4 +2258,83 @@ int CTX::AUX::createMaterial(vk_ctx& ctx, std::string& path, tinygltf::Model& mo
 	
 
     return ctx.materialList.size()-1;
+}
+
+void CTX::sortObjectPrimitives(vk_ctx& ctx)
+{
+    std::sort(ctx.primitiveData.begin(), ctx.primitiveData.end(),
+        [](const ObjectPrimitive* a, const ObjectPrimitive* b) {
+            return a->pipelineIndex < b->pipelineIndex;
+        });
+
+    ctx.pipelineBatches.clear();
+    
+    uint32_t currentPipelineIndex = ctx.primitiveData[0]->pipelineIndex;
+    uint32_t lastPipelineEnd = 0;
+    for(int i = 0; i < ctx.primitiveData.size();i++){
+        if(currentPipelineIndex != ctx.primitiveData[i]->pipelineIndex){
+            PipelineBatch tmpBatch{};
+            tmpBatch.pipelineIndex = currentPipelineIndex;
+            tmpBatch.start = lastPipelineEnd;
+            tmpBatch.end = i;
+            ctx.pipelineBatches.push_back(tmpBatch);
+            lastPipelineEnd = i;
+            currentPipelineIndex = ctx.primitiveData[i]->pipelineIndex;
+        }
+    }
+
+    PipelineBatch tmpBatch{};
+    tmpBatch.pipelineIndex = currentPipelineIndex;
+    tmpBatch.start = lastPipelineEnd;
+    tmpBatch.end = ctx.primitiveData.size();
+    ctx.pipelineBatches.push_back(tmpBatch);
+    
+    std::cout << "Primitive count: " << ctx.primitiveData.size() << std::endl;
+
+    for(int i = 0; i < ctx.pipelineBatches.size(); i++){
+        std::cout << "Pipeline index: " << ctx.pipelineBatches[i].pipelineIndex << " start: " << 
+        ctx.pipelineBatches[i].start << " end: " << 
+        ctx.pipelineBatches[i].end << " " << std::endl;
+    }
+
+    ctx.instanceInfos.clear();
+    ctx.drawCommands.clear();
+    uint32_t drawIndexCounter = 0;
+    
+    for(int i = 0; i < ctx.primitiveData.size();i++){
+        ctx.primitiveData[i]->drawIndex = drawIndexCounter;
+
+        InstanceInfo tmpInfo{};
+        tmpInfo.modelIndex = ctx.primitiveData[i]->modelIndex;
+        tmpInfo.materialIndex = ctx.primitiveData[i]->materialIndex;
+        
+        ctx.instanceInfos.push_back(tmpInfo);
+
+        VkDrawIndexedIndirectCommand tmpCmd{};
+        tmpCmd.firstIndex = ctx.primitiveData[i]->virtualIndexOffset / sizeof(uint32_t);
+        tmpCmd.indexCount = ctx.primitiveData[i]->indices.size();
+        tmpCmd.firstInstance = drawIndexCounter;
+        tmpCmd.instanceCount = 1;
+        tmpCmd.vertexOffset = ctx.primitiveData[i]->virtualVertexOffset / ctx.primitiveData[i]->stride;
+
+        ctx.drawCommands.push_back(tmpCmd);
+
+
+        drawIndexCounter++;
+    }
+    
+    
+
+    CTX::AUX::uploadData(ctx, ctx.instanceInfos.data(), ctx.instanceBuffer,
+                ctx.instanceInfos.size()*sizeof(InstanceInfo), 0);
+
+    CTX::AUX::uploadData(ctx, ctx.drawCommands.data(), ctx.drawBuffer,
+                ctx.drawCommands.size()*sizeof(VkDrawIndexedIndirectCommand), 0);
+}
+
+
+void CTX::AUX::destroyBuffer(vk_ctx& ctx, VkBuffer buffer, VmaAllocation allocation){
+        
+    ctx.bufferAllocations.erase(allocation);
+    vmaDestroyBuffer(ctx.allocator, buffer, allocation);
 }

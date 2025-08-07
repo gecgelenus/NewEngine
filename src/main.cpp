@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vulkan/vulkan.hpp>
 #include "object.hpp"
-#include "render_batch.hpp"
 #include "render_queue.hpp"
 #include "console.hpp"
 
@@ -52,7 +51,7 @@ int main(){
     instance_params.windowHeight = 1000;
     instance_params.windowWidth = 1600;
     instance_params.windowResizable = false;
-    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
+    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
 
     ctx.params = instance_params;
     CTX::initContext(ctx, instance_params);
@@ -62,10 +61,13 @@ int main(){
 
     INFO("Swapchain images", "Swapchain image size: %u", ctx.swapchainImageViews.size());
     GraphicPipeline* pipeline = new GraphicPipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
-  
+    GraphicPipeline* pipeline2 = new GraphicPipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    
+    ctx.pipelines.push_back(pipeline);
+    ctx.pipelines.push_back(pipeline2);
 
-    RenderBatch rBatch(ctx, "Test");
-    rBatch.graphicPipeline = pipeline;
+
+
     std::string pathFile = "/home/talha/Desktop/dice.glb";
     std::string pathFile2 = "/home/talha/Desktop/space.glb";
     std::string pathFile3 = "/home/talha/Desktop/room.glb";
@@ -79,24 +81,17 @@ int main(){
 
 
 
+	ctx.objects[0]->formatData(pipeline2);
 
-    for(int i = 0; i < ctx.objects.size(); i++){
-		ctx.objects[i]->formatData(pipeline->interfaceVariables, pipeline->strideSize);
+    for(int i = 1; i < ctx.objects.size(); i++){
+		ctx.objects[i]->formatData(pipeline);
 	}
 
+
     CTX::reloadObjectData(ctx);
+    CTX::sortObjectPrimitives(ctx);
     
-    
-    // Add debugging output
-    std::cout << "Total objects loaded: " << ctx.objects.size() << std::endl;
-    for(int i = 0; i < ctx.objects.size(); i++) {
-        std::cout << "Object " << i << ": " << ctx.objects[i]->name 
-                  << " (ID: " << ctx.objects[i]->objectID << ")" 
-                  << " Primitives: " << ctx.objects[i]->primitives.size() << std::endl;
-    }
-    
-    // Only set transformations if objects exist
-    
+
 
    
 
@@ -108,17 +103,12 @@ int main(){
     
     RenderQueue renderQueue(ctx, instance_params);
     ctx.rQueue = &renderQueue;
-    renderQueue.addBatch(&rBatch);
 
 
     glfwSetKeyCallback(ctx.window, key_callback);
     glfwSetCharCallback(ctx.window, char_callback);
 
-    for(int i = 0; i < renderQueue.batchList.size();i++){
-        renderQueue.batchList[i]->graphicPipeline->pushConstant.modelBufferAddress = ctx.bufferAddress;
-        renderQueue.batchList[i]->graphicPipeline->pushConstant.materialBufferAddress = ctx.materialBufferAddress;
 
-    }
 
 
 
@@ -139,6 +129,11 @@ int main(){
     
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+
+    for(int i = 0; i < ctx.pipelines.size();i++){
+        delete ctx.pipelines[i];
+    }
+
     ImGui::DestroyContext();
 
     }

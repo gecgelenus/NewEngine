@@ -503,30 +503,6 @@ src/object.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/object.cpp.s
 .PHONY : src/object.cpp.s
 
-src/render_batch.o: src/render_batch.cpp.o
-.PHONY : src/render_batch.o
-
-# target to build an object file
-src/render_batch.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/render_batch.cpp.o
-.PHONY : src/render_batch.cpp.o
-
-src/render_batch.i: src/render_batch.cpp.i
-.PHONY : src/render_batch.i
-
-# target to preprocess a source file
-src/render_batch.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/render_batch.cpp.i
-.PHONY : src/render_batch.cpp.i
-
-src/render_batch.s: src/render_batch.cpp.s
-.PHONY : src/render_batch.s
-
-# target to generate assembly for a file
-src/render_batch.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Engine.dir/build.make CMakeFiles/Engine.dir/src/render_batch.cpp.s
-.PHONY : src/render_batch.cpp.s
-
 src/render_queue.o: src/render_queue.cpp.o
 .PHONY : src/render_queue.o
 
@@ -674,9 +650,6 @@ help:
 	@echo "... src/object.o"
 	@echo "... src/object.i"
 	@echo "... src/object.s"
-	@echo "... src/render_batch.o"
-	@echo "... src/render_batch.i"
-	@echo "... src/render_batch.s"
 	@echo "... src/render_queue.o"
 	@echo "... src/render_queue.i"
 	@echo "... src/render_queue.s"

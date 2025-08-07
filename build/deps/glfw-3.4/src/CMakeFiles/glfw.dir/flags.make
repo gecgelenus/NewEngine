@@ -6,5 +6,5 @@ C_DEFINES = -DHAVE_MEMFD_CREATE -D_DEFAULT_SOURCE -D_GLFW_WAYLAND -D_GLFW_X11
 
 C_INCLUDES = -I/home/talha/Documents/NewEngine/deps/glfw-3.4/include -I/home/talha/Documents/NewEngine/deps/glfw-3.4/src -I/home/talha/Documents/NewEngine/build/deps/glfw-3.4/src
 
-C_FLAGS = -fPIC -Wall -std=c99
+C_FLAGS = -g -fPIC -Wall -std=c99
 

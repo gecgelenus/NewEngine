@@ -22,7 +22,7 @@ class Object{
 
         ~Object();
 
-        void formatData(std::vector<SpvReflectInterfaceVariable*> inputVars, uint32_t strideSize);
+        void formatData(GraphicPipeline*);
         void serializePrimitive(std::vector<SpvReflectInterfaceVariable*> inputVars, uint32_t index, uint32_t strideSize);
 
         vk_ctx& ctx;

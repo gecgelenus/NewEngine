@@ -21,8 +21,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/Engine.dir/src/main.cpp.o.d"
   "CMakeFiles/Engine.dir/src/object.cpp.o"
   "CMakeFiles/Engine.dir/src/object.cpp.o.d"
-  "CMakeFiles/Engine.dir/src/render_batch.cpp.o"
-  "CMakeFiles/Engine.dir/src/render_batch.cpp.o.d"
   "CMakeFiles/Engine.dir/src/render_queue.cpp.o"
   "CMakeFiles/Engine.dir/src/render_queue.cpp.o.d"
   "CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o"

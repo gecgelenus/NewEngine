@@ -19,7 +19,6 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/talha/Documents/NewEngine/src/imgui/imgui_widgets.cpp" "CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/imgui/imgui_widgets.cpp.o.d"
   "/home/talha/Documents/NewEngine/src/main.cpp" "CMakeFiles/Engine.dir/src/main.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/main.cpp.o.d"
   "/home/talha/Documents/NewEngine/src/object.cpp" "CMakeFiles/Engine.dir/src/object.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/object.cpp.o.d"
-  "/home/talha/Documents/NewEngine/src/render_batch.cpp" "CMakeFiles/Engine.dir/src/render_batch.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/render_batch.cpp.o.d"
   "/home/talha/Documents/NewEngine/src/render_queue.cpp" "CMakeFiles/Engine.dir/src/render_queue.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/render_queue.cpp.o.d"
   "/home/talha/Documents/NewEngine/src/spirv_reflect.cpp" "CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/spirv_reflect.cpp.o.d"
   "/home/talha/Documents/NewEngine/src/util.cpp" "CMakeFiles/Engine.dir/src/util.cpp.o" "gcc" "CMakeFiles/Engine.dir/src/util.cpp.o.d"

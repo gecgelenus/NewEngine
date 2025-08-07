@@ -2,13 +2,10 @@
 #include <glm/glm.hpp>
 #include <iostream>
 
-GraphicPipeline::GraphicPipeline()
-{
-}
 
-GraphicPipeline::GraphicPipeline(const vk_ctx &context, const std::string &p_vertexShader, const std::string &p_fragmentShader, const vk_instance_params &p_instance_params)
+GraphicPipeline::GraphicPipeline(vk_ctx &context, const std::string &p_vertexShader, const std::string &p_fragmentShader, const vk_instance_params &p_instance_params)
+	: ctx(context)
 {
-    ctx = context;
     std::vector<char> vertexCode = util::readFile(p_vertexShader);
     std::vector<char> fragmentCode = util::readFile(p_fragmentShader);
 
@@ -29,6 +26,9 @@ GraphicPipeline::GraphicPipeline(const vk_ctx &context, const std::string &p_ver
         ALERT(GRAPHICS_PIPELINE_CTX, "Failed to create fragment shader module (SPIRV REFLECT)");
     }
     createGraphicPipeline(context, p_instance_params);
+
+	id = ctx.pipelineIDNext;
+	ctx.pipelineIDNext++;
 }
 
 GraphicPipeline::~GraphicPipeline()
