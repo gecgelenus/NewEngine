@@ -1042,19 +1042,19 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
 
 
 
-    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*400, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     ctx.globalVertexBuffer, ctx.globalVertexBufferAllocation);
 
-    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*50, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
     ctx.instanceBuffer, ctx.instanceBufferAllocation);
 
-    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*50, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
     ctx.globalIndexBuffer, ctx.globalIndexBufferAllocation);
 
-        CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB*50, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+        CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
     ctx.drawBuffer, ctx.drawBufferAllocation);
 
@@ -1473,12 +1473,80 @@ void CTX::AUX::transitionImageLayout(vk_ctx& ctx ,VkImage image, VkFormat format
 void CTX::reloadObjectData(vk_ctx& ctx){
 
     uint32_t drawIndexCounter = 0;
-    ctx.instanceInfos.clear();
-    ctx.drawCommands.clear();
     ctx.primitiveData.clear();
+
+    uint32_t vertSize = 0;
+    uint32_t idxSize = 0;
+
+
+    VmaAllocationInfo vertexStat;
+    VmaAllocationInfo indexStat;
+
+
+    vmaGetAllocationInfo(ctx.allocator, ctx.globalVertexBufferAllocation, &vertexStat);
+    vmaGetAllocationInfo(ctx.allocator, ctx.globalIndexBufferAllocation, &indexStat);
+
+
 
     for(int i = 0; i < ctx.objects.size(); i++){
         for(int j = 0; j < ctx.objects[i]->primitives.size(); j++){
+            vertSize += ctx.objects[i]->primitives[j].dataSize;
+            idxSize += ctx.objects[i]->primitives[j].indices.size()*sizeof(uint32_t);
+
+        }
+    }
+
+    if(vertSize > vertexStat.size){
+        CTX::AUX::enlargeVertexBuffer(ctx, vertSize*1.2);
+    }
+
+    if(idxSize > indexStat.size){
+        CTX::AUX::enlargeIndexBuffer(ctx, idxSize*1.2);
+    }
+
+
+
+
+    for(int i = 0; i < ctx.objects.size(); i++){
+        for(int j = 0; j < ctx.objects[i]->primitives.size(); j++){
+
+            vmaGetAllocationInfo(ctx.allocator, ctx.globalVertexBufferAllocation, &vertexStat);
+            vmaGetAllocationInfo(ctx.allocator, ctx.globalIndexBufferAllocation, &indexStat);
+
+            VmaVirtualAllocationCreateInfo allocCreateInfo = {};
+            allocCreateInfo.size = ctx.objects[i]->primitives[j].dataSize;
+            allocCreateInfo.alignment = ctx.objects[i]->primitives[j].stride;
+
+            VkResult result = vmaVirtualAllocate(ctx.globalVertexVirtualBlock, &allocCreateInfo, 
+                &ctx.objects[i]->primitives[j].virtualVertexAllocation, &ctx.objects[i]->primitives[j].virtualVertexOffset);
+
+            if (result == VK_SUCCESS) {
+            }
+            else {
+                std::cout << "Failed to allocate memory" << std::endl;
+            }
+
+            if(ctx.objects[i]->primitives[j].virtualVertexOffset + ctx.objects[i]->primitives[j].dataSize > vertexStat.size){
+                CTX::AUX::enlargeVertexBuffer(ctx, (ctx.objects[i]->primitives[j].virtualVertexOffset + ctx.objects[i]->primitives[j].dataSize)*1.2);
+            }
+
+
+            allocCreateInfo.size = ctx.objects[i]->primitives[j].indices.size() * sizeof(uint32_t);
+            allocCreateInfo.alignment = sizeof(uint32_t);
+
+            result = vmaVirtualAllocate(ctx.globalIndexVirtualBlock, &allocCreateInfo, 
+                &ctx.objects[i]->primitives[j].virtualIndexAllocation, &ctx.objects[i]->primitives[j].virtualIndexOffset);
+
+            if (result == VK_SUCCESS) {
+            } else {
+                std::cout << "Failed to allocate memory" << std::endl;
+            }
+
+            if(ctx.objects[i]->primitives[j].virtualIndexOffset + ctx.objects[i]->primitives[j].indices.size()*sizeof(uint32_t) > indexStat.size){
+                CTX::AUX::enlargeIndexBuffer(ctx, (ctx.objects[i]->primitives[j].virtualIndexOffset + ctx.objects[i]->primitives[j].indices.size()*sizeof(uint32_t)) * 1.2);
+            }
+
+
             CTX::AUX::uploadData(ctx, ctx.objects[i]->primitives[j].dataBuffer, ctx.globalVertexBuffer,
                 ctx.objects[i]->primitives[j].dataSize, ctx.objects[i]->primitives[j].virtualVertexOffset);
 
@@ -1486,7 +1554,10 @@ void CTX::reloadObjectData(vk_ctx& ctx){
                 ctx.objects[i]->primitives[j].indices.size()*sizeof(uint32_t), ctx.objects[i]->primitives[j].virtualIndexOffset);
             
             ctx.objects[i]->primitives[j].modelIndex = ctx.objects[i]->modelIndex;
+
             
+
+
             
             ctx.primitiveData.push_back(&ctx.objects[i]->primitives[j]);
             
@@ -1494,6 +1565,7 @@ void CTX::reloadObjectData(vk_ctx& ctx){
 
         }
     }
+    CTX::sortObjectPrimitives(ctx);
 
 };
 
@@ -2323,7 +2395,21 @@ void CTX::sortObjectPrimitives(vk_ctx& ctx)
         drawIndexCounter++;
     }
     
-    
+    VmaAllocationInfo instanceStat;
+    VmaAllocationInfo drawStat;
+
+    vmaGetAllocationInfo(ctx.allocator, ctx.instanceBufferAllocation, &instanceStat);
+    vmaGetAllocationInfo(ctx.allocator, ctx.drawBufferAllocation, &drawStat);
+
+    if(instanceStat.size < ctx.instanceInfos.size()*sizeof(InstanceInfo)){
+        CTX::AUX::enlargeInstanceBuffer(ctx, ctx.instanceInfos.size()*sizeof(InstanceInfo)*1.2);
+    }
+
+    if(drawStat.size < ctx.drawCommands.size()*sizeof(VkDrawIndexedIndirectCommand)){
+        CTX::AUX::enlargeInstanceBuffer(ctx, ctx.drawCommands.size()*sizeof(VkDrawIndexedIndirectCommand)*1.2);
+    }
+
+
 
     CTX::AUX::uploadData(ctx, ctx.instanceInfos.data(), ctx.instanceBuffer,
                 ctx.instanceInfos.size()*sizeof(InstanceInfo), 0);
@@ -2337,4 +2423,36 @@ void CTX::AUX::destroyBuffer(vk_ctx& ctx, VkBuffer buffer, VmaAllocation allocat
         
     ctx.bufferAllocations.erase(allocation);
     vmaDestroyBuffer(ctx.allocator, buffer, allocation);
+}
+
+void CTX::AUX::enlargeVertexBuffer(vk_ctx & ctx, VkDeviceSize size)
+{
+    CTX::AUX::enlargeBuffer(ctx, size, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    ctx.globalVertexBuffer, ctx.globalVertexBufferAllocation);
+}
+
+void CTX::AUX::enlargeIndexBuffer(vk_ctx & ctx, VkDeviceSize size)
+{
+
+    
+    CTX::AUX::enlargeBuffer(ctx, size, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+    ctx.globalIndexBuffer, ctx.globalIndexBufferAllocation);
+
+
+}
+
+void CTX::AUX::enlargeInstanceBuffer(vk_ctx & ctx, VkDeviceSize size)
+{
+        CTX::AUX::enlargeBuffer(ctx, size, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    ctx.instanceBuffer, ctx.instanceBufferAllocation);
+}
+
+void CTX::AUX::enlargeDrawBuffer(vk_ctx & ctx, VkDeviceSize size)
+{
+            CTX::AUX::enlargeBuffer(ctx, size, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
+    ctx.drawBuffer, ctx.drawBufferAllocation);
 }

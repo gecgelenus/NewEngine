@@ -3,7 +3,7 @@
 #include <sstream>
 #include "object.hpp"
 #include "graphic_pipeline.hpp"
-
+#include <iomanip>
 
 RenderQueue::RenderQueue(vk_ctx &p_ctx, vk_instance_params &p_instance_params) : ctx(p_ctx)
 {
@@ -527,6 +527,38 @@ void RenderQueue::renderLeftPanel()
 void RenderQueue::renderRightPanel()
 {
     ImGui::Begin("Inspector");
+
+    VmaAllocationInfo vertexStat;
+    VmaAllocationInfo indexStat;
+    VmaAllocationInfo instanceStat;
+    VmaAllocationInfo drawStat;
+
+
+    vmaGetAllocationInfo(ctx.allocator, ctx.globalVertexBufferAllocation, &vertexStat);
+    vmaGetAllocationInfo(ctx.allocator, ctx.globalIndexBufferAllocation, &indexStat);
+    vmaGetAllocationInfo(ctx.allocator, ctx.instanceBufferAllocation, &instanceStat);
+    vmaGetAllocationInfo(ctx.allocator, ctx.drawBufferAllocation, &drawStat);
+
+    std::stringstream infss;
+    infss << "Vertex buffer memory usage: " << std::fixed << std::setprecision(3) << float(vertexStat.size)/(SIZE_MB)   << " MB";
+    ImGui::Text(infss.str().c_str());
+    infss.str("");
+
+    infss << "Index buffer memory usage: " << std::fixed << std::setprecision(3) << float(indexStat.size)/(SIZE_MB)   << " MB";  
+    ImGui::Text(infss.str().c_str());
+    infss.str("");
+    
+    infss << "Instance buffer memory usage: " << std::fixed << std::setprecision(3) << float(instanceStat.size)/(SIZE_MB)   << " MB";  
+    ImGui::Text(infss.str().c_str());
+    infss.str("");
+    
+    infss << "Draw buffer memory usage: " << std::fixed << std::setprecision(3) << float(drawStat.size)/(SIZE_MB)   << " MB";  
+    ImGui::Text(infss.str().c_str());
+
+    ImGui::Separator(); 
+
+
+
     if (selectedItem > -1 && selectedItem < ctx.objectIDNext)
     {
         std::string tmpStr = "";

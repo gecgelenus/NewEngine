@@ -37,29 +37,7 @@ void Object::formatData(GraphicPipeline* pipeline)
         //std::cout << "Primitive vertex count: " << primitives[i].vertices.size() << std::endl;
         serializePrimitive(pipeline->interfaceVariables, i, pipeline->strideSize);
 
-        VmaVirtualAllocationCreateInfo allocCreateInfo = {};
-        allocCreateInfo.size = primitives[i].dataSize;
-        allocCreateInfo.alignment = pipeline->strideSize;
 
-        VkResult result = vmaVirtualAllocate(ctx.globalVertexVirtualBlock, &allocCreateInfo, 
-            &primitives[i].virtualVertexAllocation, &primitives[i].virtualVertexOffset);
-
-        if (result == VK_SUCCESS) {
-        } else {
-            std::cout << "Failed to allocate memory" << std::endl;
-        }
-
-
-        allocCreateInfo.size = primitives[i].indices.size() * sizeof(uint32_t);
-        allocCreateInfo.alignment = sizeof(uint32_t);
-
-        result = vmaVirtualAllocate(ctx.globalIndexVirtualBlock, &allocCreateInfo, 
-            &primitives[i].virtualIndexAllocation, &primitives[i].virtualIndexOffset);
-
-        if (result == VK_SUCCESS) {
-        } else {
-            std::cout << "Failed to allocate memory" << std::endl;
-        }
     }
 
     

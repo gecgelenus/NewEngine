@@ -378,6 +378,11 @@ namespace CTX{
         int createMaterial(vk_ctx&, std::string& path, tinygltf::Model& model, tinygltf::Material& material);
 
         void destroyBuffer(vk_ctx&, VkBuffer, VmaAllocation);
+        void enlargeVertexBuffer(vk_ctx&, VkDeviceSize size);
+        void enlargeIndexBuffer(vk_ctx&,  VkDeviceSize size);
+        void enlargeInstanceBuffer(vk_ctx&,  VkDeviceSize size);
+        void enlargeDrawBuffer(vk_ctx&,  VkDeviceSize size);
+
 
     }
 }
