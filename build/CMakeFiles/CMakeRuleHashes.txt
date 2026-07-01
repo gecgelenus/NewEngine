@@ -1,6 +1,6 @@
 # Hashes of file build rules.
-1758af524ae599b953aff5c9a5fef0bd ../shaders/bin/simple.frag.spv
-239fb0b9da12853718abc2259a238c69 ../shaders/bin/simple.vert.spv
+1758af524ae599b953aff5c9a5fef0bd /home/talha/Documents/NewEngine/shaders/bin/simple.frag.spv
+239fb0b9da12853718abc2259a238c69 /home/talha/Documents/NewEngine/shaders/bin/simple.vert.spv
 fb15701fa3a59ea9040628524a1cb10f CMakeFiles/compile_shaders
 efc37be317f3f49576fd3027bb55f366 deps/glfw-3.4/CMakeFiles/uninstall
 640bafd2d7e237384dea394f47bcd7d8 deps/glfw-3.4/src/CMakeFiles/update_mappings

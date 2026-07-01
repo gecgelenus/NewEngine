@@ -3,8 +3,8 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_poll.c.o: \
  /usr/include/stdc-predef.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/internal.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/../include/GLFW/glfw3.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
+ /usr/lib/gcc/x86_64-linux-gnu/15/include/stddef.h \
+ /usr/lib/gcc/x86_64-linux-gnu/15/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -19,6 +19,7 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_poll.c.o: \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
+ /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/platform.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/null_platform.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/wl_platform.h \
@@ -30,13 +31,15 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_poll.c.o: \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
  /usr/include/x86_64-linux-gnu/bits/fp-logb.h \
  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
+ /usr/include/x86_64-linux-gnu/bits/mathcalls-macros.h \
  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
  /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
  /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
  /usr/include/x86_64-linux-gnu/bits/iscanonical.h /usr/include/inttypes.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
+ /usr/lib/gcc/x86_64-linux-gnu/15/include/stdarg.h \
  /usr/include/wayland-version.h /usr/include/xkbcommon/xkbcommon.h \
- /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/lib/gcc/x86_64-linux-gnu/15/include/stdbool.h /usr/include/stdio.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
@@ -48,7 +51,6 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_poll.c.o: \
  /usr/include/xkbcommon/xkbcommon-keysyms.h \
  /usr/include/xkbcommon/xkbcommon-compat.h \
  /usr/include/xkbcommon/xkbcommon-compose.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stdbool.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/xkb_unicode.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/posix_poll.h \
  /usr/include/poll.h /usr/include/x86_64-linux-gnu/sys/poll.h \
@@ -125,14 +127,16 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_poll.c.o: \
  /usr/include/x86_64-linux-gnu/asm/ioctls.h \
  /usr/include/asm-generic/ioctls.h /usr/include/linux/ioctl.h \
  /usr/include/x86_64-linux-gnu/asm/ioctl.h \
- /usr/include/asm-generic/ioctl.h \
+ /usr/include/asm-generic/ioctl.h /usr/include/linux/sockios.h \
+ /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
+ /usr/include/asm-generic/bitsperlong.h \
+ /usr/include/x86_64-linux-gnu/asm/sockios.h \
+ /usr/include/asm-generic/sockios.h \
  /usr/include/x86_64-linux-gnu/bits/ioctl-types.h \
  /usr/include/x86_64-linux-gnu/sys/ttydefaults.h \
  /usr/include/linux/types.h /usr/include/x86_64-linux-gnu/asm/types.h \
  /usr/include/asm-generic/types.h /usr/include/asm-generic/int-ll64.h \
- /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
- /usr/include/asm-generic/bitsperlong.h /usr/include/linux/posix_types.h \
- /usr/include/linux/stddef.h \
+ /usr/include/linux/posix_types.h /usr/include/linux/stddef.h \
  /usr/include/x86_64-linux-gnu/asm/posix_types.h \
  /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
  /usr/include/asm-generic/posix_types.h \
@@ -141,6 +145,7 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/posix_poll.c.o: \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/posix_thread.h \
  /usr/include/pthread.h /usr/include/sched.h \
  /usr/include/x86_64-linux-gnu/bits/sched.h \
+ /usr/include/linux/sched/types.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h \
  /usr/include/x86_64-linux-gnu/bits/cpu-set.h /usr/include/time.h \
  /usr/include/x86_64-linux-gnu/bits/time.h \

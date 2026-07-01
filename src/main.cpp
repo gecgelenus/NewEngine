@@ -51,7 +51,7 @@ int main(){
     instance_params.windowHeight = 1000;
     instance_params.windowWidth = 1600;
     instance_params.windowResizable = false;
-    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
 
     ctx.params = instance_params;
     CTX::initContext(ctx, instance_params);

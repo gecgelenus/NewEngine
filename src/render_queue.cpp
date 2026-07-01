@@ -149,24 +149,31 @@ void RenderQueue::createSyncObjects()
 void RenderQueue::processCameraInput()
 {
     static bool firstInput = false;
+    static double lastX = 0.0, lastY = 0.0;
+
+    float deltaTime = CTX::getDeltaTime();
+
     if (ctx.camera.inputEnabled)
     {
+        double xpos, ypos;
+        glfwGetCursorPos(ctx.window, &xpos, &ypos);
+
         if (!firstInput)
         {
             firstInput = true;
-            glfwSetCursorPos(ctx.window, 1600 / 2, 1000 / 2);
+            glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            lastX = xpos;
+            lastY = ypos;
             return;
         }
 
-        double xpos, ypos;
-        float deltaTime = CTX::getDeltaTime();
+        float dx = float(xpos - lastX);
+        float dy = float(lastY - ypos);
+        lastX = xpos;
+        lastY = ypos;
 
-        glfwGetCursorPos(ctx.window, &xpos, &ypos);
-
-        glfwSetCursorPos(ctx.window, 1600 / 2, 1000 / 2);
-
-        ctx.camera.horizontalAngle -= ctx.camera.sensivity * deltaTime * float(xpos - 1600 / 2);
-        ctx.camera.verticalAngle += ctx.camera.sensivity * deltaTime * float(1000 / 2 - ypos);
+        ctx.camera.horizontalAngle -= ctx.camera.sensivity * deltaTime * dx;
+        ctx.camera.verticalAngle += ctx.camera.sensivity * deltaTime * dy;
 
         const float maxVerticalAngle = glm::radians(89.0f);
         if (ctx.camera.verticalAngle > maxVerticalAngle)
@@ -213,6 +220,8 @@ void RenderQueue::processCameraInput()
     }
     else
     {
+        if (firstInput)
+            glfwSetInputMode(ctx.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         firstInput = false;
     }
 }
@@ -279,6 +288,32 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
         1, &preRenderBarrier                           // Image memory barriers
     );
 
+    VkImageMemoryBarrier depthBarrier = {};
+depthBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+depthBarrier.srcAccessMask = 0;
+depthBarrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
+                             VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+depthBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+depthBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;  // not DEPTH_ATTACHMENT_OPTIMAL
+depthBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+depthBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+depthBarrier.image = ctx.depthImage;                 // <-- your depth VkImage
+depthBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+depthBarrier.subresourceRange.baseMipLevel = 0;
+depthBarrier.subresourceRange.levelCount = 1;
+depthBarrier.subresourceRange.baseArrayLayer = 0;
+depthBarrier.subresourceRange.layerCount = 1;
+
+vkCmdPipelineBarrier(
+    commandBuffer,
+    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+    VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+    0,
+    0, nullptr,
+    0, nullptr,
+    1, &depthBarrier
+);
+
     const VkRenderingAttachmentInfo color_attachment_info{
         // Use non-KHR version if Vulkan 1.3+
         .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO, // Non-KHR
@@ -293,7 +328,7 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
     const VkRenderingAttachmentInfo depth_attachment_info{
         .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
         .imageView = ctx.depthImageView, // Assuming depthImageView is correctly setup
-        .imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+        .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
         .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
         .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE, // Or STORE if you need to read depth later
         .clearValue = depthColor,                    // Use your depth clear value

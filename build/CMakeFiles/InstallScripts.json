@@ -1,0 +1,12 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/talha/Documents/NewEngine/build/cmake_install.cmake",
+		"/home/talha/Documents/NewEngine/build/deps/glfw-3.4/cmake_install.cmake",
+		"/home/talha/Documents/NewEngine/build/deps/glfw-3.4/src/cmake_install.cmake",
+		"/home/talha/Documents/NewEngine/build/deps/glfw-3.4/docs/cmake_install.cmake",
+		"/home/talha/Documents/NewEngine/build/deps/glm/cmake_install.cmake",
+		"/home/talha/Documents/NewEngine/build/deps/glm/glm/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

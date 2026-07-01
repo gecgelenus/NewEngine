@@ -7,7 +7,7 @@
 #define VMA_IMPLEMENTATION
 #include "vma.h"
 #include <iostream>
-
+#include <sstream>
 #include <object.hpp>
 #include "console.hpp"
 
