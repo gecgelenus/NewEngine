@@ -57,7 +57,7 @@ void RenderQueue::drawQueue()
     vkResetFences(ctx.device, 1, &inFlightFences[currentFrame]);
 
     processCameraInput();
-    updateCamera(currentFrame);
+    updateCamera(imageIndex);
 
     renderUI();
     drawData = ImGui::GetDrawData();
