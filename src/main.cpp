@@ -51,7 +51,7 @@ int main(){
     instance_params.windowHeight = 1000;
     instance_params.windowWidth = 1600;
     instance_params.windowResizable = false;
-    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
+    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
 
     ctx.params = instance_params;
     CTX::initContext(ctx, instance_params);
@@ -68,22 +68,14 @@ int main(){
 
 
 
-    std::string pathFile = "/home/talha/Desktop/dice.glb";
-    std::string pathFile2 = "/home/talha/Desktop/space.glb";
-    std::string pathFile3 = "/home/talha/Desktop/room.glb";
-
-
-    CTX::AUX::processGltfFile(ctx, pathFile2);
+    std::string pathFile3 = "/home/talha/Desktop/yuksek.glb";
 
     CTX::AUX::processGltfFile(ctx, pathFile3);
 
-    CTX::AUX::processGltfFile(ctx, pathFile);
 
 
 
-	ctx.objects[0]->formatData(pipeline2);
-
-    for(int i = 1; i < ctx.objects.size(); i++){
+    for(int i = 0; i < ctx.objects.size(); i++){
 		ctx.objects[i]->formatData(pipeline);
 	}
 

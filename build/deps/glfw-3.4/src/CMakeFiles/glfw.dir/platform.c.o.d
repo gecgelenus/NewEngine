@@ -36,8 +36,7 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/platform.c.o: \
  /usr/include/x86_64-linux-gnu/bits/mathcalls.h /usr/include/inttypes.h \
  /usr/lib/gcc/x86_64-linux-gnu/15/include/stdarg.h \
  /usr/include/wayland-version.h /usr/include/xkbcommon/xkbcommon.h \
- /usr/lib/gcc/x86_64-linux-gnu/15/include/stdbool.h /usr/include/stdio.h \
- /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
@@ -49,6 +48,7 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/platform.c.o: \
  /usr/include/xkbcommon/xkbcommon-keysyms.h \
  /usr/include/xkbcommon/xkbcommon-compat.h \
  /usr/include/xkbcommon/xkbcommon-compose.h \
+ /usr/lib/gcc/x86_64-linux-gnu/15/include/stdbool.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/xkb_unicode.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/posix_poll.h \
  /usr/include/poll.h /usr/include/x86_64-linux-gnu/sys/poll.h \

@@ -1092,12 +1092,15 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
 
 
 
+    // Virtual blocks only track address-space offsets, they don't back real GPU memory,
+    // so they're sized far larger than any real buffer to avoid capping growth.
+    // The real global vertex/index buffers grow to match on demand (see enlargeVertexBuffer/enlargeIndexBuffer).
     VmaVirtualBlockCreateInfo virtualBlockInfo = {};
-    virtualBlockInfo.size = SIZE_MB*400; // Must match the real buffer's size
+    virtualBlockInfo.size = (VkDeviceSize)SIZE_GB*64;
 
     vmaCreateVirtualBlock(&virtualBlockInfo, &ctx.globalVertexVirtualBlock);
 
-    virtualBlockInfo.size = SIZE_MB*50; // Must match the real buffer's size
+    virtualBlockInfo.size = (VkDeviceSize)SIZE_GB*64;
 
     vmaCreateVirtualBlock(&virtualBlockInfo, &ctx.globalIndexVirtualBlock);
 
