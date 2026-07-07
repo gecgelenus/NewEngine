@@ -297,6 +297,12 @@ struct vk_ctx
     
     ConsoleInstance* console;
     RenderQueue* rQueue;
+
+    bool printGPUTime = false;
+    bool printCPUTime = false;
+
+    VkPipelineCache pipelineCache = VK_NULL_HANDLE;
+
     
 
 };
@@ -320,6 +326,8 @@ namespace CTX{
     void createDepthResources(vk_ctx&, const vk_instance_params&);
     void createCommandPool(vk_ctx&);
     void createCommandBuffers(vk_ctx&, const vk_instance_params&);
+    void createPipelineCache(vk_ctx&);
+    void savePipelineCache(vk_ctx&);
     void createMemoryAllocator(vk_ctx&);
     void createGlobalDescriptorLayouts(vk_ctx&);
     void createGlobalDescriptorPool(vk_ctx&);

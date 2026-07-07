@@ -1,6 +1,7 @@
 #include "graphic_pipeline.hpp"
 #include <glm/glm.hpp>
 #include <iostream>
+#include <chrono>
 
 
 GraphicPipeline::GraphicPipeline(vk_ctx &context, const std::string &p_vertexShader, const std::string &p_fragmentShader, const vk_instance_params &p_instance_params)
@@ -344,7 +345,15 @@ void GraphicPipeline::createGraphicPipeline(const vk_ctx& context, const vk_inst
 	pipelineInfo.basePipelineIndex = -1; // Optional
     pipelineInfo.pNext = &pipeline_create;
 
-	if (vkCreateGraphicsPipelines(context.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS) {
+	auto pipelineCreateStart = std::chrono::high_resolution_clock::now();
+
+	VkResult pipelineCreateResult = vkCreateGraphicsPipelines(context.device, context.pipelineCache, 1, &pipelineInfo, nullptr, &pipeline);
+
+	auto pipelineCreateEnd = std::chrono::high_resolution_clock::now();
+	double pipelineCreateMs = std::chrono::duration<double, std::milli>(pipelineCreateEnd - pipelineCreateStart).count();
+	std::cout << "Pipeline creation took: " << pipelineCreateMs << " ms" << std::endl;
+
+	if (pipelineCreateResult != VK_SUCCESS) {
         ALERT(GRAPHICS_PIPELINE_CTX, "Failed to create graphics pipeline.");
 	}else{
         INFO(GRAPHICS_PIPELINE_CTX, "Graphics pipeline created");

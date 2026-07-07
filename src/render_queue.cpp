@@ -4,6 +4,7 @@
 #include "object.hpp"
 #include "graphic_pipeline.hpp"
 #include <iomanip>
+#include <chrono>
 
 RenderQueue::RenderQueue(vk_ctx &p_ctx, vk_instance_params &p_instance_params) : ctx(p_ctx)
 {
@@ -24,6 +25,8 @@ RenderQueue::~RenderQueue()
         vkDestroyFence(ctx.device, inFlightFences[i], nullptr);
     }
 
+    vkDestroyQueryPool(ctx.device, timestampQueryPool, nullptr);
+
     delete interface;
 }
 
@@ -32,6 +35,16 @@ void RenderQueue::drawQueue()
 {
 
     vkWaitForFences(ctx.device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+
+    
+    if (timestampInitialized[currentFrame] && ctx.printGPUTime)
+    {
+        uint64_t timestamps[2];
+        vkGetQueryPoolResults(ctx.device, timestampQueryPool, currentFrame * 2, 2,
+                               sizeof(timestamps), timestamps, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT);
+        double gpuTimeMs = double(timestamps[1] - timestamps[0]) * timestampPeriodNs / 1000000.0;
+        std::cout << "GPU render time: " << gpuTimeMs << " ms" << std::endl;
+    }
 
     uint32_t imageIndex;
     // Use ctx.device and ctx.swapchain as members of vk_ctx
@@ -62,8 +75,10 @@ void RenderQueue::drawQueue()
     renderUI();
     drawData = ImGui::GetDrawData();
     vkResetCommandBuffer(ctx.commandBuffers[currentFrame], 0);
+auto t0 = std::chrono::high_resolution_clock::now();
 
     recordCommandBuffer(ctx.commandBuffers[currentFrame], imageIndex);
+    timestampInitialized[currentFrame] = true;
 
     VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -84,6 +99,13 @@ void RenderQueue::drawQueue()
     {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
+auto t1 = std::chrono::high_resolution_clock::now();
+
+if(ctx.printCPUTime){
+double CPUTime = std::chrono::duration<double, std::milli>(t1 - t0).count();
+std::cout << "CPU time spent: " << CPUTime << " ms" << std::endl;
+}
+
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -143,6 +165,22 @@ void RenderQueue::createSyncObjects()
         {
             throw std::runtime_error("failed to create synchronization objects for a swapchain image");
         }
+    }
+
+    timestampInitialized.resize(instance_params.framesOnFlight, false);
+
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(ctx.physicalDevice, &deviceProperties);
+    timestampPeriodNs = deviceProperties.limits.timestampPeriod;
+
+    VkQueryPoolCreateInfo queryPoolInfo{};
+    queryPoolInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+    queryPoolInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
+    queryPoolInfo.queryCount = instance_params.framesOnFlight * 2;
+
+    if (vkCreateQueryPool(ctx.device, &queryPoolInfo, nullptr, &timestampQueryPool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create timestamp query pool!");
     }
 }
 
@@ -257,6 +295,9 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
     {
         throw std::runtime_error("failed to begin recording command buffer!");
     }
+
+    vkCmdResetQueryPool(commandBuffer, timestampQueryPool, currentFrame * 2, 2);
+    vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, timestampQueryPool, currentFrame * 2);
 
     // IMAGE LAYOUT TRANSITION FOR COLOR ATTACHMENT
     // Initial transition from UNDEFINED (or whatever it starts as after acquire)
@@ -396,7 +437,23 @@ vkCmdPipelineBarrier(
         VkDescriptorSet descriptorSets[] = {ctx.cameraDescriptorSets[index], ctx.addressDescriptorSet, ctx.textureDescriptorSet};
         vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.globalPipelineLayout, 0, 3, descriptorSets, 0, nullptr);
         // Make sure graphicPipeline->drawBuffer and graphicPipeline->drawCommands are valid
-        vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer, ctx.pipelineBatches[i].start*sizeof(VkDrawIndexedIndirectCommand), ctx.pipelineBatches[i].end - ctx.pipelineBatches[i].start, sizeof(VkDrawIndexedIndirectCommand));
+        if (false) {
+        // GELENEKSEL: her nesne için ayrı draw call
+        for (uint32_t d = ctx.pipelineBatches[i].start; d < ctx.pipelineBatches[i].end; d++) {
+            const VkDrawIndexedIndirectCommand& c = ctx.drawCommands[d]; // CPU kopyası
+            // (geleneksel taklidi: her draw'dan önce descriptor'ı yeniden bağla — Adım 2)
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                ctx.globalPipelineLayout, 0, 3, descriptorSets, 0, nullptr);
+            vkCmdDrawIndexed(commandBuffer, c.indexCount, c.instanceCount,
+                c.firstIndex, c.vertexOffset, c.firstInstance);
+        }
+    } else {
+        // BINDLESS: mevcut tek indirect çağrı
+        vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer,
+            ctx.pipelineBatches[i].start * sizeof(VkDrawIndexedIndirectCommand),
+            ctx.pipelineBatches[i].end - ctx.pipelineBatches[i].start,
+            sizeof(VkDrawIndexedIndirectCommand));
+}
     }
 
     ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
@@ -429,6 +486,8 @@ vkCmdPipelineBarrier(
         0, nullptr,                                    // Buffer memory barriers
         1, &postRenderBarrier                          // Image memory barriers
     );
+
+    vkCmdWriteTimestamp(commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, timestampQueryPool, currentFrame * 2 + 1);
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     {

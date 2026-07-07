@@ -27,10 +27,14 @@ class RenderQueue{
         std::vector<VkSemaphore> renderFinishedSemaphores;
         std::vector<VkFence> inFlightFences;
 
+        VkQueryPool timestampQueryPool = VK_NULL_HANDLE;
+        float timestampPeriodNs = 1.0f;
+        std::vector<bool> timestampInitialized;
+
         bool cameraInputEnabled = false;
 
         std::vector<std::string> consoleBuffer;
-    
+
         void processCameraInput();
         void updateCamera(uint32_t index);
         void createSyncObjects();

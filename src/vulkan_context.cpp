@@ -8,8 +8,11 @@
 #include "vma.h"
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <object.hpp>
 #include "console.hpp"
+
+static const char* PIPELINE_CACHE_FILE_PATH = "pipeline_cache.bin";
 
 /*
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -617,6 +620,85 @@ void CTX::createCommandPool(vk_ctx& context)
     }
 }
 
+void CTX::createPipelineCache(vk_ctx& context)
+{
+    std::vector<char> cacheData;
+
+    std::ifstream file(PIPELINE_CACHE_FILE_PATH, std::ios::binary | std::ios::ate);
+    if (file.is_open())
+    {
+        size_t fileSize = static_cast<size_t>(file.tellg());
+        file.seekg(0);
+        cacheData.resize(fileSize);
+        file.read(cacheData.data(), fileSize);
+        file.close();
+
+        VkPhysicalDeviceProperties deviceProperties;
+        vkGetPhysicalDeviceProperties(context.physicalDevice, &deviceProperties);
+
+        bool valid = cacheData.size() >= sizeof(VkPipelineCacheHeaderVersionOne);
+        if (valid)
+        {
+            VkPipelineCacheHeaderVersionOne header;
+            memcpy(&header, cacheData.data(), sizeof(header));
+            valid = header.headerVersion == VK_PIPELINE_CACHE_HEADER_VERSION_ONE &&
+                    header.vendorID == deviceProperties.vendorID &&
+                    header.deviceID == deviceProperties.deviceID &&
+                    memcmp(header.pipelineCacheUUID, deviceProperties.pipelineCacheUUID, VK_UUID_SIZE) == 0;
+        }
+
+        if (valid)
+        {
+            INFO(DEBUG_CTX, "Loaded pipeline cache from disk (%zu bytes)", cacheData.size());
+        }
+        else
+        {
+            WARNING(DEBUG_CTX, "Pipeline cache on disk is stale or incompatible, discarding");
+            cacheData.clear();
+        }
+    }
+
+    VkPipelineCacheCreateInfo cacheInfo{};
+    cacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    cacheInfo.initialDataSize = cacheData.size();
+    cacheInfo.pInitialData = cacheData.empty() ? nullptr : cacheData.data();
+
+    if (vkCreatePipelineCache(context.device, &cacheInfo, nullptr, &context.pipelineCache) != VK_SUCCESS)
+    {
+        ALERT(DEBUG_CTX, "Failed to create pipeline cache");
+        throw std::runtime_error("Failed to create pipeline cache!");
+    }
+    else
+    {
+        SUCCESS(DEBUG_CTX, "Created pipeline cache");
+    }
+}
+
+void CTX::savePipelineCache(vk_ctx& context)
+{
+    if (context.pipelineCache == VK_NULL_HANDLE)
+    {
+        return;
+    }
+
+    size_t dataSize = 0;
+    vkGetPipelineCacheData(context.device, context.pipelineCache, &dataSize, nullptr);
+    if (dataSize == 0)
+    {
+        return;
+    }
+
+    std::vector<char> cacheData(dataSize);
+    vkGetPipelineCacheData(context.device, context.pipelineCache, &dataSize, cacheData.data());
+
+    std::ofstream file(PIPELINE_CACHE_FILE_PATH, std::ios::binary | std::ios::trunc);
+    if (file.is_open())
+    {
+        file.write(cacheData.data(), dataSize);
+        INFO(DEBUG_CTX, "Saved pipeline cache to disk (%zu bytes)", dataSize);
+    }
+}
+
 void CTX::createCommandBuffers(vk_ctx& context, const vk_instance_params& p_instance_params)
 {
     context.commandBuffers.resize(p_instance_params.framesOnFlight);
@@ -906,6 +988,7 @@ void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_para
 	CTX::createDepthResources(context, p_instance_params);
 	CTX::createCommandPool(context);
     //setupDebugMessenger(context);
+	CTX::createPipelineCache(context);
 	CTX::createCommandBuffers(context, p_instance_params);
 	CTX::createCameraResources(context);
     CTX::createGlobalBuffers(context);
@@ -1000,6 +1083,10 @@ void CTX::destroyContext(vk_ctx& context, const vk_instance_params& p_instance_p
     }
 
     vmaDestroyAllocator(context.allocator);
+
+    VERBOSE(DEBUG_CTX, "Saving and destroying pipeline cache...");
+    CTX::savePipelineCache(context);
+    vkDestroyPipelineCache(context.device, context.pipelineCache, nullptr);
 
     VERBOSE(DEBUG_CTX, "Destroying logical device...");
     vkDestroyDevice(context.device, nullptr);
