@@ -239,6 +239,14 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
     vulkan12Features.pNext = &dynamic_rendering_feature;
 
 
+    VkPhysicalDeviceVulkan13Features vulkan13Features{};
+    vulkan13Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+    vulkan13Features.synchronization2 = VK_TRUE;
+    dynamic_rendering_feature.pNext = &vulkan13Features;
+
+    
+
+
 
 
         
@@ -491,6 +499,37 @@ void CTX::createDepthResources(vk_ctx& context, const vk_instance_params& p_inst
         SUCCESS(DEBUG_CTX, "Created depth image view");
     }
 }
+
+void CTX::createShadowMapResources(vk_ctx& ctx, const vk_instance_params& p_instance_params){
+        CTX::AUX::createImage(ctx, 2048, 2048, p_instance_params.msaaSamples, VK_FORMAT_D32_SFLOAT, VK_IMAGE_TILING_OPTIMAL,
+        VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, ctx.shadowMapImage, ctx.shadowMapImageAllocation);
+    
+    SUCCESS(DEBUG_CTX, "Created shadow map");
+
+    VkImageViewCreateInfo createInfo{}; 
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    createInfo.image = ctx.shadowMapImage;
+    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    createInfo.format = VK_FORMAT_D32_SFLOAT;
+    createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    createInfo.subresourceRange.baseMipLevel = 0;
+    createInfo.subresourceRange.levelCount = 1;
+    createInfo.subresourceRange.baseArrayLayer = 0;
+    createInfo.subresourceRange.layerCount = 1;
+
+    if (vkCreateImageView(ctx.device, &createInfo, nullptr, &(ctx.shadowMapImageView)) != VK_SUCCESS)
+    {
+        ALERT(DEBUG_CTX, "Failed to shadow map image view!");
+        throw std::runtime_error("Failed to shadow map image view!");
+    }else{
+        SUCCESS(DEBUG_CTX, "Created shadow map image view");
+    }
+}
+
 
 void CTX::createColorResources(vk_ctx& context, const vk_instance_params& p_instance_params)
 {
@@ -907,6 +946,8 @@ void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_para
 	CTX::createSwapchainImageViews(context);
 	CTX::createColorResources(context, p_instance_params);
 	CTX::createDepthResources(context, p_instance_params);
+	CTX::createShadowMapResources(context, p_instance_params);
+
 	CTX::createCommandPool(context);
     //setupDebugMessenger(context);
 	CTX::createCommandBuffers(context, p_instance_params);

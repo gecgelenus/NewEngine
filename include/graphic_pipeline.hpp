@@ -7,6 +7,8 @@
 
 #define GRAPHICS_PIPELINE_CTX "Graphics Pipeline"
 
+#define GRAPHICS_DEPTH 0
+#define GRAPHICS_COLOR 1
 
 
 
@@ -14,7 +16,7 @@
 class GraphicPipeline{
 
 public:
-    GraphicPipeline(vk_ctx& context, const std::string& p_vertexShader, const std::string& p_fragmentShader, const vk_instance_params& p_instance_params);
+    GraphicPipeline(vk_ctx& context, uint32_t pipeline_type,const std::string& p_vertexShader, const std::string& p_fragmentShader, const vk_instance_params& p_instance_params);
     ~GraphicPipeline();
 
 
@@ -49,6 +51,8 @@ public:
 
 
     void createGraphicPipeline(const vk_ctx&, const vk_instance_params&);
+    void createGraphicPipelineShadowMap(const vk_ctx&, const vk_instance_params&);
+
     VkShaderModule createShaderModule(const vk_ctx& context, const std::vector<char>& code);
     bool isContaints(std::vector<std::string>& array, std::string element);
 

@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-GraphicPipeline::GraphicPipeline(vk_ctx &context, const std::string &p_vertexShader, const std::string &p_fragmentShader, const vk_instance_params &p_instance_params)
+GraphicPipeline::GraphicPipeline(vk_ctx &context, uint32_t pipeline_type, const std::string &p_vertexShader, const std::string &p_fragmentShader, const vk_instance_params &p_instance_params)
 	: ctx(context)
 {
     std::vector<char> vertexCode = util::readFile(p_vertexShader);
@@ -25,7 +25,15 @@ GraphicPipeline::GraphicPipeline(vk_ctx &context, const std::string &p_vertexSha
     }else{
         ALERT(GRAPHICS_PIPELINE_CTX, "Failed to create fragment shader module (SPIRV REFLECT)");
     }
-    createGraphicPipeline(context, p_instance_params);
+	if(pipeline_type == GRAPHICS_COLOR){
+	    createGraphicPipeline(context, p_instance_params);
+
+	}else if(pipeline_type == GRAPHICS_DEPTH){
+	    createGraphicPipelineShadowMap(context, p_instance_params);
+
+	}else{
+		ALERT(GRAPHICS_PIPELINE_CTX, "Wrong pipeline type given on creation: %u", pipeline_type);
+	}
 
 	id = ctx.pipelineIDNext;
 	ctx.pipelineIDNext++;
@@ -321,7 +329,7 @@ void GraphicPipeline::createGraphicPipeline(const vk_ctx& context, const vk_inst
     pipeline_create.colorAttachmentCount    = 1;
     pipeline_create.pColorAttachmentFormats = &(context.swapchainImageFormat);
     pipeline_create.depthAttachmentFormat   = VK_FORMAT_D32_SFLOAT_S8_UINT;
-    pipeline_create.stencilAttachmentFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
+    pipeline_create.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
 
 
    
@@ -353,7 +361,281 @@ void GraphicPipeline::createGraphicPipeline(const vk_ctx& context, const vk_inst
 }
 
 
+void GraphicPipeline::createGraphicPipelineShadowMap(const vk_ctx& context, const vk_instance_params& p_instance_params){
 
+
+    SpvReflectResult result;
+
+    uint32_t var_count = 0;
+    result = spvReflectEnumerateInputVariables(&vertexShaderReflect, &var_count, NULL);
+    
+    assert(result == SPV_REFLECT_RESULT_SUCCESS);
+    
+    std::vector<SpvReflectInterfaceVariable*> input_vars(var_count);
+
+    result = spvReflectEnumerateInputVariables(&vertexShaderReflect, &var_count, input_vars.data());
+    assert(result == SPV_REFLECT_RESULT_SUCCESS);
+
+
+    for(int i = 0; i < var_count; i++){
+        VERBOSE(GRAPHICS_PIPELINE_CTX, "Input var: %s", input_vars[i]->name);
+        VERBOSE(GRAPHICS_PIPELINE_CTX, "Input loc: %u", input_vars[i]->location);
+        VERBOSE(GRAPHICS_PIPELINE_CTX, "Input format: %u", input_vars[i]->format);
+
+    }
+
+    std::vector<VkVertexInputAttributeDescription> inputs;
+
+    size_t totalSize = 0;
+    size_t totalSizeInstance = 0;
+
+	std::sort(input_vars.begin(), input_vars.end(),
+    [](const SpvReflectInterfaceVariable* a, const SpvReflectInterfaceVariable* b) {
+        return a->location < b->location;
+    });
+    
+    interfaceVariables.resize(var_count);
+
+
+
+    for(int i = 0; i < var_count; i++){
+        interfaceVariables[i] = input_vars[i];
+    }
+
+
+
+
+    for(int i = 0; i < var_count;i++){
+		if(interfaceVariables[i] == nullptr){
+			continue;
+		}
+		
+		if(isContaints(vertexAttributeList, interfaceVariables[i]->name)){
+			VkVertexInputAttributeDescription tmpDesc{};
+			tmpDesc.binding = 0;
+			tmpDesc.location = interfaceVariables[i]->location;
+			tmpDesc.format = (VkFormat)interfaceVariables[i]->format;
+			tmpDesc.offset = totalSize;
+			
+			std::cout << "Vertex attribute: " << interfaceVariables[i]->name << " on location " << interfaceVariables[i]->location << std::endl;
+			
+
+			inputs.push_back(tmpDesc);
+
+			switch (tmpDesc.format)
+			{
+			case VK_FORMAT_R32G32_SFLOAT:
+				totalSize += sizeof(glm::vec2);
+				break;
+			case VK_FORMAT_R32G32B32_SFLOAT:
+				totalSize += sizeof(glm::vec3);
+				break;
+			case VK_FORMAT_R32G32B32A32_SFLOAT:
+				totalSize += sizeof(glm::vec4);
+				break;
+			default:
+				WARNING(GRAPHICS_PIPELINE_CTX, "Undefined data type encountered on shaders while calculating offsets of inputs. Data will likely missaligned.");
+				break;
+			}
+		}else{
+			VkVertexInputAttributeDescription tmpDesc{};
+			tmpDesc.binding = 1;
+			tmpDesc.location = interfaceVariables[i]->location;
+			tmpDesc.format = (VkFormat)interfaceVariables[i]->format;
+			tmpDesc.offset = totalSizeInstance;
+
+			std::cout << "Instance attribute: " << interfaceVariables[i]->name << " on location " << interfaceVariables[i]->location << std::endl;
+			
+
+			inputs.push_back(tmpDesc);
+
+			switch (tmpDesc.format)
+			{
+			case VK_FORMAT_R32G32_SFLOAT:
+				totalSizeInstance += sizeof(glm::vec2);
+				break;
+			case VK_FORMAT_R32G32B32_SFLOAT:
+				totalSizeInstance += sizeof(glm::vec3);
+				break;
+			case VK_FORMAT_R32G32B32A32_SFLOAT:
+				totalSizeInstance += sizeof(glm::vec4);
+				break;
+			case VK_FORMAT_R32_SINT:
+				totalSizeInstance += sizeof(int32_t);
+				break;
+			default:
+				WARNING(GRAPHICS_PIPELINE_CTX, "Undefined data type encountered on shaders while calculating offsets of inputs. Data will likely missaligned.");
+				break;
+			}
+		}
+        
+    }
+
+	strideSize = totalSize;
+	strideSizeInstance = totalSizeInstance;
+
+
+    //SHADER CREATION
+
+	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	vertShaderStageInfo.module = vertexShader;
+	vertShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	fragShaderStageInfo.module = fragmentShader;
+	fragShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo};
+
+	// DYNAMIC STATES
+
+	std::vector<VkDynamicState> dynamicStates = {
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_SCISSOR
+	};
+
+	VkPipelineDynamicStateCreateInfo dynamicState{};
+	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+	dynamicState.pDynamicStates = dynamicStates.data();
+
+	// VERTEX INPUT
+
+	VkVertexInputBindingDescription bindingDescriptionVertexData{};
+	bindingDescriptionVertexData.binding = 0;
+	bindingDescriptionVertexData.stride = totalSize;
+	bindingDescriptionVertexData.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	VkVertexInputBindingDescription bindingDescriptionInstanceData{};
+	bindingDescriptionInstanceData.binding = 1;
+	bindingDescriptionInstanceData.stride = totalSizeInstance;
+	bindingDescriptionInstanceData.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
+	
+	VkVertexInputBindingDescription descriptions[] = {bindingDescriptionVertexData, bindingDescriptionInstanceData};
+
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertexInputInfo.vertexBindingDescriptionCount = 2;
+	vertexInputInfo.pVertexBindingDescriptions = descriptions; // Optional
+	vertexInputInfo.vertexAttributeDescriptionCount = inputs.size();
+	vertexInputInfo.pVertexAttributeDescriptions = inputs.data(); // Optional
+
+	// INPUT ASSEMBLY
+
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+	// VIEWPORT AND SCISSOR
+
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = (float)context.swapchainExtent.width;
+	viewport.height = (float)context.swapchainExtent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	VkRect2D scissor{};
+	scissor.offset = { 0, 0 };
+	scissor.extent = context.swapchainExtent;
+
+	VkPipelineViewportStateCreateInfo viewportState{};
+	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewportState.viewportCount = 1;
+	viewportState.pViewports = &viewport;
+	viewportState.scissorCount = 1;
+	viewportState.pScissors = &scissor;
+
+	// RASTERIZER
+
+	VkPipelineRasterizationStateCreateInfo rasterizer{};
+	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	rasterizer.depthClampEnable = VK_FALSE;
+	rasterizer.rasterizerDiscardEnable = VK_FALSE;
+	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+	rasterizer.lineWidth = 1.0f;
+	rasterizer.cullMode = VK_CULL_MODE_NONE;
+	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	rasterizer.depthBiasEnable = VK_FALSE;
+	rasterizer.depthBiasConstantFactor = 0.0f; // Optional
+	rasterizer.depthBiasClamp = 0.0f; // Optional
+	rasterizer.depthBiasSlopeFactor = 0.0f; // Optional
+
+	// DEPTH AND STENCIL
+
+	VkPipelineDepthStencilStateCreateInfo depthStencil{};
+	depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	depthStencil.depthTestEnable = VK_TRUE;
+	depthStencil.depthWriteEnable = VK_TRUE;
+	depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+	depthStencil.depthBoundsTestEnable = VK_FALSE;
+	depthStencil.minDepthBounds = 0.0f; // Optional
+	depthStencil.maxDepthBounds = 1.0f; // Optional
+	depthStencil.stencilTestEnable = VK_FALSE;
+
+
+	// MULTISAMPLING
+	VkPipelineMultisampleStateCreateInfo multisampling{};
+	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisampling.sampleShadingEnable = VK_FALSE;
+	multisampling.minSampleShading = .2f;
+	multisampling.rasterizationSamples = p_instance_params.msaaSamples;
+	multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
+	multisampling.alphaToOneEnable = VK_FALSE; // Optional
+
+	// COLOR BLENDING
+
+
+	VkPipelineColorBlendStateCreateInfo colorBlending{};
+	colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+
+	colorBlending.attachmentCount = 0;
+	colorBlending.pAttachments = nullptr;
+	// PIPELINE LAYOUT
+
+
+    
+    VkPipelineRenderingCreateInfoKHR pipeline_create{VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR};
+    pipeline_create.pNext                   = VK_NULL_HANDLE;
+    pipeline_create.colorAttachmentCount    = 0;
+    pipeline_create.pColorAttachmentFormats = nullptr;
+    pipeline_create.depthAttachmentFormat   = VK_FORMAT_D32_SFLOAT;
+    pipeline_create.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
+
+
+   
+	VkGraphicsPipelineCreateInfo pipelineInfo{};
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineInfo.stageCount = 1;
+	pipelineInfo.pStages = shaderStages;
+	pipelineInfo.pVertexInputState = &vertexInputInfo;
+	pipelineInfo.pInputAssemblyState = &inputAssembly;
+	pipelineInfo.pViewportState = &viewportState;
+	pipelineInfo.pRasterizationState = &rasterizer;
+	pipelineInfo.pMultisampleState = &multisampling;
+	pipelineInfo.pDepthStencilState = &depthStencil;
+	pipelineInfo.pColorBlendState = &colorBlending;
+	pipelineInfo.pDynamicState = &dynamicState;
+	pipelineInfo.layout = ctx.globalPipelineLayout;
+	pipelineInfo.renderPass = nullptr;
+	pipelineInfo.subpass = 0;
+	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+	pipelineInfo.basePipelineIndex = -1; // Optional
+    pipelineInfo.pNext = &pipeline_create;
+
+	if (vkCreateGraphicsPipelines(context.device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS) {
+        ALERT(GRAPHICS_PIPELINE_CTX, "Failed to create graphics pipeline.");
+	}else{
+        INFO(GRAPHICS_PIPELINE_CTX, "Graphics pipeline created");
+    }
+
+}
 
 
 bool GraphicPipeline::isContaints(std::vector<std::string> &array, std::string element)

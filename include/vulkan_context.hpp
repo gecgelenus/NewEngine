@@ -210,6 +210,8 @@ struct vk_ctx
 
     VkPipelineLayout globalPipelineLayout;
 
+    GraphicPipeline* dephtPipeline;
+
     std::vector<PipelineBatch> pipelineBatches;
 
 
@@ -290,6 +292,10 @@ struct vk_ctx
     VmaAllocation colorImageAllocation;
     VkImageView colorImageView;
 
+    VkImage shadowMapImage;
+    VmaAllocation shadowMapImageAllocation;
+    VkImageView shadowMapImageView;
+
     VkCommandPool commandPool;
     VkCommandPool commandPoolCopy;
 
@@ -331,6 +337,8 @@ namespace CTX{
     void createCameraResources(vk_ctx&);
     void recreateSwapchain(vk_ctx&, const vk_instance_params&);
     void createGlobalBuffers(vk_ctx&);
+
+    void createShadowMapResources(vk_ctx&, const vk_instance_params&);
 
     float getDeltaTime();
 

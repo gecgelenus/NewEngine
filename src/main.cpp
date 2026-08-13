@@ -48,7 +48,7 @@ int main(){
     
     instance_params.enableValidationLayers = true;
     instance_params.windowTitle = "Engine";
-    instance_params.windowHeight = 1000;
+    instance_params.windowHeight = 900;
     instance_params.windowWidth = 1600;
     instance_params.windowResizable = false;
     instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
@@ -61,11 +61,13 @@ int main(){
     {
 
     INFO("Swapchain images", "Swapchain image size: %u", ctx.swapchainImageViews.size());
-    GraphicPipeline* pipeline = new GraphicPipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
-    GraphicPipeline* pipeline2 = new GraphicPipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    GraphicPipeline* pipeline = new GraphicPipeline(ctx, GRAPHICS_COLOR, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    GraphicPipeline* pipeline2 = new GraphicPipeline(ctx, GRAPHICS_DEPTH, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    
+
+    ctx.dephtPipeline = pipeline2;
     
     ctx.pipelines.push_back(pipeline);
-    ctx.pipelines.push_back(pipeline2);
 
 
 

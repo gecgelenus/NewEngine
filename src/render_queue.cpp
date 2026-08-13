@@ -244,9 +244,8 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
 
 
     VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-    VkClearValue depthColor{}; // Not used for color_attachment_info directly, but good to have for depth
+    VkClearValue depthColor{}; 
     depthColor.depthStencil = {1.0f, 0};
-    // VkClearValue clearColorArray[] = { clearColor, depthColor }; // Only used with Render Passes, not dynamic rendering clear values
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -257,6 +256,124 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
     {
         throw std::runtime_error("failed to begin recording command buffer!");
     }
+
+
+
+    // SHADOW PASS START
+    
+    const VkRenderingAttachmentInfo shadowMapAttachmentInfo{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+        .imageView = ctx.shadowMapImageView,
+        .imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+        .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+        .clearValue = depthColor
+    };
+
+    VkRect2D scissorShadowPass{};
+    scissorShadowPass.offset = {0, 0};
+    scissorShadowPass.extent = {2048, 2048};
+
+    const VkRenderingInfo renderInfoShadowPass{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+        .renderArea = scissorShadowPass,
+        .layerCount = 1,
+        .colorAttachmentCount = 0,
+        .pDepthAttachment = &shadowMapAttachmentInfo,
+        .pStencilAttachment = nullptr,               
+    };
+
+    VkViewport viewportShadowMap{};
+    viewportShadowMap.x = 0.0f;
+    viewportShadowMap.y = 0.0f;
+    viewportShadowMap.width = static_cast<float>(2048);
+    viewportShadowMap.height = static_cast<float>(2048);
+    viewportShadowMap.minDepth = 0.0f;
+    viewportShadowMap.maxDepth = 1.0f;
+
+
+    VkImageMemoryBarrier2 shadowMapBarrierAttach{};
+    shadowMapBarrierAttach.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+    shadowMapBarrierAttach.srcStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+    shadowMapBarrierAttach.srcAccessMask = VK_ACCESS_2_SHADER_SAMPLED_READ_BIT;
+    shadowMapBarrierAttach.dstStageMask = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+    shadowMapBarrierAttach.dstAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    shadowMapBarrierAttach.oldLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+    shadowMapBarrierAttach.newLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    shadowMapBarrierAttach.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    shadowMapBarrierAttach.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    shadowMapBarrierAttach.image = ctx.shadowMapImage;
+    shadowMapBarrierAttach.subresourceRange = {VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1};
+
+    VkDependencyInfo dependencyShadowMapAttach{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
+    dependencyShadowMapAttach.imageMemoryBarrierCount = 1;
+    dependencyShadowMapAttach.pImageMemoryBarriers = &shadowMapBarrierAttach;
+
+    vkCmdPipelineBarrier2(commandBuffer, &dependencyShadowMapAttach);
+
+
+    vkCmdBeginRendering(commandBuffer, &renderInfoShadowPass);
+    for (int i = 0; i < ctx.pipelineBatches.size(); i++)
+    {
+
+        VkPipeline currentPipeline = ctx.dephtPipeline->pipeline;
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline);
+
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewportShadowMap);
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissorShadowPass);
+
+        vkCmdPushConstants(
+            commandBuffer,
+            ctx.globalPipelineLayout,              // The pipeline layout that defines the range
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, // Must match stageFlags used in VkPushConstantRange
+            0,                                                         // Offset into the push constant block (usually 0)
+            sizeof(PushConstant),                                      // Size of the data being pushed
+            &cnst              // Pointer to your C++ data
+        );
+
+        // Assuming these buffers are created and valid for the GraphicPipeline
+        VkBuffer vertexBuffers[] = {ctx.globalVertexBuffer, ctx.instanceBuffer};
+        VkDeviceSize offsets[] = {0, 0};
+        vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
+
+        VkBuffer indexBuffer = ctx.globalIndexBuffer; // Get index buffer from pipeline
+        vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+        VkDescriptorSet descriptorSets[] = {ctx.cameraDescriptorSets[index], ctx.addressDescriptorSet, ctx.textureDescriptorSet};
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.globalPipelineLayout, 0, 3, descriptorSets, 0, nullptr);
+        // Make sure graphicPipeline->drawBuffer and graphicPipeline->drawCommands are valid
+        vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer, ctx.pipelineBatches[i].start*sizeof(VkDrawIndexedIndirectCommand), ctx.pipelineBatches[i].end - ctx.pipelineBatches[i].start, sizeof(VkDrawIndexedIndirectCommand));
+    }
+
+
+    vkCmdEndRendering(commandBuffer);
+
+    VkImageMemoryBarrier2 shadowMapBarrier{};
+    shadowMapBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+    shadowMapBarrier.srcStageMask = VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+    shadowMapBarrier.srcAccessMask = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+    shadowMapBarrier.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+    shadowMapBarrier.dstAccessMask = VK_ACCESS_2_SHADER_SAMPLED_READ_BIT;
+    shadowMapBarrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    shadowMapBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+    shadowMapBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    shadowMapBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    shadowMapBarrier.image = ctx.shadowMapImage;
+    shadowMapBarrier.subresourceRange = {VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1};
+
+    VkDependencyInfo dependencyShadowMap{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
+    dependencyShadowMap.imageMemoryBarrierCount = 1;
+    dependencyShadowMap.pImageMemoryBarriers = &shadowMapBarrier;
+    vkCmdPipelineBarrier2(commandBuffer, &dependencyShadowMap);
+
+    // SHADOW PASS END
+
+
+
+
+
+
 
     // IMAGE LAYOUT TRANSITION FOR COLOR ATTACHMENT
     // Initial transition from UNDEFINED (or whatever it starts as after acquire)
@@ -297,7 +414,7 @@ depthBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 depthBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;  // not DEPTH_ATTACHMENT_OPTIMAL
 depthBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 depthBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-depthBarrier.image = ctx.depthImage;                 // <-- your depth VkImage
+depthBarrier.image = ctx.depthImage;                 
 depthBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
 depthBarrier.subresourceRange.baseMipLevel = 0;
 depthBarrier.subresourceRange.levelCount = 1;
@@ -330,7 +447,7 @@ vkCmdPipelineBarrier(
         .imageView = ctx.depthImageView, // Assuming depthImageView is correctly setup
         .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
         .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-        .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE, // Or STORE if you need to read depth later
+        .storeOp = VK_ATTACHMENT_STORE_OP_STORE, // Or STORE if you need to read depth later
         .clearValue = depthColor,                    // Use your depth clear value
     };
 
