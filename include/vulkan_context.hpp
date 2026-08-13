@@ -178,6 +178,8 @@ struct vk_instance_params{
     VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
     uint32_t framesOnFlight = 3;
 
+    uint32_t preferedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+
 
 
 };
@@ -297,6 +299,7 @@ struct vk_ctx
     
     ConsoleInstance* console;
     RenderQueue* rQueue;
+    uint32_t preferedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
     
 
 };
@@ -362,7 +365,7 @@ namespace CTX{
         SwapChainSupportDetails querySwapChainSupport(const vk_ctx& context);
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
 
-	    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+	    VkPresentModeKHR chooseSwapPresentMode(vk_ctx& ctx, const std::vector<VkPresentModeKHR> &availablePresentModes);
 	    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, const vk_ctx& context);
         
         void processGltfFile(vk_ctx&,std::string& path);

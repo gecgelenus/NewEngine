@@ -38,8 +38,7 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_window.c.o: \
  /usr/include/x86_64-linux-gnu/bits/iscanonical.h /usr/include/inttypes.h \
  /usr/lib/gcc/x86_64-linux-gnu/15/include/stdarg.h \
  /usr/include/wayland-version.h /usr/include/xkbcommon/xkbcommon.h \
- /usr/lib/gcc/x86_64-linux-gnu/15/include/stdbool.h /usr/include/stdio.h \
- /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
@@ -51,6 +50,7 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_window.c.o: \
  /usr/include/xkbcommon/xkbcommon-keysyms.h \
  /usr/include/xkbcommon/xkbcommon-compat.h \
  /usr/include/xkbcommon/xkbcommon-compose.h \
+ /usr/lib/gcc/x86_64-linux-gnu/15/include/stdbool.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/xkb_unicode.h \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/posix_poll.h \
  /usr/include/poll.h /usr/include/x86_64-linux-gnu/sys/poll.h \
@@ -161,7 +161,6 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_window.c.o: \
  /home/talha/Documents/NewEngine/deps/glfw-3.4/src/../include/GLFW/glfw3native.h \
  /usr/include/stdlib.h /usr/include/x86_64-linux-gnu/bits/waitflags.h \
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h /usr/include/alloca.h \
- /usr/include/x86_64-linux-gnu/bits/types/once_flag.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/errno.h \
  /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
  /usr/include/x86_64-linux-gnu/asm/errno.h \
@@ -171,9 +170,7 @@ deps/glfw-3.4/src/CMakeFiles/glfw.dir/wl_window.c.o: \
  /usr/include/x86_64-linux-gnu/bits/fcntl.h \
  /usr/include/x86_64-linux-gnu/bits/fcntl-linux.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
- /usr/include/linux/falloc.h /usr/include/linux/openat2.h \
- /usr/include/x86_64-linux-gnu/bits/openat2.h \
- /usr/include/x86_64-linux-gnu/bits/stat.h \
+ /usr/include/linux/falloc.h /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
  /usr/include/x86_64-linux-gnu/sys/mman.h \
  /usr/include/x86_64-linux-gnu/bits/mman.h \

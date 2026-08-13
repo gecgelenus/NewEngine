@@ -318,11 +318,11 @@ VkSurfaceFormatKHR CTX::AUX::chooseSwapSurfaceFormat(const std::vector<VkSurface
     return availableFormats[0];
 }
 
-VkPresentModeKHR CTX::AUX::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes)
+VkPresentModeKHR CTX::AUX::chooseSwapPresentMode(vk_ctx& ctx, const std::vector<VkPresentModeKHR> &availablePresentModes)
 {
     for (const auto &availablePresentMode : availablePresentModes)
     {
-        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+        if (availablePresentMode == ctx.preferedPresentMode)
         {
             return availablePresentMode;
         }
@@ -385,7 +385,7 @@ SwapChainSupportDetails CTX::AUX::querySwapChainSupport(const vk_ctx& context)
 		SwapChainSupportDetails swapChainSupport = CTX::AUX::querySwapChainSupport(context);
 
 		VkSurfaceFormatKHR surfaceFormat = CTX::AUX::chooseSwapSurfaceFormat(swapChainSupport.formats);
-		VkPresentModeKHR presentMode = CTX::AUX::chooseSwapPresentMode(swapChainSupport.presentModes);
+		VkPresentModeKHR presentMode = CTX::AUX::chooseSwapPresentMode(context, swapChainSupport.presentModes);
 		VkExtent2D extent = CTX::AUX::chooseSwapExtent(swapChainSupport.capabilities, context);
 
 		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
@@ -893,6 +893,9 @@ void CTX::AUX::enlargeBuffer(vk_ctx &ctx, VkDeviceSize size, int memoryType, VkB
 }
 
 void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_params){
+
+    context.preferedPresentMode = p_instance_params.preferedPresentMode;
+
     CTX::createWindow(context, p_instance_params);
 	CTX::createInstance(context, p_instance_params);
 	CTX::createSurface(context);

@@ -4,6 +4,7 @@
 #include "Interface.hpp"
 #include <sstream>
 #include "console.hpp"
+#include <chrono>
 
 class RenderQueue{
 
@@ -30,6 +31,14 @@ class RenderQueue{
         bool cameraInputEnabled = false;
 
         std::vector<std::string> consoleBuffer;
+
+
+        // Diagnosis timers
+
+        double diag_totalRenderUI = 0;
+        double diag_renderLeft = 0;
+        double diag_renderRight = 0;
+        double diag_renderConsole = 0;
     
         void processCameraInput();
         void updateCamera(uint32_t index);

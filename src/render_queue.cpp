@@ -442,7 +442,7 @@ void RenderQueue::guiListObjects()
 
 void RenderQueue::renderUI()
 {
-
+    auto renderTotalStartTimer = std::chrono::high_resolution_clock::now();
     static bool dock_initialized = false;
 
     ImGui_ImplVulkan_NewFrame();
@@ -497,12 +497,34 @@ void RenderQueue::renderUI()
         ImGui::DockBuilderFinish(dockspace_id);
     }
     ImGui::End();
+    auto renderLeftPanelTimerStart= std::chrono::high_resolution_clock::now();
     renderLeftPanel();
-    renderRightPanel();
-    renderConsole();
+    auto renderLeftPanelTimerEnd = std::chrono::high_resolution_clock::now();
+    diag_renderLeft = std::chrono::duration_cast<std::chrono::microseconds>(renderLeftPanelTimerEnd - renderLeftPanelTimerStart).count();
 
+    auto renderRightPanelTimerStart= std::chrono::high_resolution_clock::now();
+    renderRightPanel();
+    auto renderRightPanelTimerEnd = std::chrono::high_resolution_clock::now();
+    diag_renderRight = std::chrono::duration_cast<std::chrono::microseconds>(renderRightPanelTimerEnd - renderRightPanelTimerStart).count();
+    
+    auto renderConsoleTimerStart = std::chrono::high_resolution_clock::now();
+    renderConsole();
+    auto renderConsoleTimerEnd = std::chrono::high_resolution_clock::now();
+    diag_renderConsole = std::chrono::duration_cast<std::chrono::microseconds>(renderConsoleTimerEnd - renderConsoleTimerStart).count();
+    
     
     ImGui::Render();
+
+    auto renderTotalEndTimer = std::chrono::high_resolution_clock::now();
+    diag_totalRenderUI = std::chrono::duration_cast<std::chrono::microseconds>(renderTotalEndTimer - renderTotalStartTimer).count();
+
+    // VERBOSE(GRAPHICS_PIPELINE_CTX, "Total UI render time: %f", diag_totalRenderUI);
+    // VERBOSE(GRAPHICS_PIPELINE_CTX, "Left panel render time: %f", diag_renderLeft);
+    // VERBOSE(GRAPHICS_PIPELINE_CTX, "Right panel render time: %f", diag_renderRight);
+    // VERBOSE(GRAPHICS_PIPELINE_CTX, "Console render time: %f", diag_renderConsole);
+
+
+
 }
 
 void RenderQueue::renderLeftPanel()
