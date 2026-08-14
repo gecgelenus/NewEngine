@@ -12,7 +12,7 @@
 						4
 					],
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
+					"jsonFile" : "directory-.-DEBUG-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.16"
@@ -33,7 +33,7 @@
 						3
 					],
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-deps.glfw-3.4-bb989bd63a14958e4ae3.json",
+					"jsonFile" : "directory-deps.glfw-3.4-DEBUG-bb989bd63a14958e4ae3.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.4"
@@ -49,7 +49,7 @@
 				{
 					"build" : "deps/glfw-3.4/src",
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-deps.glfw-3.4.src-e8eaa915e4fd286ca2c7.json",
+					"jsonFile" : "directory-deps.glfw-3.4.src-DEBUG-e8eaa915e4fd286ca2c7.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.4"
@@ -65,7 +65,7 @@
 				},
 				{
 					"build" : "deps/glfw-3.4/docs",
-					"jsonFile" : "directory-deps.glfw-3.4.docs-b7381be6471ffd144b39.json",
+					"jsonFile" : "directory-deps.glfw-3.4.docs-DEBUG-b7381be6471ffd144b39.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.4"
@@ -80,7 +80,7 @@
 					[
 						5
 					],
-					"jsonFile" : "directory-deps.glm-f7e931a077cfdee331ce.json",
+					"jsonFile" : "directory-deps.glm-DEBUG-f7e931a077cfdee331ce.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.6"
@@ -91,7 +91,7 @@
 				},
 				{
 					"build" : "deps/glm/glm",
-					"jsonFile" : "directory-deps.glm.glm-c8ba94b5689124e3ba83.json",
+					"jsonFile" : "directory-deps.glm.glm-DEBUG-c8ba94b5689124e3ba83.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.6"
@@ -105,7 +105,7 @@
 					]
 				}
 			],
-			"name" : "",
+			"name" : "DEBUG",
 			"projects" : 
 			[
 				{
@@ -160,42 +160,42 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "Engine::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-Engine-528417c02f044fc921da.json",
+					"jsonFile" : "target-Engine-DEBUG-799c6094cf1ad8aedbd7.json",
 					"name" : "Engine",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "compile_shaders::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-compile_shaders-43f6eca52b93e7f5da9a.json",
+					"jsonFile" : "target-compile_shaders-DEBUG-96de91e3399bf6ab7876.json",
 					"name" : "compile_shaders",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 2,
 					"id" : "glfw::@4f992dea313a3dc97498",
-					"jsonFile" : "target-glfw-4070275e9a280263c883.json",
+					"jsonFile" : "target-glfw-DEBUG-c4ba3cd0adebb773b636.json",
 					"name" : "glfw",
 					"projectIndex" : 1
 				},
 				{
 					"directoryIndex" : 5,
 					"id" : "glm::@caa56fa18eadda473560",
-					"jsonFile" : "target-glm-52147ef985d7d213ac83.json",
+					"jsonFile" : "target-glm-DEBUG-19466a96b3a1c4fa2352.json",
 					"name" : "glm",
 					"projectIndex" : 2
 				},
 				{
 					"directoryIndex" : 1,
 					"id" : "uninstall::@c003bddd6bac037029bf",
-					"jsonFile" : "target-uninstall-7e3c2e4a1b8f7f05e69c.json",
+					"jsonFile" : "target-uninstall-DEBUG-7e3c2e4a1b8f7f05e69c.json",
 					"name" : "uninstall",
 					"projectIndex" : 1
 				},
 				{
 					"directoryIndex" : 2,
 					"id" : "update_mappings::@4f992dea313a3dc97498",
-					"jsonFile" : "target-update_mappings-c16b2d55ed7f662a0b68.json",
+					"jsonFile" : "target-update_mappings-DEBUG-c16b2d55ed7f662a0b68.json",
 					"name" : "update_mappings",
 					"projectIndex" : 1
 				}

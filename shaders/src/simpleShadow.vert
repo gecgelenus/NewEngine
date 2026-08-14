@@ -23,8 +23,13 @@ struct LightEntry{
 
 
 
+
 layout(buffer_reference, std430) buffer ModelBuffer {
     mat4 modelList[]; 
+
+};
+layout(buffer_reference, std430) buffer LightBuffer {
+    LightEntry lights[]; 
 
 };
 
@@ -33,10 +38,6 @@ layout(buffer_reference, std430) buffer MaterialBuffer {
 
 };
 
-layout(buffer_reference, std430) buffer LightBuffer {
-    LightEntry lights[]; 
-
-};
 
 layout(set = 1, binding = 0, std430) readonly buffer AddressTable {
     uint64_t addresses[];
@@ -69,8 +70,6 @@ layout(location = 5) flat out int baseColorFactorEnabled;
 layout(location = 6) flat out int textureIndex;
 layout(location = 7) flat out vec4 baseColorFactor;
 layout(location = 8) out vec3 fragWorldPos;
-layout(location = 9) out vec4 fragLightPos;
-
 
 
 
@@ -81,19 +80,8 @@ void main() {
     ModelBuffer modelBuffer = ModelBuffer(addressTable.addresses[0]);
     MaterialBuffer materialBuffer = MaterialBuffer(addressTable.addresses[1]);
     LightBuffer lightBuffer = LightBuffer(addressTable.addresses[2]);
-    
-    fragLightPos = lightBuffer.lights[0].matrix  * modelBuffer.modelList[modelIndex] * vec4(pos, 1.0);
-    gl_Position = camera.VPmatrix * modelBuffer.modelList[modelIndex] * vec4(pos, 1.0);
-    //fragColor = color;
-    inTexCoord = UV;
-    outMaterialIndex = materialIndex;
 
-    textureEnabled = materialBuffer.materials[materialIndex].textureEnabled;
-    baseColorFactorEnabled = materialBuffer.materials[materialIndex].baseColorFactorEnabled;
-    baseColorFactor = materialBuffer.materials[materialIndex].baseColorFactor;
-    textureIndex = materialBuffer.materials[materialIndex].textureIndex;
 
-    outNormal = mat3(transpose(inverse(modelBuffer.modelList[modelIndex]))) * normal;
-    fragWorldPos = (modelBuffer.modelList[modelIndex] * vec4(pos, 1.0)).xyz;
+    gl_Position = lightBuffer.lights[0].matrix * modelBuffer.modelList[modelIndex] * vec4(pos, 1.0);
 
 }

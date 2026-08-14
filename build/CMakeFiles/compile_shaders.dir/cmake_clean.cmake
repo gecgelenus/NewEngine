@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "/home/talha/Documents/NewEngine/shaders/bin/simple.frag.spv"
   "/home/talha/Documents/NewEngine/shaders/bin/simple.vert.spv"
+  "/home/talha/Documents/NewEngine/shaders/bin/simpleShadow.vert.spv"
   "CMakeFiles/compile_shaders"
 )
 

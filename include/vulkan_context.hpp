@@ -47,6 +47,12 @@ struct AllocationBundle{
     uint32_t remainingCycle;
 };
 
+struct LightEntry{
+    glm::mat4 matrix;
+    glm::vec4 pos;
+    glm::vec4 color;
+};
+
 
 struct ObjectTransformation{
     glm::vec3 translation;
@@ -58,6 +64,10 @@ struct ObjectTransformation{
     bool operator==(const ObjectTransformation&) const = default;
     
 
+};
+
+struct BufferAddressDescriptor{
+    VkDeviceAddress addressSlots[100];
 };
 
 
@@ -203,10 +213,14 @@ struct vk_ctx
     VkDescriptorSetLayout setCameraLayout;
     VkDescriptorSetLayout setAddressLayout;
     VkDescriptorSetLayout setTextureLayout;
+    VkDescriptorSetLayout setShadowMapLayout;
+
 
     std::vector<VkDescriptorSet> cameraDescriptorSets;
     VkDescriptorSet addressDescriptorSet;
     VkDescriptorSet textureDescriptorSet;
+    VkDescriptorSet shadowMapDescriptorSet;
+
 
     VkPipelineLayout globalPipelineLayout;
 
@@ -246,6 +260,8 @@ struct vk_ctx
     VkBuffer addressBuffer;
     VmaAllocation addressBufferAllocation;
 
+
+    BufferAddressDescriptor addressTable;
     
     std::vector<ObjectPrimitive*> primitiveData;
     std::vector<VkDrawIndexedIndirectCommand> drawCommands;
@@ -272,6 +288,13 @@ struct vk_ctx
     VkBuffer materialBuffer;
     VmaAllocation materialBufferAllocation;
     VkDeviceAddress materialBufferAddress;
+
+    VkBuffer lightBuffer;
+    VmaAllocation lightBufferAllocation;
+    VkDeviceAddress lightBufferAddress;
+
+    std::vector<LightEntry> lights;
+
     
             
     std::vector<VkSampler> samplers; // For resource lifetime tracking
@@ -337,6 +360,8 @@ namespace CTX{
     void createCameraResources(vk_ctx&);
     void recreateSwapchain(vk_ctx&, const vk_instance_params&);
     void createGlobalBuffers(vk_ctx&);
+    void createLightBuffers(vk_ctx&);
+
 
     void createShadowMapResources(vk_ctx&, const vk_instance_params&);
 
@@ -393,6 +418,9 @@ namespace CTX{
         void enlargeIndexBuffer(vk_ctx&,  VkDeviceSize size);
         void enlargeInstanceBuffer(vk_ctx&,  VkDeviceSize size);
         void enlargeDrawBuffer(vk_ctx&,  VkDeviceSize size);
+
+        void updateAddressBuffer(vk_ctx&);
+
 
 
     }

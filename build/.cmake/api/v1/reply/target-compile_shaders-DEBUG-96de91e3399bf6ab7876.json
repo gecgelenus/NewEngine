@@ -45,7 +45,8 @@
 			[
 				1,
 				2,
-				3
+				3,
+				4
 			]
 		}
 	],
@@ -73,6 +74,12 @@
 			"backtrace" : 0,
 			"isGenerated" : true,
 			"path" : "shaders/bin/simple.vert.spv.rule",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "shaders/bin/simpleShadow.vert.spv.rule",
 			"sourceGroupIndex" : 1
 		}
 	],

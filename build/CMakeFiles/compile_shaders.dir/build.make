@@ -68,6 +68,7 @@ include CMakeFiles/compile_shaders.dir/progress.make
 
 CMakeFiles/compile_shaders: /home/talha/Documents/NewEngine/shaders/bin/simple.frag.spv
 CMakeFiles/compile_shaders: /home/talha/Documents/NewEngine/shaders/bin/simple.vert.spv
+CMakeFiles/compile_shaders: /home/talha/Documents/NewEngine/shaders/bin/simpleShadow.vert.spv
 
 /home/talha/Documents/NewEngine/shaders/bin/simple.frag.spv: /home/talha/Documents/NewEngine/shaders/src/simple.frag
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Compiling shader: /home/talha/Documents/NewEngine/./shaders/src/simple.frag"
@@ -77,12 +78,17 @@ CMakeFiles/compile_shaders: /home/talha/Documents/NewEngine/shaders/bin/simple.v
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Compiling shader: /home/talha/Documents/NewEngine/./shaders/src/simple.vert"
 	/bin/glslangValidator -V -o /home/talha/Documents/NewEngine/build/../shaders/bin/simple.vert.spv /home/talha/Documents/NewEngine/./shaders/src/simple.vert
 
+/home/talha/Documents/NewEngine/shaders/bin/simpleShadow.vert.spv: /home/talha/Documents/NewEngine/shaders/src/simpleShadow.vert
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/talha/Documents/NewEngine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Compiling shader: /home/talha/Documents/NewEngine/./shaders/src/simpleShadow.vert"
+	/bin/glslangValidator -V -o /home/talha/Documents/NewEngine/build/../shaders/bin/simpleShadow.vert.spv /home/talha/Documents/NewEngine/./shaders/src/simpleShadow.vert
+
 CMakeFiles/compile_shaders.dir/codegen:
 .PHONY : CMakeFiles/compile_shaders.dir/codegen
 
 compile_shaders: CMakeFiles/compile_shaders
 compile_shaders: /home/talha/Documents/NewEngine/shaders/bin/simple.frag.spv
 compile_shaders: /home/talha/Documents/NewEngine/shaders/bin/simple.vert.spv
+compile_shaders: /home/talha/Documents/NewEngine/shaders/bin/simpleShadow.vert.spv
 compile_shaders: CMakeFiles/compile_shaders.dir/build.make
 .PHONY : compile_shaders
 

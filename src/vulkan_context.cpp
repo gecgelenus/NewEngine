@@ -96,7 +96,7 @@ void CTX::createInstance(vk_ctx& context, const vk_instance_params& p_instance_p
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
-    //extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
     createInfo.enabledExtensionCount = extensions.size();
     createInfo.ppEnabledExtensionNames = extensions.data();
@@ -212,15 +212,13 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
     queueCreateInfo.queueCount = 1;
     queueCreateInfo.pQueuePriorities = &queuePriority;
 
-    VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_feature {
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
-            .dynamicRendering = VK_TRUE,
-    };
+
 
     VkPhysicalDeviceFeatures deviceFeatures{};
     deviceFeatures.samplerAnisotropy = VK_TRUE;
     deviceFeatures.sampleRateShading = VK_TRUE;
     deviceFeatures.multiDrawIndirect = VK_TRUE;
+    deviceFeatures.shaderInt64 = VK_TRUE;
     
     
 
@@ -236,13 +234,14 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
 
 
 
-    vulkan12Features.pNext = &dynamic_rendering_feature;
 
 
     VkPhysicalDeviceVulkan13Features vulkan13Features{};
     vulkan13Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
     vulkan13Features.synchronization2 = VK_TRUE;
-    dynamic_rendering_feature.pNext = &vulkan13Features;
+    vulkan13Features.dynamicRendering = VK_TRUE;
+    
+    vulkan12Features.pNext = &vulkan13Features;
 
     
 
@@ -528,6 +527,8 @@ void CTX::createShadowMapResources(vk_ctx& ctx, const vk_instance_params& p_inst
     }else{
         SUCCESS(DEBUG_CTX, "Created shadow map image view");
     }
+
+
 }
 
 
@@ -716,14 +717,17 @@ void CTX::createGlobalDescriptorLayouts(vk_ctx& p_ctx){
 		throw std::runtime_error("failed to create descriptor set layout: VP matrix");
 	}
 
-    VkDescriptorSetLayoutBinding AddressMatrix{};
-    AddressMatrix.binding = 0;
-    AddressMatrix.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	AddressMatrix.descriptorCount = 1;
-	AddressMatrix.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-	AddressMatrix.pImmutableSamplers = nullptr;
 
-    VkDescriptorSetLayoutBinding AddressBindings[] = {AddressMatrix};
+
+
+    VkDescriptorSetLayoutBinding AddressTableBinding{};
+    AddressTableBinding.binding = 0;
+    AddressTableBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	AddressTableBinding.descriptorCount = 1;
+	AddressTableBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+	AddressTableBinding.pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutBinding AddressBindings[] = {AddressTableBinding};
 
 	VkDescriptorSetLayoutCreateInfo AddressLayoutInfo{};
 	AddressLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -769,8 +773,26 @@ void CTX::createGlobalDescriptorLayouts(vk_ctx& p_ctx){
 		throw std::runtime_error("failed to create descriptor set layout: Model matrix");
 	}
 
+    VkDescriptorSetLayoutBinding ShadowMapBinding{};
+    ShadowMapBinding.binding = 0;
+    ShadowMapBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	ShadowMapBinding.descriptorCount = 1;
+	ShadowMapBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	ShadowMapBinding.pImmutableSamplers = nullptr;
 
-    VkDescriptorSetLayout layouts[] = { p_ctx.setCameraLayout , p_ctx.setAddressLayout, p_ctx.setTextureLayout};
+    VkDescriptorSetLayoutBinding ShadowMapBindings[] = {ShadowMapBinding};
+
+	VkDescriptorSetLayoutCreateInfo ShadowMapLayoutInfo{};
+	ShadowMapLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	ShadowMapLayoutInfo.bindingCount = 1;
+	ShadowMapLayoutInfo.pBindings = ShadowMapBindings;
+
+    if (vkCreateDescriptorSetLayout(p_ctx.device, &ShadowMapLayoutInfo, nullptr, &(p_ctx.setShadowMapLayout)) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor set layout: VP matrix");
+	}
+
+
+    VkDescriptorSetLayout layouts[] = { p_ctx.setCameraLayout , p_ctx.setAddressLayout, p_ctx.setTextureLayout, p_ctx.setShadowMapLayout};
 
 
 	VkPushConstantRange pushConstantRange{};
@@ -780,7 +802,7 @@ void CTX::createGlobalDescriptorLayouts(vk_ctx& p_ctx){
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 3;
+    pipelineLayoutInfo.setLayoutCount = 4;
 	pipelineLayoutInfo.pSetLayouts = layouts;
 	pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Optional
@@ -953,6 +975,7 @@ void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_para
 	CTX::createCommandBuffers(context, p_instance_params);
 	CTX::createCameraResources(context);
     CTX::createGlobalBuffers(context);
+    CTX::createLightBuffers(context);
     CTX::createGlobalDescriptorLayouts(context);
     CTX::createGlobalDescriptorPool(context);
     CTX::allocateGlobalDescriptorSets(context);
@@ -1130,7 +1153,7 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
     
     
     CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
     ctx.addressBuffer, ctx.addressBufferAllocation);
 
 
@@ -1147,6 +1170,20 @@ void CTX::createGlobalBuffers(vk_ctx& ctx){
 
 
 
+
+}
+
+void CTX::createLightBuffers(vk_ctx& ctx){
+    
+    CTX::AUX::createBuffer(ctx, (VkDeviceSize)SIZE_MB, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+    ctx.lightBuffer, ctx.lightBufferAllocation);
+
+    VkBufferDeviceAddressInfo bufferAddressInfo{};
+    bufferAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+    bufferAddressInfo.buffer = ctx.lightBuffer;
+
+    ctx.lightBufferAddress = vkGetBufferDeviceAddress(ctx.device, &bufferAddressInfo);
 
 }
 
@@ -1266,19 +1303,30 @@ void CTX::createGlobalDescriptorPool(vk_ctx& ctx){
 	CameraSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
 
     VkDescriptorPoolSize AddressSize{};
-	AddressSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	AddressSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 	AddressSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size()) * 1;
 
     VkDescriptorPoolSize TextureSize{};
 	TextureSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	TextureSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size()) * MAX_TEXTURE_BIND;
 
-	VkDescriptorPoolSize sizes[] = { CameraSize, AddressSize, TextureSize};
+    VkDescriptorPoolSize ShadowMapSize{};
+	ShadowMapSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	ShadowMapSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
+
+    VkDescriptorPoolSize LightSize{};
+	LightSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	LightSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
+
+
+	VkDescriptorPoolSize sizes[] = { CameraSize, AddressSize, TextureSize, LightSize, ShadowMapSize};
+
+    
 
 
     VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 3;
+	poolInfo.poolSizeCount = 5;
 	poolInfo.pPoolSizes = sizes;
 	poolInfo.maxSets = static_cast<uint32_t>(ctx.swapchainImageViews.size()*3);
     poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
@@ -1307,18 +1355,18 @@ void CTX::allocateGlobalDescriptorSets(vk_ctx& ctx){
     for (size_t i = 0; i < ctx.swapchainImageViews.size(); i++) {
 
 		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = ctx.camera.buffers[i]; // <--- Your actual camera uniform buffer
+		bufferInfo.buffer = ctx.camera.buffers[i]; 
 		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(glm::mat4); // The size of the data in your buffer
+		bufferInfo.range = sizeof(glm::mat4); 
 
 		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = ctx.cameraDescriptorSets[i]; // The descriptor set to update
-		descriptorWrite.dstBinding = 0;                       // Matches layout(binding = 0) in shader
-		descriptorWrite.dstArrayElement = 0;                  // If it's not an array, this is 0
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // Matches layout in shader
-		descriptorWrite.descriptorCount = 1;                  // Matches descriptorCount in layout
-		descriptorWrite.pBufferInfo = &bufferInfo;            // Link to your buffer info
+		descriptorWrite.dstSet = ctx.cameraDescriptorSets[i]; 
+		descriptorWrite.dstBinding = 0;                       
+		descriptorWrite.dstArrayElement = 0;                  
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; 
+		descriptorWrite.descriptorCount = 1;                  
+		descriptorWrite.pBufferInfo = &bufferInfo;            
 		descriptorWrite.pImageInfo = nullptr;
 		descriptorWrite.pTexelBufferView = nullptr;
 
@@ -1335,6 +1383,9 @@ void CTX::allocateGlobalDescriptorSets(vk_ctx& ctx){
     if (vkAllocateDescriptorSets(ctx.device, &AddressAllocInfo, &(ctx.addressDescriptorSet)) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
+
+
+
 
     uint32_t variableDescriptorCount = MAX_TEXTURE_BIND; 
 
@@ -1355,6 +1406,60 @@ void CTX::allocateGlobalDescriptorSets(vk_ctx& ctx){
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
 
+    VkDescriptorSetAllocateInfo ShadowMapAllocInfo{};
+	ShadowMapAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	ShadowMapAllocInfo.descriptorPool = ctx.globalDescriptorPool;
+	ShadowMapAllocInfo.descriptorSetCount = 1;
+	ShadowMapAllocInfo.pSetLayouts = &(ctx.setShadowMapLayout);
+
+    if (vkAllocateDescriptorSets(ctx.device, &ShadowMapAllocInfo, &(ctx.shadowMapDescriptorSet)) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
+    VkSampler shadowSampler;
+
+    VkSamplerCreateInfo samplerInfo{};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = VK_FILTER_LINEAR;
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    samplerInfo.mipLodBias = 0.0f;
+    samplerInfo.anisotropyEnable = VK_FALSE;
+    samplerInfo.maxAnisotropy = 1.0f;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = 0.0f;
+    samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+
+    if (vkCreateSampler(ctx.device, &samplerInfo, nullptr, &shadowSampler) != VK_SUCCESS)
+        throw std::runtime_error("failed to create shadow sampler");
+
+    VkDescriptorImageInfo shadowImageInfo{};
+    shadowImageInfo.imageView = ctx.shadowMapImageView;
+    shadowImageInfo.imageLayout = VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+    shadowImageInfo.sampler = shadowSampler; 
+
+
+
+
+    VkWriteDescriptorSet descriptorWriteShadow{};
+    descriptorWriteShadow.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWriteShadow.dstSet = ctx.shadowMapDescriptorSet; 
+    descriptorWriteShadow.dstBinding = 0;                       
+    descriptorWriteShadow.dstArrayElement = 0;                  
+    descriptorWriteShadow.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; 
+    descriptorWriteShadow.descriptorCount = 1;                  
+    descriptorWriteShadow.pImageInfo = &shadowImageInfo;            
+    descriptorWriteShadow.pBufferInfo = nullptr;
+    descriptorWriteShadow.pTexelBufferView = nullptr;
+
+	vkUpdateDescriptorSets(ctx.device, 1, &descriptorWriteShadow, 0, nullptr);
+
 
 
     VkDescriptorBufferInfo bufferInfo{};
@@ -1369,7 +1474,7 @@ void CTX::allocateGlobalDescriptorSets(vk_ctx& ctx){
     descriptorWrite.dstSet = ctx.addressDescriptorSet; // The descriptor set to update
     descriptorWrite.dstBinding = 0;                       // Matches layout(binding = 0) in shader
     descriptorWrite.dstArrayElement = 0;                  // If it's not an array, this is 0
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; // Matches layout in shader
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER; // Matches layout in shader
     descriptorWrite.descriptorCount = 1;                  // Matches descriptorCount in layout
     descriptorWrite.pBufferInfo = &bufferInfo;            // Link to your buffer info
     descriptorWrite.pImageInfo = nullptr;
@@ -1994,27 +2099,11 @@ void CTX::AUX::processGltfFile(vk_ctx& ctx, std::string& path) {
 
     int objectsAfter = ctx.objects.size();
 
-	VmaAllocationInfo allocationInfo;
-	vmaGetAllocationInfo(ctx.allocator, ctx.materialBufferAllocation, &allocationInfo);
-	VkDeviceSize materialDataSize = ctx.materialList.size()*sizeof(Material);
 
-	if(allocationInfo.size < materialDataSize){
-		CTX::AUX::enlargeBuffer(ctx, materialDataSize, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
-    		VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-    		ctx.materialBuffer, ctx.materialBufferAllocation);
-		
-		
-		VkBufferDeviceAddressInfo addressInfoMaterial{};
-    	addressInfoMaterial.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-    	addressInfoMaterial.buffer = ctx.materialBuffer;
-
-    	ctx.materialBufferAddress = vkGetBufferDeviceAddress(ctx.device, &addressInfoMaterial);
-	}
-	
-	
+    CTX::AUX::uploadDataDeviceBuffer(ctx, ctx.materialList.data(), ctx.materialBufferAddress, ctx.materialBufferAllocation, 
+    ctx.materialBuffer, ctx.materialList.size()*sizeof(Material), 0);
 
 
-	CTX::AUX::uploadData(ctx, ctx.materialList.data(), ctx.materialBuffer, ctx.materialList.size()*sizeof(Material), 0);
 	
 }
 
@@ -2499,4 +2588,14 @@ void CTX::AUX::enlargeDrawBuffer(vk_ctx & ctx, VkDeviceSize size)
             CTX::AUX::enlargeBuffer(ctx, size, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT,
     VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,
     ctx.drawBuffer, ctx.drawBufferAllocation);
+}
+
+
+void CTX::AUX::updateAddressBuffer(vk_ctx & ctx)
+{
+    ctx.addressTable.addressSlots[0] = ctx.bufferAddress;
+    ctx.addressTable.addressSlots[1] = ctx.materialBufferAddress;
+    ctx.addressTable.addressSlots[2] = ctx.lightBufferAddress;
+    
+    CTX::AUX::uploadData(ctx, ctx.addressTable.addressSlots, ctx.addressBuffer, sizeof(BufferAddressDescriptor), 0);
 }

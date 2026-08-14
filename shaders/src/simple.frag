@@ -1,4 +1,6 @@
 #version 450
+#extension GL_EXT_buffer_reference : require
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
 
 layout(location = 0) in vec4 fragColor;
 layout(location = 1) in vec2 inTexCoord;
@@ -10,14 +12,51 @@ layout(location = 5) flat in int baseColorFactorEnabled;
 layout(location = 6) flat in int textureIndex;
 layout(location = 7) flat in vec4 baseColorFactor;
 layout(location = 8) in vec3 fragWorldPos;
+layout(location = 9) in vec4 fragLightPos;
 
 layout(location = 0) out vec4 outColor;
 
+struct LightEntry{
+    mat4 matrix;
+    vec4 pos;
+    vec4 color;
+};
+
+
+layout(buffer_reference, std430) buffer LightBuffer {
+    LightEntry lights[]; 
+
+};
+
+layout(set = 1, binding = 0, std430) readonly buffer AddressTable {
+    uint64_t addresses[];
+} addressTable;
 
 layout(set = 2, binding = 0) uniform sampler2D texImage[64];
+layout(set = 3, binding = 0) uniform sampler2D lightSampler;
+
+
+float ShadowCalculation(vec4 fragPosLightSpace, vec3 fraglightDir)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+
+    projCoords.xy = projCoords.xy * 0.5 + 0.5;
+    if (projCoords.z > 1.0) return 0.0;
+    float closestDepth = texture(lightSampler, projCoords.xy).r;
+    float currentDepth = projCoords.z;
+
+    float bias = max(0.0025 * (1.0 -  dot(normalize(outNormal), fraglightDir)), 0.0005);
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    
+    return shadow;
+}
+
+
 
 void main(){
     vec4 materialColor;
+
+    LightBuffer lightBuffer = LightBuffer(addressTable.addresses[2]);
 
     // Determine the base material color (albedo) from your existing logic
     if(baseColorFactorEnabled == 1 && textureEnabled == 1){
@@ -30,10 +69,9 @@ void main(){
         materialColor = vec4(1.0, 1.0, 1.0, 1.0); // Default to white
     }
 
-    // --- Hardcoded Light Properties (Phong Model) ---
-    vec3 lightPos = vec3(5.0, 5.0, 5.0); // World space light position
-    vec3 lightColor = vec3(1.0, 1.0, 1.0); // White light
-    float lightPower = 50.0; // Adjust for brightness
+    vec3 lightPos = lightBuffer.lights[0].pos.xyz;
+    vec3 lightColor = lightBuffer.lights[0].color.xyz;
+    float lightPower = lightBuffer.lights[0].color.w;
 
     vec3 ambientColor = vec3(0.1, 0.1, 0.1); // Small constant ambient light
 
@@ -69,7 +107,8 @@ void main(){
     float attenuation = lightPower / (distance * distance); // Inverse square law
 
     // Combine all components
-    vec3 finalLightedColor = ambient + (diffuse + specular) * attenuation;
+    float shadow = ShadowCalculation(fragLightPos, lightDir); 
+    vec3 finalLightedColor = ambient + (1.0 - shadow) * (diffuse + specular) * attenuation;
 
     // Multiply the material's albedo by the calculated light.
     // Ensure final color has alpha from materialColor.

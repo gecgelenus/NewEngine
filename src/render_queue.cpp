@@ -340,8 +340,8 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
         VkBuffer indexBuffer = ctx.globalIndexBuffer; // Get index buffer from pipeline
         vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        VkDescriptorSet descriptorSets[] = {ctx.cameraDescriptorSets[index], ctx.addressDescriptorSet, ctx.textureDescriptorSet};
-        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.globalPipelineLayout, 0, 3, descriptorSets, 0, nullptr);
+        VkDescriptorSet descriptorSets[] = {ctx.cameraDescriptorSets[index], ctx.addressDescriptorSet, ctx.textureDescriptorSet, ctx.shadowMapDescriptorSet};
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.globalPipelineLayout, 0, 4, descriptorSets, 0, nullptr);
         // Make sure graphicPipeline->drawBuffer and graphicPipeline->drawCommands are valid
         vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer, ctx.pipelineBatches[i].start*sizeof(VkDrawIndexedIndirectCommand), ctx.pipelineBatches[i].end - ctx.pipelineBatches[i].start, sizeof(VkDrawIndexedIndirectCommand));
     }

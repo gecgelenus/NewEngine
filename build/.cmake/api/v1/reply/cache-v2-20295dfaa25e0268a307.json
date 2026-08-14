@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "STRING",
-			"value" : ""
+			"value" : "DEBUG"
 		},
 		{
 			"name" : "CMAKE_CACHEFILE_DIR",

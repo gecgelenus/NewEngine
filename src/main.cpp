@@ -20,6 +20,7 @@
 
 vk_ctx* pCtx = nullptr;
 
+PFN_vkSetDebugUtilsObjectNameEXT SetDebugUtilsObjectNameEXT;
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -62,7 +63,7 @@ int main(){
 
     INFO("Swapchain images", "Swapchain image size: %u", ctx.swapchainImageViews.size());
     GraphicPipeline* pipeline = new GraphicPipeline(ctx, GRAPHICS_COLOR, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
-    GraphicPipeline* pipeline2 = new GraphicPipeline(ctx, GRAPHICS_DEPTH, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    GraphicPipeline* pipeline2 = new GraphicPipeline(ctx, GRAPHICS_DEPTH, "../shaders/bin/simpleShadow.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
     
 
     ctx.dephtPipeline = pipeline2;
@@ -72,15 +73,25 @@ int main(){
 
 
     std::string pathFile = "/home/talha/Desktop/engine_stuffs/dice.glb";
-    std::string pathFile2 = "/home/talha/Desktop/engine_stuffs/dice.glb";
-    std::string pathFile3 = "/home/talha/Desktop/engine_stuffs/dice.glb";
+    
+    std::string pathFile2 = "/home/talha/Desktop/engine_stuffs/orta.glb";
+
+
+    std::string pathFileCube = "/home/talha/Desktop/engine_stuffs/cube.glb";
+    std::string pathFileSphere = "/home/talha/Desktop/engine_stuffs/sphere.glb";
+    std::string pathFileTerrain = "/home/talha/Desktop/engine_stuffs/terrain.glb";
+    
 
 
     CTX::AUX::processGltfFile(ctx, pathFile2);
 
-    CTX::AUX::processGltfFile(ctx, pathFile3);
 
     CTX::AUX::processGltfFile(ctx, pathFile);
+    CTX::AUX::processGltfFile(ctx, pathFileCube);
+    CTX::AUX::processGltfFile(ctx, pathFileSphere);
+    CTX::AUX::processGltfFile(ctx, pathFileTerrain);
+
+
 
 
 
@@ -95,10 +106,40 @@ int main(){
     CTX::sortObjectPrimitives(ctx);
     
 
+    
+    
 
-   
+    glm::mat4 lightView = glm::lookAt(glm::vec3(-15.0f, 15.0f, -15.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::mat4 lightProj = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
+
+    lightProj[1][1] *= -1;
 
 
+    glm::mat4 m = lightProj * lightView;
+
+    LightEntry tmpLight{};
+    tmpLight.matrix = m;
+    tmpLight.color = glm::vec4(1.0f, 1.0f, 0.0f, 250.0f);
+    tmpLight.pos = glm::vec4(15.0f, 15.0f, 15.0f, 0.0f);
+
+    ctx.lights.push_back(tmpLight);
+
+    CTX::AUX::uploadDataDeviceBuffer(ctx, ctx.lights.data(), ctx.lightBufferAddress, ctx.lightBufferAllocation,
+    ctx.lightBuffer, ctx.lights.size()*sizeof(LightEntry), 0);
+
+    SetDebugUtilsObjectNameEXT =
+    (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(
+    ctx.instance,
+    "vkSetDebugUtilsObjectNameEXT");
+
+    VkDebugUtilsObjectNameInfoEXT lightBufferName = {
+    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+    .pNext = NULL,
+    .objectType = VK_OBJECT_TYPE_BUFFER,
+    .objectHandle = (uint64_t)ctx.lightBuffer,
+    .pObjectName = "LightBuffer",
+    };
+    SetDebugUtilsObjectNameEXT(ctx.device, &lightBufferName);
 
 
     
@@ -114,12 +155,13 @@ int main(){
 
 
 
+    
 
     while(!glfwWindowShouldClose(ctx.window)){
             glfwPollEvents(); 
             CTX::checkExpiredAllocations(ctx);
             CTX::updateModelMatrices(ctx);
-
+            CTX::AUX::updateAddressBuffer(ctx);
             
             renderQueue.drawQueue();
             
