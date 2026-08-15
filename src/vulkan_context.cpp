@@ -219,7 +219,7 @@ void CTX::createLogicalDevice(vk_ctx& context, const vk_instance_params& p_insta
     deviceFeatures.sampleRateShading = VK_TRUE;
     deviceFeatures.multiDrawIndirect = VK_TRUE;
     deviceFeatures.shaderInt64 = VK_TRUE;
-    
+    deviceFeatures.independentBlend = VK_TRUE;
     
 
     VkPhysicalDeviceVulkan12Features vulkan12Features{};
@@ -976,6 +976,7 @@ void CTX::initContext(vk_ctx& context, const vk_instance_params& p_instance_para
 	CTX::createCameraResources(context);
     CTX::createGlobalBuffers(context);
     CTX::createLightBuffers(context);
+    CTX::createIDBuffers(context);
     CTX::createGlobalDescriptorLayouts(context);
     CTX::createGlobalDescriptorPool(context);
     CTX::allocateGlobalDescriptorSets(context);
@@ -1184,6 +1185,45 @@ void CTX::createLightBuffers(vk_ctx& ctx){
     bufferAddressInfo.buffer = ctx.lightBuffer;
 
     ctx.lightBufferAddress = vkGetBufferDeviceAddress(ctx.device, &bufferAddressInfo);
+
+}
+
+void CTX::createIDBuffers(vk_ctx& ctx){
+
+    ctx.IDImages.resize(ctx.swapchainImages.size());
+    ctx.IDImageViews.resize(ctx.swapchainImages.size());
+    ctx.IDImageAllocations.resize(ctx.swapchainImages.size());
+
+
+    for(int i = 0; i < ctx.swapchainImages.size(); i++){
+        CTX::AUX::createImage(ctx, ctx.swapchainExtent.width, ctx.swapchainExtent.height, VK_SAMPLE_COUNT_1_BIT, VK_FORMAT_R32_UINT, 
+        VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, ctx.IDImages[i], ctx.IDImageAllocations[i]);
+    
+        VkImageViewCreateInfo createInfo{}; 
+        createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        createInfo.image = ctx.IDImages[i];
+        createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        createInfo.format = VK_FORMAT_R32_UINT;
+        createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        createInfo.subresourceRange.baseMipLevel = 0;
+        createInfo.subresourceRange.levelCount = 1;
+        createInfo.subresourceRange.baseArrayLayer = 0;
+        createInfo.subresourceRange.layerCount = 1;
+
+        if (vkCreateImageView(ctx.device, &createInfo, nullptr, &(ctx.IDImageViews[i])) != VK_SUCCESS)
+        {
+            ALERT(DEBUG_CTX, "Failed to create ID map image view!");
+            throw std::runtime_error("Failed create ID map image view!");
+        }else{
+            SUCCESS(DEBUG_CTX, "Created ID map image view");
+        }
+    }
+
+
 
 }
 

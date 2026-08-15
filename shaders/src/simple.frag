@@ -13,8 +13,11 @@ layout(location = 6) flat in int textureIndex;
 layout(location = 7) flat in vec4 baseColorFactor;
 layout(location = 8) in vec3 fragWorldPos;
 layout(location = 9) in vec4 fragLightPos;
+layout(location = 10) flat in int outModelIndex;
 
 layout(location = 0) out vec4 outColor;
+layout(location = 1) out uint outID;
+
 
 struct LightEntry{
     mat4 matrix;
@@ -113,4 +116,5 @@ void main(){
     // Multiply the material's albedo by the calculated light.
     // Ensure final color has alpha from materialColor.
     outColor = vec4(finalLightedColor, materialColor.a);
+    outID = uint(outModelIndex);
 }

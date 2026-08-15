@@ -1,3 +1,6 @@
+
+#define _LOG_ALL
+
 #include <vulkan_context.hpp>
 #include <Interface.hpp>
 #include "vma.h"
@@ -21,6 +24,7 @@
 vk_ctx* pCtx = nullptr;
 
 PFN_vkSetDebugUtilsObjectNameEXT SetDebugUtilsObjectNameEXT;
+
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -62,8 +66,21 @@ int main(){
     {
 
     INFO("Swapchain images", "Swapchain image size: %u", ctx.swapchainImageViews.size());
-    GraphicPipeline* pipeline = new GraphicPipeline(ctx, GRAPHICS_COLOR, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
-    GraphicPipeline* pipeline2 = new GraphicPipeline(ctx, GRAPHICS_DEPTH, "../shaders/bin/simpleShadow.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    GraphicPipeline* pipeline = new GraphicPipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    pipeline->enableIDAttachment();
+    pipeline->createGraphicPipeline(ctx, instance_params);
+    GraphicPipeline* pipeline2 = new GraphicPipeline(ctx, "../shaders/bin/simpleShadow.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
+    
+    pipeline2->colorBlending.attachmentCount = 0;
+    pipeline2->colorBlending.pAttachments = nullptr;
+    pipeline2->pipeline_create.colorAttachmentCount = 0;
+    pipeline2->pipeline_create.pColorAttachmentFormats = nullptr;
+    pipeline2->pipeline_create.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
+    pipeline2->pipeline_create.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
+    pipeline2->pipelineInfo.stageCount = 1;
+
+
+    pipeline2->createGraphicPipeline(ctx, instance_params);
     
 
     ctx.dephtPipeline = pipeline2;
@@ -95,7 +112,7 @@ int main(){
 
 
 
-	ctx.objects[0]->formatData(pipeline2);
+	ctx.objects[0]->formatData(pipeline);
 
     for(int i = 1; i < ctx.objects.size(); i++){
 		ctx.objects[i]->formatData(pipeline);
@@ -142,6 +159,84 @@ int main(){
     SetDebugUtilsObjectNameEXT(ctx.device, &lightBufferName);
 
 
+    VkDebugUtilsObjectNameInfoEXT shadowPipelineName = {
+    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+    .pNext = NULL,
+    .objectType = VK_OBJECT_TYPE_PIPELINE,
+    .objectHandle = (uint64_t)ctx.dephtPipeline->pipeline,
+    .pObjectName = "Shadow Pipeline",
+    };
+    SetDebugUtilsObjectNameEXT(ctx.device, &shadowPipelineName);
+
+
+
+    VkDebugUtilsObjectNameInfoEXT colorPipelineName = {
+    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+    .pNext = NULL,
+    .objectType = VK_OBJECT_TYPE_PIPELINE,
+    .objectHandle = (uint64_t)pipeline->pipeline,
+    .pObjectName = "Color pipeline",
+    };
+    SetDebugUtilsObjectNameEXT(ctx.device, &colorPipelineName);
+
+    
+
+    
+    for(int i = 0; i < ctx.swapchainImages.size(); i++){
+    std::stringstream tmpStr;
+        tmpStr << "SwapchainImage" << i;
+        VkDebugUtilsObjectNameInfoEXT imageName = {
+    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+    .pNext = NULL,
+    .objectType = VK_OBJECT_TYPE_IMAGE,
+    .objectHandle = (uint64_t)ctx.swapchainImages[i],
+    .pObjectName = tmpStr.str().c_str(),
+    };
+    SetDebugUtilsObjectNameEXT(ctx.device, &imageName);
+    }
+    
+        for(int i = 0; i < ctx.swapchainImages.size(); i++){
+    std::stringstream tmpStr;
+        tmpStr << "SwapchainImageView" << i;
+        VkDebugUtilsObjectNameInfoEXT imageName = {
+    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+    .pNext = NULL,
+    .objectType = VK_OBJECT_TYPE_IMAGE_VIEW,
+    .objectHandle = (uint64_t)ctx.swapchainImageViews[i],
+    .pObjectName = tmpStr.str().c_str(),
+    };
+    SetDebugUtilsObjectNameEXT(ctx.device, &imageName);
+    }
+
+
+        for(int i = 0; i < ctx.swapchainImages.size(); i++){
+    std::stringstream tmpStr;
+        tmpStr << "IDImage" << i;
+        VkDebugUtilsObjectNameInfoEXT imageName = {
+    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+    .pNext = NULL,
+    .objectType = VK_OBJECT_TYPE_IMAGE,
+    .objectHandle = (uint64_t)ctx.IDImages[i],
+    .pObjectName = tmpStr.str().c_str(),
+    };
+    SetDebugUtilsObjectNameEXT(ctx.device, &imageName);
+    }
+
+
+    
+        for(int i = 0; i < ctx.swapchainImages.size(); i++){
+    std::stringstream tmpStr;
+        tmpStr << "IDImageView" << i;
+        VkDebugUtilsObjectNameInfoEXT imageName = {
+    .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+    .pNext = NULL,
+    .objectType = VK_OBJECT_TYPE_IMAGE_VIEW,
+    .objectHandle = (uint64_t)ctx.IDImageViews[i],
+    .pObjectName = tmpStr.str().c_str(),
+    };
+    SetDebugUtilsObjectNameEXT(ctx.device, &imageName);
+    }
+    
     
 
     

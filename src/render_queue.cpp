@@ -395,6 +395,21 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
     preRenderBarrier.subresourceRange.baseArrayLayer = 0;
     preRenderBarrier.subresourceRange.layerCount = 1;
 
+    VkImageMemoryBarrier preRenderBarrierID = {};
+    preRenderBarrierID.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    preRenderBarrierID.srcAccessMask = 0; // No previous access
+    preRenderBarrierID.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    preRenderBarrierID.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED; // Or VK_IMAGE_LAYOUT_PRESENT_SRC_KHR if already presented
+    preRenderBarrierID.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    preRenderBarrierID.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preRenderBarrierID.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preRenderBarrierID.image = ctx.IDImages[index]; // Use p_instance_params for swapchain images
+    preRenderBarrierID.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    preRenderBarrierID.subresourceRange.baseMipLevel = 0;
+    preRenderBarrierID.subresourceRange.levelCount = 1;
+    preRenderBarrierID.subresourceRange.baseArrayLayer = 0;
+    preRenderBarrierID.subresourceRange.layerCount = 1;
+
     vkCmdPipelineBarrier(
         commandBuffer,
         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,             // This barrier happens very early in the pipeline
@@ -403,6 +418,16 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
         0, nullptr,                                    // Memory barriers
         0, nullptr,                                    // Buffer memory barriers
         1, &preRenderBarrier                           // Image memory barriers
+    );
+
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,             // This barrier happens very early in the pipeline
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, // Before writing to color attachment
+        0,                                             // Dependency flags
+        0, nullptr,                                    // Memory barriers
+        0, nullptr,                                    // Buffer memory barriers
+        1, &preRenderBarrierID                           // Image memory barriers
     );
 
     VkImageMemoryBarrier depthBarrier = {};
@@ -432,13 +457,21 @@ vkCmdPipelineBarrier(
 );
 
     const VkRenderingAttachmentInfo color_attachment_info{
-        // Use non-KHR version if Vulkan 1.3+
         .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO, // Non-KHR
         .imageView = ctx.swapchainImageViews[index],
         .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // Use non-KHR
         .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
         .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
         .clearValue = clearColor,
+    };
+    
+    const VkRenderingAttachmentInfo id_attachment_info{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO, // Non-KHR
+        .imageView = ctx.IDImageViews[index],
+        .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // Use non-KHR
+        .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+        .clearValue = { .color = { .uint32 = {0, 0, 0, 0} } }
     };
 
     // Add depth attachment info
@@ -455,13 +488,15 @@ vkCmdPipelineBarrier(
     scissor.offset = {0, 0};
     scissor.extent = ctx.swapchainExtent;
 
+    VkRenderingAttachmentInfo colorAttachmentInfos[] = {color_attachment_info, id_attachment_info};
+
     const VkRenderingInfo render_info{
         // Use non-KHR version if Vulkan 1.3+
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO, // Non-KHR
         .renderArea = scissor,
         .layerCount = 1,
-        .colorAttachmentCount = 1,
-        .pColorAttachments = &color_attachment_info,
+        .colorAttachmentCount = 2,
+        .pColorAttachments = colorAttachmentInfos,
         .pDepthAttachment = &depth_attachment_info, // Add depth attachment
         .pStencilAttachment = nullptr,              // Or &depth_attachment_info if using stencil
     };
@@ -516,9 +551,24 @@ vkCmdPipelineBarrier(
         vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer, ctx.pipelineBatches[i].start*sizeof(VkDrawIndexedIndirectCommand), ctx.pipelineBatches[i].end - ctx.pipelineBatches[i].start, sizeof(VkDrawIndexedIndirectCommand));
     }
 
-    ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
+    vkCmdEndRendering(commandBuffer);        // end main pass (2 color attachments)
 
-    // Use the function pointers loaded by vk_ctx
+    VkRenderingAttachmentInfo imguiColor{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+        .imageView = ctx.swapchainImageViews[index],
+        .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        .loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,     // keep what the main pass drew
+        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+    };
+    VkRenderingInfo imguiInfo{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+        .renderArea = scissor,
+        .layerCount = 1,
+        .colorAttachmentCount = 1,
+        .pColorAttachments = &imguiColor,
+    };
+    vkCmdBeginRendering(commandBuffer, &imguiInfo);
+    ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
     vkCmdEndRendering(commandBuffer);
 
     // --- FINAL IMAGE LAYOUT TRANSITION FOR PRESENTATION ---

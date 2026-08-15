@@ -70,6 +70,9 @@ layout(location = 5) flat out int baseColorFactorEnabled;
 layout(location = 6) flat out int textureIndex;
 layout(location = 7) flat out vec4 baseColorFactor;
 layout(location = 8) out vec3 fragWorldPos;
+layout(location = 9) out vec4 fragLightPos;
+
+layout(location = 10) flat out int outModelIndex;
 
 
 

@@ -234,8 +234,16 @@ struct vk_ctx
 
     VkSurfaceKHR surface;
     VkSwapchainKHR swapchain;
+
     std::vector<VkImage> swapchainImages;
     std::vector<VkImageView> swapchainImageViews;
+
+    std::vector<VkImage> IDImages;
+    std::vector<VkImageView> IDImageViews;
+    std::vector<VmaAllocation> IDImageAllocations;
+
+
+
 
     std::unordered_map<VmaAllocation, VkBuffer> bufferAllocations; 
     std::vector<AllocationBundle> expiredAllocations;
@@ -361,6 +369,8 @@ namespace CTX{
     void recreateSwapchain(vk_ctx&, const vk_instance_params&);
     void createGlobalBuffers(vk_ctx&);
     void createLightBuffers(vk_ctx&);
+    void createIDBuffers(vk_ctx&);
+
 
 
     void createShadowMapResources(vk_ctx&, const vk_instance_params&);

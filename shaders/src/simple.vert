@@ -71,6 +71,9 @@ layout(location = 7) flat out vec4 baseColorFactor;
 layout(location = 8) out vec3 fragWorldPos;
 layout(location = 9) out vec4 fragLightPos;
 
+layout(location = 10) flat out int outModelIndex;
+
+
 
 
 
@@ -95,5 +98,5 @@ void main() {
 
     outNormal = mat3(transpose(inverse(modelBuffer.modelList[modelIndex]))) * normal;
     fragWorldPos = (modelBuffer.modelList[modelIndex] * vec4(pos, 1.0)).xyz;
-
+    outModelIndex = modelIndex;
 }

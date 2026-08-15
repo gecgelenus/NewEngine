@@ -16,7 +16,7 @@
 class GraphicPipeline{
 
 public:
-    GraphicPipeline(vk_ctx& context, uint32_t pipeline_type,const std::string& p_vertexShader, const std::string& p_fragmentShader, const vk_instance_params& p_instance_params);
+    GraphicPipeline(vk_ctx& context,const std::string& p_vertexShader, const std::string& p_fragmentShader, const vk_instance_params& p_instance_params);
     ~GraphicPipeline();
 
 
@@ -48,10 +48,31 @@ public:
     };
 
 
+    VkPipelineRasterizationStateCreateInfo rasterizer;
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+	VkPipelineDepthStencilStateCreateInfo depthStencil;
+	VkPipelineMultisampleStateCreateInfo multisampling;
+
+	VkPipelineColorBlendAttachmentState colorBlendAttachment;
+	VkPipelineColorBlendAttachmentState IDAttachment;
+
+    VkPipelineColorBlendAttachmentState colorAttachments[10];
+    VkFormat attachmentFormats[10];
+
+
+	VkPipelineColorBlendStateCreateInfo colorBlending;
+
+    VkPipelineRenderingCreateInfoKHR pipeline_create;
+	VkGraphicsPipelineCreateInfo pipelineInfo;
+
 
 
     void createGraphicPipeline(const vk_ctx&, const vk_instance_params&);
     void createGraphicPipelineShadowMap(const vk_ctx&, const vk_instance_params&);
+
+    void setDefaultPipeline(const vk_ctx&, const vk_instance_params&);
+    void enableIDAttachment();
+
 
     VkShaderModule createShaderModule(const vk_ctx& context, const std::vector<char>& code);
     bool isContaints(std::vector<std::string>& array, std::string element);
