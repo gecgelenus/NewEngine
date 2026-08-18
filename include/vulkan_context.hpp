@@ -25,7 +25,7 @@ class GraphicPipeline;
 struct PushConstant{
     uint64_t modelBufferAddress;
     uint64_t materialBufferAddress;
-
+    uint32_t selectedModel;
 };
 
 struct PipelineBatch{
@@ -204,6 +204,9 @@ struct vk_ctx
 
     VkQueue graphicsQueue;
     VkQueue transferQueue;
+
+    uint32_t selectedModel;
+
     
     
     uint32_t graphicsFamilyIndex = 0;
@@ -226,6 +229,9 @@ struct vk_ctx
 
     GraphicPipeline* dephtPipeline;
 
+    GraphicPipeline* outlinePipeline;
+
+
     std::vector<PipelineBatch> pipelineBatches;
 
 
@@ -241,6 +247,14 @@ struct vk_ctx
     std::vector<VkImage> IDImages;
     std::vector<VkImageView> IDImageViews;
     std::vector<VmaAllocation> IDImageAllocations;
+
+    std::vector<VkSampler> IDSamplers;
+
+
+    VkDescriptorSetLayout setIDImageLayout;
+    std::vector<VkDescriptorSet> IDImageSets;
+
+    uint32_t latest_frame = 0;
 
 
 
@@ -267,6 +281,11 @@ struct vk_ctx
 
     VkBuffer addressBuffer;
     VmaAllocation addressBufferAllocation;
+
+    VkBuffer IDBufferHold;
+    VmaAllocation IDBufferHoldAllocation;
+    void* IDBufferHoldMap;
+
 
 
     BufferAddressDescriptor addressTable;
@@ -327,6 +346,7 @@ struct vk_ctx
     VmaAllocation shadowMapImageAllocation;
     VkImageView shadowMapImageView;
 
+
     VkCommandPool commandPool;
     VkCommandPool commandPoolCopy;
 
@@ -338,6 +358,12 @@ struct vk_ctx
     RenderQueue* rQueue;
     uint32_t preferedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
     
+    bool pendingClick = false;
+    int pendingClickButton;
+    int pendingClickAction;
+    int pendingClickMode;
+
+
 
 };
 
@@ -430,6 +456,10 @@ namespace CTX{
         void enlargeDrawBuffer(vk_ctx&,  VkDeviceSize size);
 
         void updateAddressBuffer(vk_ctx&);
+
+        uint32_t getIDFromIDBuffer(vk_ctx&, uint32_t xpos, uint32_t ypos);
+
+        void processPendingClick(vk_ctx&);
 
 
 

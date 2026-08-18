@@ -66,6 +66,18 @@
 			}
 		]
 	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"compileDependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "glfw::@4f992dea313a3dc97498"
+		}
+	],
 	"compileGroups" : 
 	[
 		{
@@ -151,10 +163,6 @@
 				"role" : "flags"
 			},
 			{
-				"fragment" : "",
-				"role" : "flags"
-			},
-			{
 				"backtrace" : 2,
 				"fragment" : "/usr/lib/x86_64-linux-gnu/libvulkan.so",
 				"role" : "libraries"
@@ -181,6 +189,17 @@
 		],
 		"language" : "CXX"
 	},
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 2,
+			"fragment" : "/usr/lib/x86_64-linux-gnu/libvulkan.so"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "glfw::@4f992dea313a3dc97498"
+		}
+	],
 	"name" : "Engine",
 	"nameOnDisk" : "Engine",
 	"paths" : 

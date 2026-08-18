@@ -96,6 +96,7 @@ void RenderQueue::drawQueue()
     presentInfo.pResults = nullptr; // Optional
 
     result = vkQueuePresentKHR(ctx.graphicsQueue, &presentInfo); // Use ctx.presentQueue
+    
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
@@ -112,7 +113,13 @@ void RenderQueue::drawQueue()
         throw std::runtime_error("failed to present swap chain image!");
     }
 
+    ctx.latest_frame = currentFrame;
     currentFrame = (currentFrame + 1) % instance_params.framesOnFlight;
+
+    if(!ImGui::GetIO().WantCaptureMouse && ctx.pendingClick){
+        CTX::AUX::processPendingClick(ctx);
+        
+    }
 }
 
 void RenderQueue::createSyncObjects()
@@ -241,6 +248,7 @@ void RenderQueue::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t in
     PushConstant cnst{};
     cnst.modelBufferAddress = ctx.bufferAddress;
     cnst.materialBufferAddress = ctx.materialBufferAddress;
+    cnst.selectedModel = ctx.selectedModel;
 
 
     VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
@@ -552,6 +560,134 @@ vkCmdPipelineBarrier(
     }
 
     vkCmdEndRendering(commandBuffer);        // end main pass (2 color attachments)
+
+    // OUTLINE PASS
+
+    VkImageMemoryBarrier2 preRenderBarrierOutlineColor{};
+    preRenderBarrierOutlineColor.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+    preRenderBarrierOutlineColor.image = ctx.swapchainImages[index];
+    preRenderBarrierOutlineColor.srcStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+    preRenderBarrierOutlineColor.srcAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+    preRenderBarrierOutlineColor.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+    preRenderBarrierOutlineColor.dstAccessMask = VK_ACCESS_2_SHADER_SAMPLED_READ_BIT;
+    preRenderBarrierOutlineColor.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    preRenderBarrierOutlineColor.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    preRenderBarrierOutlineColor.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preRenderBarrierOutlineColor.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preRenderBarrierOutlineColor.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0,1};
+
+    VkImageMemoryBarrier2 preRenderBarrierOutlineID{};
+    preRenderBarrierOutlineID.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+    preRenderBarrierOutlineID.image = ctx.IDImages[index];
+    preRenderBarrierOutlineID.srcStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+    preRenderBarrierOutlineID.srcAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+    preRenderBarrierOutlineID.dstStageMask = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+    preRenderBarrierOutlineID.dstAccessMask = VK_ACCESS_2_SHADER_SAMPLED_READ_BIT;
+    preRenderBarrierOutlineID.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    preRenderBarrierOutlineID.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    preRenderBarrierOutlineID.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preRenderBarrierOutlineID.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    preRenderBarrierOutlineID.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0,1};
+
+
+    VkImageMemoryBarrier2 outlineBarriers[] = {preRenderBarrierOutlineColor, preRenderBarrierOutlineID};
+
+    VkDependencyInfo outlineDepInfo{};
+    outlineDepInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    outlineDepInfo.imageMemoryBarrierCount = 2;
+    outlineDepInfo.pImageMemoryBarriers = outlineBarriers;
+
+    vkCmdPipelineBarrier2(commandBuffer, &outlineDepInfo);
+
+    const VkRenderingAttachmentInfo color_attachment_info_outline{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO, // Non-KHR
+        .imageView = ctx.swapchainImageViews[index],
+        .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // Use non-KHR
+        .loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+        .clearValue = clearColor,
+    };
+
+    // Add depth attachment info
+    const VkRenderingAttachmentInfo depth_attachment_info_outline{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+        .imageView = ctx.depthImageView, // Assuming depthImageView is correctly setup
+        .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+        .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+        .storeOp = VK_ATTACHMENT_STORE_OP_STORE, // Or STORE if you need to read depth later
+        .clearValue = depthColor,                    // Use your depth clear value
+    };
+
+
+
+    VkRenderingAttachmentInfo colorAttachmentInfosOutline[] = {color_attachment_info_outline};
+
+    const VkRenderingInfo render_info_outline{
+        // Use non-KHR version if Vulkan 1.3+
+        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO, // Non-KHR
+        .renderArea = scissor,
+        .layerCount = 1,
+        .colorAttachmentCount = 1,
+        .pColorAttachments = colorAttachmentInfosOutline,
+        .pDepthAttachment = &depth_attachment_info, // Add depth attachment
+        .pStencilAttachment = nullptr,              // Or &depth_attachment_info if using stencil
+    };
+
+
+
+    // Use the function pointers loaded by vk_ctx
+    vkCmdBeginRendering(commandBuffer, &render_info_outline);
+    for (int i = 0; i < ctx.pipelineBatches.size(); i++)
+    {
+
+        VkPipeline currentPipeline = ctx.outlinePipeline->pipeline;
+
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline);
+
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+        vkCmdPushConstants(
+            commandBuffer,
+            ctx.globalPipelineLayout,              // The pipeline layout that defines the range
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, // Must match stageFlags used in VkPushConstantRange
+            0,                                                         // Offset into the push constant block (usually 0)
+            sizeof(PushConstant),                                      // Size of the data being pushed
+            &cnst              // Pointer to your C++ data
+        );
+
+        // Assuming these buffers are created and valid for the GraphicPipeline
+        VkBuffer vertexBuffers[] = {ctx.globalVertexBuffer, ctx.instanceBuffer};
+        VkDeviceSize offsets[] = {0, 0};
+        vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offsets);
+
+        VkBuffer indexBuffer = ctx.globalIndexBuffer; // Get index buffer from pipeline
+        vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+        VkDescriptorSet descriptorSets[] = {ctx.cameraDescriptorSets[index], ctx.addressDescriptorSet, ctx.textureDescriptorSet, ctx.IDImageSets[index]};
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.globalPipelineLayout, 0, 4, descriptorSets, 0, nullptr);
+        // Make sure graphicPipeline->drawBuffer and graphicPipeline->drawCommands are valid
+        vkCmdDrawIndexedIndirect(commandBuffer, ctx.drawBuffer, ctx.pipelineBatches[i].start*sizeof(VkDrawIndexedIndirectCommand), ctx.pipelineBatches[i].end - ctx.pipelineBatches[i].start, sizeof(VkDrawIndexedIndirectCommand));
+    }
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    vkCmdEndRendering(commandBuffer);
 
     VkRenderingAttachmentInfo imguiColor{
         .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,

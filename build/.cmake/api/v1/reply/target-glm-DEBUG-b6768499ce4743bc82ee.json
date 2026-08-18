@@ -37,6 +37,18 @@
 			}
 		]
 	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"compileDependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "glm-header-only::@caa56fa18eadda473560"
+		}
+	],
 	"compileGroups" : 
 	[
 		{
@@ -69,6 +81,27 @@
 		}
 	],
 	"id" : "glm::@caa56fa18eadda473560",
+	"interfaceCompileDependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "glm-header-only::@caa56fa18eadda473560"
+		}
+	],
+	"interfaceLinkLibraries" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "glm-header-only::@caa56fa18eadda473560"
+		}
+	],
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "glm-header-only::@caa56fa18eadda473560"
+		}
+	],
 	"name" : "glm",
 	"nameOnDisk" : "libglm.a",
 	"paths" : 

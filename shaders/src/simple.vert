@@ -1,6 +1,8 @@
 #version 460
 #extension GL_EXT_buffer_reference : require
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_shader_explicit_arithmetic_types_int32 : require
+
 layout(set = 0, binding = 0) uniform CameraUBO {
     mat4 VPmatrix;
 } camera;
@@ -45,7 +47,7 @@ layout(set = 1, binding = 0, std430) readonly buffer AddressTable {
 layout(push_constant) uniform PushConstants {
     ModelBuffer modelBufferAddress;
     MaterialBuffer MaterialBufferAddress;
-    
+    uint32_t selectedModel;
 } pc;
 
 
@@ -72,6 +74,8 @@ layout(location = 8) out vec3 fragWorldPos;
 layout(location = 9) out vec4 fragLightPos;
 
 layout(location = 10) flat out int outModelIndex;
+layout(location = 11) flat out int outSelectedIndex;
+
 
 
 
@@ -99,4 +103,5 @@ void main() {
     outNormal = mat3(transpose(inverse(modelBuffer.modelList[modelIndex]))) * normal;
     fragWorldPos = (modelBuffer.modelList[modelIndex] * vec4(pos, 1.0)).xyz;
     outModelIndex = modelIndex;
+    outSelectedIndex = int(pc.selectedModel);
 }

@@ -79,7 +79,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "3"
+			"value" : "4"
 		},
 		{
 			"name" : "CMAKE_CACHE_MINOR_VERSION",
@@ -91,7 +91,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "31"
+			"value" : "2"
 		},
 		{
 			"name" : "CMAKE_CACHE_PATCH_VERSION",
@@ -103,7 +103,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "6"
+			"value" : "3"
 		},
 		{
 			"name" : "CMAKE_COLOR_MAKEFILE",
@@ -1331,7 +1331,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/usr/share/cmake-3.31"
+			"value" : "/usr/share/cmake-4.2"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1647,7 +1647,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[/usr/bin/pkg-config][v1.8.1()]"
+			"value" : "[/usr/bin/pkg-config][v2.5.1()]"
 		},
 		{
 			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_Threads",
@@ -1671,7 +1671,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[/usr/lib/x86_64-linux-gnu/libvulkan.so][/usr/include][cfound components: glslc glslangValidator ][v1.4.321()]"
+			"value" : "[/usr/lib/x86_64-linux-gnu/libvulkan.so][/usr/include][found components: glslc glslangValidator ][v1.4.341()]"
 		},
 		{
 			"name" : "FIND_PACKAGE_MESSAGE_DETAILS_X11",
@@ -1683,7 +1683,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "[/usr/include][/usr/lib/x86_64-linux-gnu/libX11.so][c ][v()]"
+			"value" : "[/usr/include][/usr/lib/x86_64-linux-gnu/libX11.so][ ][v()]"
 		},
 		{
 			"name" : "GLFW_BINARY_DIR",

@@ -792,7 +792,26 @@ void CTX::createGlobalDescriptorLayouts(vk_ctx& p_ctx){
 	}
 
 
-    VkDescriptorSetLayout layouts[] = { p_ctx.setCameraLayout , p_ctx.setAddressLayout, p_ctx.setTextureLayout, p_ctx.setShadowMapLayout};
+
+
+    VkDescriptorSetLayoutBinding IDMapBinding{};
+    IDMapBinding.binding = 0;
+    IDMapBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	IDMapBinding.descriptorCount = 1;
+	IDMapBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	IDMapBinding.pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutCreateInfo IDMapLayoutInfo{};
+	IDMapLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	IDMapLayoutInfo.bindingCount = 1;
+	IDMapLayoutInfo.pBindings = &IDMapBinding;
+
+    if (vkCreateDescriptorSetLayout(p_ctx.device, &IDMapLayoutInfo, nullptr, &(p_ctx.setIDImageLayout)) != VK_SUCCESS) {
+		throw std::runtime_error("failed to create descriptor set layout: VP matrix");
+	}
+
+
+    VkDescriptorSetLayout layouts[] = { p_ctx.setCameraLayout , p_ctx.setAddressLayout, p_ctx.setTextureLayout, p_ctx.setShadowMapLayout, p_ctx.setIDImageLayout};
 
 
 	VkPushConstantRange pushConstantRange{};
@@ -802,7 +821,7 @@ void CTX::createGlobalDescriptorLayouts(vk_ctx& p_ctx){
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 4;
+    pipelineLayoutInfo.setLayoutCount = 5;
 	pipelineLayoutInfo.pSetLayouts = layouts;
 	pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Optional
@@ -1224,6 +1243,14 @@ void CTX::createIDBuffers(vk_ctx& ctx){
     }
 
 
+    VmaAllocationInfo info =  CTX::AUX::createBuffer(ctx, sizeof(uint32_t), VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
+    VMA_ALLOCATION_CREATE_HOST_ACCESS_ALLOW_TRANSFER_INSTEAD_BIT |
+    VMA_ALLOCATION_CREATE_MAPPED_BIT,
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT, ctx.IDBufferHold, ctx.IDBufferHoldAllocation);
+
+
+    ctx.IDBufferHoldMap = info.pMappedData;
+
 
 }
 
@@ -1354,19 +1381,23 @@ void CTX::createGlobalDescriptorPool(vk_ctx& ctx){
 	ShadowMapSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	ShadowMapSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
 
+    VkDescriptorPoolSize IDBufferSize{};
+	IDBufferSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	IDBufferSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
+
     VkDescriptorPoolSize LightSize{};
 	LightSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	LightSize.descriptorCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
 
 
-	VkDescriptorPoolSize sizes[] = { CameraSize, AddressSize, TextureSize, LightSize, ShadowMapSize};
+	VkDescriptorPoolSize sizes[] = { CameraSize, AddressSize, TextureSize, LightSize, ShadowMapSize, IDBufferSize};
 
     
 
 
     VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 5;
+	poolInfo.poolSizeCount = 6;
 	poolInfo.pPoolSizes = sizes;
 	poolInfo.maxSets = static_cast<uint32_t>(ctx.swapchainImageViews.size()*3);
     poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
@@ -1412,6 +1443,7 @@ void CTX::allocateGlobalDescriptorSets(vk_ctx& ctx){
 
 		vkUpdateDescriptorSets(ctx.device, 1, &descriptorWrite, 0, nullptr);
 	}
+
 
 
     VkDescriptorSetAllocateInfo AddressAllocInfo{};
@@ -1499,6 +1531,101 @@ void CTX::allocateGlobalDescriptorSets(vk_ctx& ctx){
     descriptorWriteShadow.pTexelBufferView = nullptr;
 
 	vkUpdateDescriptorSets(ctx.device, 1, &descriptorWriteShadow, 0, nullptr);
+
+
+    ctx.IDSamplers.resize(ctx.swapchainImageViews.size());
+
+    for(int i = 0; i < ctx.swapchainImageViews.size();i++){
+
+    VkSamplerCreateInfo samplerInfoID{};
+    samplerInfoID.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfoID.magFilter = VK_FILTER_LINEAR;
+    samplerInfoID.minFilter = VK_FILTER_LINEAR;
+    samplerInfoID.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    samplerInfoID.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    samplerInfoID.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    samplerInfoID.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    samplerInfoID.mipLodBias = 0.0f;
+    samplerInfoID.anisotropyEnable = VK_FALSE;
+    samplerInfoID.maxAnisotropy = 1.0f;
+    samplerInfoID.compareEnable = VK_FALSE;
+    samplerInfoID.compareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+    samplerInfoID.minLod = 0.0f;
+    samplerInfoID.maxLod = 0.0f;
+    samplerInfoID.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    samplerInfoID.unnormalizedCoordinates = VK_FALSE;
+
+    if (vkCreateSampler(ctx.device, &samplerInfoID, nullptr, &(ctx.IDSamplers[i])) != VK_SUCCESS)
+        throw std::runtime_error("failed to create ID sampler");
+
+
+
+
+    VkDescriptorImageInfo IDImageInfo{};
+    IDImageInfo.imageView = ctx.IDImageViews[i];
+    IDImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    IDImageInfo.sampler = ctx.IDSamplers[i]; 
+
+
+
+
+    VkWriteDescriptorSet descriptorWriteIDImage{};
+    descriptorWriteIDImage.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWriteIDImage.dstSet = ctx.shadowMapDescriptorSet; 
+    descriptorWriteIDImage.dstBinding = 0;                       
+    descriptorWriteIDImage.dstArrayElement = 0;                  
+    descriptorWriteIDImage.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; 
+    descriptorWriteIDImage.descriptorCount = 1;                  
+    descriptorWriteIDImage.pImageInfo = &shadowImageInfo;            
+    descriptorWriteIDImage.pBufferInfo = nullptr;
+    descriptorWriteIDImage.pTexelBufferView = nullptr;
+
+	vkUpdateDescriptorSets(ctx.device, 1, &descriptorWriteShadow, 0, nullptr);
+
+    }
+
+
+
+        std::vector<VkDescriptorSetLayout> IDImageLayouts(ctx.swapchainImageViews.size(), ctx.setIDImageLayout);
+
+
+    VkDescriptorSetAllocateInfo IDImageAllocInfo{};
+	IDImageAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	IDImageAllocInfo.descriptorPool = ctx.globalDescriptorPool;
+	IDImageAllocInfo.descriptorSetCount = static_cast<uint32_t>(ctx.swapchainImageViews.size());
+	IDImageAllocInfo.pSetLayouts = IDImageLayouts.data();
+
+	ctx.IDImageSets.resize(ctx.swapchainImageViews.size());
+
+	if (vkAllocateDescriptorSets(ctx.device, &IDImageAllocInfo, ctx.IDImageSets.data()) != VK_SUCCESS) {
+		throw std::runtime_error("failed to allocate descriptor sets!");
+	}
+
+
+    for (size_t i = 0; i < ctx.swapchainImageViews.size(); i++) {
+
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL; 
+        imageInfo.imageView = ctx.IDImageViews[i];
+        imageInfo.sampler = ctx.IDSamplers[i];
+
+		VkWriteDescriptorSet descriptorWrite{};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = ctx.IDImageSets[i]; 
+		descriptorWrite.dstBinding = 0;                       
+		descriptorWrite.dstArrayElement = 0;                  
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; 
+		descriptorWrite.descriptorCount = 1;                  
+		descriptorWrite.pImageInfo = &imageInfo;            
+		descriptorWrite.pBufferInfo = nullptr;
+		descriptorWrite.pTexelBufferView = nullptr;
+
+		vkUpdateDescriptorSets(ctx.device, 1, &descriptorWrite, 0, nullptr);
+	}
+
+
+
+
 
 
 
@@ -2638,4 +2765,99 @@ void CTX::AUX::updateAddressBuffer(vk_ctx & ctx)
     ctx.addressTable.addressSlots[2] = ctx.lightBufferAddress;
     
     CTX::AUX::uploadData(ctx, ctx.addressTable.addressSlots, ctx.addressBuffer, sizeof(BufferAddressDescriptor), 0);
+}
+
+uint32_t CTX::AUX::getIDFromIDBuffer(vk_ctx & ctx, uint32_t xpos, uint32_t ypos){
+    VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = ctx.commandPoolCopy;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer tmpCommandBuffer;
+	vkAllocateCommandBuffers(ctx.device, &allocInfo, &tmpCommandBuffer);
+
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(tmpCommandBuffer, &beginInfo);
+
+    VkImageMemoryBarrier2 transitionFirst{};
+    transitionFirst.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+    transitionFirst.srcStageMask = VK_PIPELINE_STAGE_2_NONE;
+    transitionFirst.srcAccessMask = VK_ACCESS_2_NONE;
+    transitionFirst.dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    transitionFirst.dstAccessMask = VK_ACCESS_2_TRANSFER_READ_BIT;
+    transitionFirst.image = ctx.IDImages[ctx.latest_frame];
+    transitionFirst.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    transitionFirst.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    transitionFirst.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    transitionFirst.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    transitionFirst.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+
+    VkDependencyInfo transitionDep{};
+    transitionDep.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    transitionDep.imageMemoryBarrierCount = 1;
+    transitionDep.pImageMemoryBarriers = &transitionFirst;
+
+    vkCmdPipelineBarrier2(tmpCommandBuffer, &transitionDep);
+
+    VkBufferImageCopy region{};
+    region.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    region.imageOffset = { (int32_t)xpos, (int32_t)ypos, 0 };
+    region.imageExtent = { 1, 1, 1 };          // just the one pixel
+
+
+    vkCmdCopyImageToBuffer(tmpCommandBuffer, ctx.IDImages[ctx.latest_frame],
+                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                        ctx.IDBufferHold, 1, &region);
+
+
+
+    vkEndCommandBuffer(tmpCommandBuffer);
+
+
+        // Create a fence for this specific submission
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = 0; // Create an unsignaled fence
+
+    VkFence copyFence;
+    if (vkCreateFence(ctx.device, &fenceInfo, nullptr, &copyFence) != VK_SUCCESS) {
+        vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer); // Clean up
+        throw std::runtime_error("Failed to create copy fence!");
+    }
+
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &tmpCommandBuffer;
+
+
+	if (vkQueueSubmit(ctx.transferQueue, 1, &submitInfo, copyFence) != VK_SUCCESS) {
+        vkDestroyFence(ctx.device, copyFence, nullptr);
+        vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer);
+        throw std::runtime_error("Failed to submit copy command buffer!");
+    }
+	vkWaitForFences(ctx.device, 1, &copyFence, VK_TRUE, UINT64_MAX); // Wait indefinitely
+
+    vkDestroyFence(ctx.device, copyFence, nullptr);
+    vkFreeCommandBuffers(ctx.device, ctx.commandPoolCopy, 1, &tmpCommandBuffer);
+
+    uint32_t tmpID = *((uint32_t*)ctx.IDBufferHoldMap);
+
+    std::cout << "ID: " << tmpID << std::endl;
+    ctx.selectedModel = tmpID;
+    return tmpID;
+}
+
+void CTX::AUX::processPendingClick(vk_ctx& ctx){
+    if (ctx.pendingClickButton == GLFW_MOUSE_BUTTON_LEFT && ctx.pendingClickAction == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(ctx.window, &xpos, &ypos);
+        uint32_t tmpID = CTX::AUX::getIDFromIDBuffer(ctx, (uint32_t)xpos, (uint32_t)ypos);
+    }
+    ctx.pendingClick = false;
 }

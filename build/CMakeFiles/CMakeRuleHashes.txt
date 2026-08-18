@@ -1,4 +1,5 @@
 # Hashes of file build rules.
+c4585b340280346c971a456d85e62136 /home/talha/Documents/NewEngine/shaders/bin/outline.frag.spv
 1758af524ae599b953aff5c9a5fef0bd /home/talha/Documents/NewEngine/shaders/bin/simple.frag.spv
 239fb0b9da12853718abc2259a238c69 /home/talha/Documents/NewEngine/shaders/bin/simple.vert.spv
 11f132680a0b69944f3918b78ec68358 /home/talha/Documents/NewEngine/shaders/bin/simpleShadow.vert.spv

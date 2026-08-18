@@ -29,6 +29,7 @@
 					"linkDirectories" : 
 					[
 						"/usr/lib/gcc/x86_64-linux-gnu/15",
+						"/usr/x86_64-linux-gnu/lib",
 						"/usr/lib/x86_64-linux-gnu",
 						"/usr/lib",
 						"/lib/x86_64-linux-gnu",

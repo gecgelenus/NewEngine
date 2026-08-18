@@ -25,6 +25,16 @@ vk_ctx* pCtx = nullptr;
 
 PFN_vkSetDebugUtilsObjectNameEXT SetDebugUtilsObjectNameEXT;
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+
+    pCtx->pendingClick = true;
+    
+    pCtx->pendingClickButton = button;
+    pCtx->pendingClickAction= action;
+    pCtx->pendingClickMode = mods;
+
+}
 
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -56,7 +66,7 @@ int main(){
     instance_params.windowHeight = 900;
     instance_params.windowWidth = 1600;
     instance_params.windowResizable = false;
-    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+    instance_params.physicalDeviceType = VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
     instance_params.preferedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
 
     ctx.params = instance_params;
@@ -71,6 +81,9 @@ int main(){
     pipeline->createGraphicPipeline(ctx, instance_params);
     GraphicPipeline* pipeline2 = new GraphicPipeline(ctx, "../shaders/bin/simpleShadow.vert.spv","../shaders/bin/simple.frag.spv",instance_params);
     
+    GraphicPipeline* pipelineOutline = new GraphicPipeline(ctx, "../shaders/bin/simple.vert.spv","../shaders/bin/outline.frag.spv",instance_params);
+    pipelineOutline->createGraphicPipeline(ctx, instance_params);
+    
     pipeline2->colorBlending.attachmentCount = 0;
     pipeline2->colorBlending.pAttachments = nullptr;
     pipeline2->pipeline_create.colorAttachmentCount = 0;
@@ -84,30 +97,21 @@ int main(){
     
 
     ctx.dephtPipeline = pipeline2;
+    ctx.outlinePipeline = pipelineOutline;
     
     ctx.pipelines.push_back(pipeline);
 
 
 
-    std::string pathFile = "/home/talha/Desktop/engine_stuffs/dice.glb";
+    std::string pathFile = "/home/talha/Desktop/orta.glb";
     
-    std::string pathFile2 = "/home/talha/Desktop/engine_stuffs/orta.glb";
 
-
-    std::string pathFileCube = "/home/talha/Desktop/engine_stuffs/cube.glb";
-    std::string pathFileSphere = "/home/talha/Desktop/engine_stuffs/sphere.glb";
-    std::string pathFileTerrain = "/home/talha/Desktop/engine_stuffs/terrain.glb";
     
 
 
-    CTX::AUX::processGltfFile(ctx, pathFile2);
 
 
     CTX::AUX::processGltfFile(ctx, pathFile);
-    CTX::AUX::processGltfFile(ctx, pathFileCube);
-    CTX::AUX::processGltfFile(ctx, pathFileSphere);
-    CTX::AUX::processGltfFile(ctx, pathFileTerrain);
-
 
 
 
@@ -246,7 +250,7 @@ int main(){
 
     glfwSetKeyCallback(ctx.window, key_callback);
     glfwSetCharCallback(ctx.window, char_callback);
-
+    glfwSetMouseButtonCallback(ctx.window, mouse_button_callback);
 
 
 
